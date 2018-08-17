@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
+import de.netherspace.apps.actojat.util.ParserException;
+import de.netherspace.apps.actojat.util.SourceGenerationException;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 
