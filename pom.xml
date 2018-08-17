@@ -12,4 +12,42 @@
     <module>actojat-cli</module>
     <module>actojat-transpiler</module>
   </modules>
+
+  <properties>
+    <JDK_VERSION>1.8</JDK_VERSION>
+    <MVN_COMPILERPLUGIN_VERSION>3.7.0</MVN_COMPILERPLUGIN_VERSION>
+    <MVN_ASSEMBLYPLUGIN_VERSION>3.1.0</MVN_ASSEMBLYPLUGIN_VERSION>
+    <ANTLR_VERSION>4.7</ANTLR_VERSION>
+    <MVN_ANTLR_VERSION>4.7</MVN_ANTLR_VERSION>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+      </dependency>
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4-runtime</artifactId>
+        <version>${ANTLR_VERSION}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr4</artifactId>
+        <version>${ANTLR_VERSION}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.6</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.9.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
