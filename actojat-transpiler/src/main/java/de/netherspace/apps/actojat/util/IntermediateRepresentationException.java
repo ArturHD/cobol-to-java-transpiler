@@ -3,8 +3,6 @@ package de.netherspace.apps.actojat.util;
 /**
  * A custom exception to signal an error during the creation of an
  * intermediate Java representation.
- *
- * @author Patrick.Preuss
  */
 public class IntermediateRepresentationException extends Exception {
 

@@ -8,8 +8,6 @@ import org.antlr.v4.runtime.Token;
 
 /**
  * A custom ErrorHandler that sets a certain error flag whenever an error occurs.
- *
- * @author Patrick.Preuss
  */
 public class SourceErrorHandler extends DefaultErrorStrategy implements ANTLRErrorStrategy {
 

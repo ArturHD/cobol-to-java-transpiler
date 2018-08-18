@@ -14,8 +14,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
  * Encapsulates the behavior of a custom parser and source code generator.
- * 
- * @author Patrick.Preuss
  */
 public interface SourceTranspiler {
 

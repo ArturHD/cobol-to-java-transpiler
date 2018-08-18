@@ -12,8 +12,6 @@ import org.antlr.v4.runtime.dfa.DFA;
 
 /**
  * A Custom ErrorListener that sets a certain error flag whenever an error occurs.
- *
- * @author Patrick.Preuss
  */
 public class SourceErrorListener extends BaseErrorListener implements ANTLRErrorListener {
 	
