@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.util.*;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenFactory;

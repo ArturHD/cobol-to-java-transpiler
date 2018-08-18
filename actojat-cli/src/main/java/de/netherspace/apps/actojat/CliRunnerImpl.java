@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.languages.c.CSourceTranspilerImpl;
-import de.netherspace.apps.actojat.languages.c.CobolSourceTranspilerImpl;
+import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
