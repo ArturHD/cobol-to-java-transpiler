@@ -1,4 +1,4 @@
-package de.netherspace.apps.actojat.languages.c;
+package de.netherspace.apps.actojat.languages.cobol;
 
 import de.netherspace.apps.actojat.cobol_grammarLexer;
 import de.netherspace.apps.actojat.cobol_grammarParser;

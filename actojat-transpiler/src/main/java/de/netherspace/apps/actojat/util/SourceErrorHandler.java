@@ -21,27 +21,18 @@ public class SourceErrorHandler extends DefaultErrorStrategy implements ANTLRErr
 		this.errorFlag = false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.antlr.v4.runtime.DefaultErrorStrategy#recover(org.antlr.v4.runtime.Parser, org.antlr.v4.runtime.RecognitionException)
-	 */
 	@Override
 	public void recover(Parser recognizer, RecognitionException e) throws RecognitionException {
 		this.errorFlag = true;
 		super.recover(recognizer, e);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.antlr.v4.runtime.DefaultErrorStrategy#reportError(org.antlr.v4.runtime.Parser, org.antlr.v4.runtime.RecognitionException)
-	 */
 	@Override
 	public void reportError(Parser recognizer, RecognitionException e) {
 		this.errorFlag = true;
 		super.reportError(recognizer, e);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.antlr.v4.runtime.DefaultErrorStrategy#recoverInline(org.antlr.v4.runtime.Parser)
-	 */
 	@Override
 	public Token recoverInline(Parser recognizer) throws RecognitionException {
 		this.errorFlag = true;
