@@ -25,9 +25,6 @@ public class SourceErrorListener extends BaseErrorListener implements ANTLRError
 		this.errorFlag = false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.antlr.v4.runtime.BaseErrorListener#syntaxError(org.antlr.v4.runtime.Recognizer, java.lang.Object, int, int, java.lang.String, org.antlr.v4.runtime.RecognitionException)
-	 */
 	@Override
 	public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
 			String msg, RecognitionException e) {
@@ -35,9 +32,6 @@ public class SourceErrorListener extends BaseErrorListener implements ANTLRError
 		super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.antlr.v4.runtime.BaseErrorListener#reportAmbiguity(org.antlr.v4.runtime.Parser, org.antlr.v4.runtime.dfa.DFA, int, int, boolean, java.util.BitSet, org.antlr.v4.runtime.atn.ATNConfigSet)
-	 */
 	@Override
 	public void reportAmbiguity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, boolean exact,
 			BitSet ambigAlts, ATNConfigSet configs) {
