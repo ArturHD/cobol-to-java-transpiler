@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
+import de.netherspace.apps.actojat.languages.c.CSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
@@ -32,9 +33,9 @@ public class CliRunnerImpl implements CliRunner {
 
 		SourceTranspiler transpiler;
 		if (language == App.Language.COBOL) {
-			transpiler = new CobolParserImpl();
+			transpiler = new CobolSourceTranspilerImpl();
 		} else {
-			transpiler = new CSourceParserImpl();
+			transpiler = new CSourceTranspilerImpl();
 		}
 		
 		try {
@@ -56,7 +57,7 @@ public class CliRunnerImpl implements CliRunner {
 			}
 			
 		} catch (IOException | ParserException | SourceGenerationException | IntermediateRepresentationException e) {
-			logger.error("An error occured:", e);
+			logger.error("An error occurred:", e);
 			return false;
 		}
 		
