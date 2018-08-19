@@ -1,0 +1,31 @@
+ PROCEDURE DIVISION USING TIGER-ENTE.
+
+ 0000-MAIN SECTION.
+      START-SECTION.
+      test
+	.
+ 0000-MAIN-EXIT.
+       EXIT PROGRAM.
+
+
+
+ 0040-DB-CONN SECTION.
+      START-SECTION.
+      test2
+      test3
+    .
+ 0040-EXIT.
+      EXIT.
+
+
+
+
+ 0100-INIT SECTION.
+ START-SECTION.
+ 
+test4
+		test5
+
+      .
+ 0100-EXIT.
+      EXIT.
