@@ -83,7 +83,7 @@ public class JavaIrToSourceCodeTranslator {
 	
 	
 	/**
-	 * Maps a IR statement to its corresponding code snippet.
+	 * Maps an IR statement to its corresponding code snippet.
 	 */
 	Function<Statement, String> statementToCode = stmnt -> {
 		if (stmnt instanceof Assignment) {
