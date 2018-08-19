@@ -12,7 +12,7 @@ program				//: statements
 
 
 
-// The set of variables ('Nichtterminale'):
+// The set of variables:
 imports				: WORKINGSTORAGEKWRD SECTIONKWRD importcopyfile*
 					;
 
@@ -47,7 +47,7 @@ statements			: PLACEHOLDER+
 
 
 
-// The set of terminals ('Terminalsymbole'):
+// The set of terminals:
 STARTSECTKWRD		: 'START-SECTION.'
 					;
 

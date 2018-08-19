@@ -38,7 +38,7 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
 		String sourceFile = "c-sources/test-source-1.c";
 		String clazzName = "CTest1";
 		String expectedCode = "package c.test.pckg;public class CTest1 {public void main(){}public void bla(){}}";
-		doCTranspilationTest(sourceFile, clazzName, expectedCode);
+		doTranspilationTest(sourceFile, clazzName, expectedCode);
 	}
 	
 	
@@ -55,7 +55,7 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
 		String sourceFile = "c-sources/test-source-3.c";
 		String clazzName = "CTest2";
 		String expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;import c.test.pckg.test_import1_h;import c.test.pckg.curl_curl_h;import c.test.pckg.test_import_with_slash_h;public class CTest2 {public void main(){}}";
-		doCTranspilationTest(sourceFile, clazzName, expectedCode);
+		doTranspilationTest(sourceFile, clazzName, expectedCode);
 	}
 	
 	
@@ -73,7 +73,7 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
 		String sourceFile = "c-sources/test-source-5.c";
 		String clazzName = "CTest3";
 		String expectedCode = "package c.test.pckg;public class CTest3 {public void main(){bla();}public void bla(){a=b+c;System.out.println(\"Hello World\");}}";
-		doCTranspilationTest(sourceFile, clazzName, expectedCode);
+		doTranspilationTest(sourceFile, clazzName, expectedCode);
 	}
 
 }

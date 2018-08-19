@@ -9,7 +9,7 @@ program				//: statements
 //					| imports globalvariables functionlist
 					;
 
-// The set of variables ('Nichtterminale'):
+// The set of variables:
 imports				: importheader+
 					;
 
@@ -68,7 +68,7 @@ operand				: PLUSSIGN
 					;
 
 
-// The set of terminals ('Terminalsymbole'):
+// The set of terminals:
 WHITESPACE			: [ \t]+ -> channel(HIDDEN)
 					;
 

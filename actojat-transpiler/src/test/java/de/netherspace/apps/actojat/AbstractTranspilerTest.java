@@ -49,10 +49,8 @@ public abstract class AbstractTranspilerTest<T extends SourceTranspiler> {
 	 * @throws IOException If an IO exception occurs
 	 * @throws IntermediateRepresentationException If an IR generation exception occurs
 	 */
-	protected void doCTranspilationTest(String sourceFile, String clazzName, String expectedCode)
+	protected void doTranspilationTest(String sourceFile, String clazzName, String expectedCode)
 			throws ParserException, SourceGenerationException, IOException, IntermediateRepresentationException {
-		System.out.println("\n\n########################   " + clazzName + "   ########################");
-
 		SourceTranspiler transpiler = constructorExpr.get();
 		InputStream inputStream = getClass().getClassLoader().getResourceAsStream(sourceFile);
 		ParseTree parseTree = transpiler.parseInputStream(inputStream);

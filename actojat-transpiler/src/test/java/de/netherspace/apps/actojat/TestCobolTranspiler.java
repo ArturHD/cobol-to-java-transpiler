@@ -2,7 +2,6 @@ package de.netherspace.apps.actojat;
 
 import java.io.IOException;
 
-import de.netherspace.apps.actojat.AbstractTranspilerTest;
 import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
@@ -37,8 +36,8 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
 	public void testEmptyCobolSectionTranspilation() throws ParserException, SourceGenerationException, IOException, IntermediateRepresentationException {
 		String sourceFile = "cobol-sources/test-source-2.cob";
 		String clazzName = "CobolTest1";
-		String expectedCode = "package cobol.test.pckg;public class CobolTest1 {public void section_0000_MAIN(){}public void section_0040_DB_VERBINDUNG(){}public void section_0100_INIT(){}}";
-		doCTranspilationTest(sourceFile, clazzName, expectedCode);
+        String expectedCode = "package cobol.test.pckg;public class CobolTest1 {public void section_0000_MAIN(){}public void section_0040_DB_CONN(){}public void section_0100_INIT(){}}";
+		doTranspilationTest(sourceFile, clazzName, expectedCode);
 	}
 	
 	/**
@@ -53,8 +52,8 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
 	public void testCobolImportTranspilation() throws ParserException, SourceGenerationException, IOException, IntermediateRepresentationException {
 		String sourceFile = "cobol-sources/test-source-4.cob";
 		String clazzName = "CobolTest2";
-		String expectedCode = "package cobol.test.pckg;import cobol.test.pckg.cobol_SQLCA_SWE_cpy;import cobol.test.pckg.cobol_cpsqllog_sqlca_tobuffer_cpy;import cobol.test.pckg.cobol_cpsqllog_9990_sql_fehler_cpy;import cobol.test.pckg.cobol_UTILLIB_SECTIONS_cpy;public class CobolTest2 {public void section_0000_MAIN(){}}";
-		doCTranspilationTest(sourceFile, clazzName, expectedCode);
+        String expectedCode = "package cobol.test.pckg;import cobol.test.pckg.cobol_TEST_IMPORT_cpy;import cobol.test.pckg.cobol_bla_bli_blubb_cpy;import cobol.test.pckg.cobol_log_12340_sql_error_cpy;import cobol.test.pckg.cobol_SMURF_SECTIONS_cpy;public class CobolTest2 {public void section_0000_MAIN(){}}";
+		doTranspilationTest(sourceFile, clazzName, expectedCode);
 	}
 
 }
