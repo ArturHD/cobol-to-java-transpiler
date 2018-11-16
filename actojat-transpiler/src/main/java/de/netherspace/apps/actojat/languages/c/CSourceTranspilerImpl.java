@@ -18,8 +18,8 @@ public class CSourceTranspilerImpl extends AbstractSourceTranspiler<c_grammarLex
      * The default constructor. Supplies all necessary parameters to the super class.
      */
     public CSourceTranspilerImpl() {
-        super(charStream -> new c_grammarLexer(charStream),
-                commonTokenStream -> new c_grammarParser(commonTokenStream),
+        super(c_grammarLexer::new,
+                c_grammarParser::new,
                 c_grammarParser::program,
                 CVisitor::new);
 

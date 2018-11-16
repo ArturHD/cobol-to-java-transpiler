@@ -64,7 +64,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser
 
 
     @Override
-    public ParseTree parseInputStream(InputStream inputStream) throws IOException, ParserException {
+    public ParseTree parseInputStream(InputStream inputStream) throws ParserException {
         logger.info("Starting to parse input stream...");
         CharStream inputCharStream = new UnbufferedCharStream(inputStream);
 
@@ -88,7 +88,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser
         logger.debug("\n" + parseTree.toStringTree(parser) + "\n");
 
         //did an error occur during parsing?
-        if (parseTree == null || errorHandler.isErrorFlag()
+        if (errorHandler.isErrorFlag()
                 || errorListener.isErrorFlag() || lexerErrorListener.isErrorFlag()) {
             logger.error("I couldn't parse the given piece of source code!");
             throw new ParserException();

@@ -40,7 +40,7 @@ public class JavaIrToSourceCodeTranslator {
      */
     public synchronized String generateCodeFromIR(Program program) throws SourceGenerationException {
         if (className == null || className.length() == 0
-                || basePackage == null | basePackage.length() == 0) {
+                || basePackage == null || basePackage.length() == 0) {
             throw new SourceGenerationException();
         }
 

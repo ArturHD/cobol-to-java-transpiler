@@ -18,8 +18,8 @@ public class CobolSourceTranspilerImpl extends AbstractSourceTranspiler<cobol_gr
      * The default constructor. Supplies all necessary parameters to the super class.
      */
     public CobolSourceTranspilerImpl() {
-        super(charStream -> new cobol_grammarLexer(charStream),
-                commonTokenStream -> new cobol_grammarParser(commonTokenStream),
+        super(cobol_grammarLexer::new,
+                cobol_grammarParser::new,
                 cobol_grammarParser::program,
                 CobolVisitor::new);
 
