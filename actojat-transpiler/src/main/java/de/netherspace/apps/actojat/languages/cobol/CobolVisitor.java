@@ -16,77 +16,77 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * particular parse tree.
  */
 public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct> {
-	
-	private Program javaProgram;
-	
-	/**
-	 * The default constructor.
-	 */
-	public CobolVisitor() {
-		super();
-		this.javaProgram = new Program();
-	}
-	
-	
-	@Override
-	public JavaLanguageConstruct visit(ParseTree tree) {
-		super.visit(tree);
-		return javaProgram;
-	}
-	
-	
-	/**
-	 * Maps a Cobol section's signature to a Java method name.
-	 */
-	Function<cobol_grammarParser.SectiondeclContext, String> sectionToMethodName = sectiondecl -> {
-		String methodPrefix = "section_";//Cobol sections might start with digits...
-		String methodNameWithoutSectionKeyword = sectiondecl.SECTIONNAME().getText();
-		String transformedSectiondecl = methodNameWithoutSectionKeyword.replaceAll("-", "_");
-		return methodPrefix + transformedSectiondecl;
-	};
-	
 
-	@Override
-	public JavaLanguageConstruct visitSection(cobol_grammarParser.SectionContext ctx) {
-		cobol_grammarParser.SectiondeclContext sectiondecl = ctx.sectiondecl();
-		Method javaMethod = new Method();
-		javaMethod.setName(sectionToMethodName.apply(sectiondecl));
-		javaProgram.getMethods().add(javaMethod);
-		
-		String body = ctx.block().getText(); //TODO: how to descent????
-		JavaLanguageConstruct statements = super.visitSection(ctx);
+    private Program javaProgram;
+
+    /**
+     * The default constructor.
+     */
+    public CobolVisitor() {
+        super();
+        this.javaProgram = new Program();
+    }
+
+
+    @Override
+    public JavaLanguageConstruct visit(ParseTree tree) {
+        super.visit(tree);
+        return javaProgram;
+    }
+
+
+    /**
+     * Maps a Cobol section's signature to a Java method name.
+     */
+    Function<cobol_grammarParser.SectiondeclContext, String> sectionToMethodName = sectiondecl -> {
+        String methodPrefix = "section_";//Cobol sections might start with digits...
+        String methodNameWithoutSectionKeyword = sectiondecl.SECTIONNAME().getText();
+        String transformedSectiondecl = methodNameWithoutSectionKeyword.replaceAll("-", "_");
+        return methodPrefix + transformedSectiondecl;
+    };
+
+
+    @Override
+    public JavaLanguageConstruct visitSection(cobol_grammarParser.SectionContext ctx) {
+        cobol_grammarParser.SectiondeclContext sectiondecl = ctx.sectiondecl();
+        Method javaMethod = new Method();
+        javaMethod.setName(sectionToMethodName.apply(sectiondecl));
+        javaProgram.getMethods().add(javaMethod);
+
+        String body = ctx.block().getText(); //TODO: how to descent????
+        JavaLanguageConstruct statements = super.visitSection(ctx);
 //		javaMethod.getStatements().add(new Statement());
-		
-		return javaMethod;
-	}
-	
 
-	@Override
-	public JavaLanguageConstruct visitSectionlist(cobol_grammarParser.SectionlistContext ctx) {
-		//TODO: handle the "... USING ..." in "PROCEDURE DIVISION USING REQUEST-SATZ." ?!
-		return super.visitSectionlist(ctx);
-	}
-	
-	
-	/**
-	 * Maps a Cobol import to a Java's import file name.
-	 */
-	Function<cobol_grammarParser.ImportcopyfileContext, String> importCopyFileToJavaImportName = importcopy -> {
-		String importPrefix = "cobol_"; //Cobol imports might start with digits...
-		String importWithoutSeperatingDot = importcopy.FILEID().getText().replaceAll("\\.", "_");
-		String transformedImport = importWithoutSeperatingDot.replaceAll("-", "_");
-		return importPrefix + transformedImport;
-	};
-	
+        return javaMethod;
+    }
 
-	@Override
-	public JavaLanguageConstruct visitImportcopyfile(cobol_grammarParser.ImportcopyfileContext ctx) {
-		Import jimport = new Import();
-		jimport.setName(importCopyFileToJavaImportName.apply(ctx));
-		javaProgram.getImports().add(jimport);
-		return jimport;
-	}
-	
+
+    @Override
+    public JavaLanguageConstruct visitSectionlist(cobol_grammarParser.SectionlistContext ctx) {
+        //TODO: handle the "... USING ..." in "PROCEDURE DIVISION USING REQUEST-SATZ." ?!
+        return super.visitSectionlist(ctx);
+    }
+
+
+    /**
+     * Maps a Cobol import to a Java's import file name.
+     */
+    Function<cobol_grammarParser.ImportcopyfileContext, String> importCopyFileToJavaImportName = importcopy -> {
+        String importPrefix = "cobol_"; //Cobol imports might start with digits...
+        String importWithoutSeperatingDot = importcopy.FILEID().getText().replaceAll("\\.", "_");
+        String transformedImport = importWithoutSeperatingDot.replaceAll("-", "_");
+        return importPrefix + transformedImport;
+    };
+
+
+    @Override
+    public JavaLanguageConstruct visitImportcopyfile(cobol_grammarParser.ImportcopyfileContext ctx) {
+        Import jimport = new Import();
+        jimport.setName(importCopyFileToJavaImportName.apply(ctx));
+        javaProgram.getImports().add(jimport);
+        return jimport;
+    }
+
 
 //	@Override
 //	public JavaLanguageConstruct visitImports(ImportsContext ctx) {
