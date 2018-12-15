@@ -10,8 +10,10 @@
     <name>actojat-parent</name>
 
     <modules>
-        <module>actojat-cli</module>
         <module>actojat-transpiler</module>
+        <module>actojat-cobol-support</module>
+        <module>actojat-c-support</module>
+        <module>actojat-cli</module>
     </modules>
 
     <properties>
