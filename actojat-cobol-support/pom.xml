@@ -15,11 +15,14 @@
     <name>actojat-cobol-support</name>
 
     <dependencies>
+        <!-- Lombok, should stay the first dependency: -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- ANTLR: -->
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
@@ -27,6 +30,26 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4</artifactId>
+        </dependency>
+
+        <!-- for testing: -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- project modules: -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>actojat-transpiler</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>actojat-transpiler</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

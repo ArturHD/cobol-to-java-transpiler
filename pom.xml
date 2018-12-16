@@ -26,11 +26,15 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Lombok, should stay the first dependency: -->
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.4</version>
+                <scope>provided</scope>
             </dependency>
+
+            <!-- ANTLR: -->
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
@@ -41,6 +45,8 @@
                 <artifactId>antlr4</artifactId>
                 <version>${ANTLR_VERSION}</version>
             </dependency>
+
+            <!-- misc: -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
@@ -52,11 +58,25 @@
                 <version>2.9.1</version>
             </dependency>
 
+            <!-- for testing: -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+            </dependency>
+
             <!-- project modules: -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>actojat-transpiler</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>actojat-transpiler</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

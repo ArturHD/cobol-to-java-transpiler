@@ -15,14 +15,24 @@
     <name>actojat-cli</name>
 
     <dependencies>
+        <!-- Lombok, should stay the first dependency: -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>actojat-transpiler</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- for testing: -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- project modules: -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>actojat-transpiler</artifactId>
         </dependency>
     </dependencies>
 
