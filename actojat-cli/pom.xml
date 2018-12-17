@@ -32,7 +32,11 @@
         <!-- project modules: -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>actojat-transpiler</artifactId>
+            <artifactId>actojat-cobol-support</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>actojat-c-support</artifactId>
         </dependency>
     </dependencies>
 
@@ -40,7 +44,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>${MVN_ASSEMBLYPLUGIN_VERSION}</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -64,7 +67,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${MVN_COMPILERPLUGIN_VERSION}</version>
                 <configuration>
                     <source>${JDK_VERSION}</source>
                     <target>${JDK_VERSION}</target>
