@@ -7,11 +7,10 @@
     <parent>
         <groupId>de.netherspace.apps.actojat</groupId>
         <artifactId>actojat-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>actojat-cli</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <name>actojat-cli</name>
 
     <dependencies>
@@ -20,6 +19,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Logging: -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <!-- for testing: -->
@@ -70,6 +75,13 @@
                 <configuration>
                     <source>${JDK_VERSION}</source>
                     <target>${JDK_VERSION}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${LOMBOK_VERSION}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>

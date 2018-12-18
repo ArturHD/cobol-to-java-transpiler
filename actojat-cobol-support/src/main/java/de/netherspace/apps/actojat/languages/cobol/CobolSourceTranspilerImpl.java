@@ -3,16 +3,14 @@ package de.netherspace.apps.actojat.languages.cobol;
 import de.netherspace.apps.actojat.AbstractSourceTranspiler;
 import de.netherspace.apps.actojat.cobol_grammarLexer;
 import de.netherspace.apps.actojat.cobol_grammarParser;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
  * This is the basic parser implementation that parses a single COBOL input source.
  */
+@Slf4j
 public class CobolSourceTranspilerImpl extends AbstractSourceTranspiler<cobol_grammarLexer, cobol_grammarParser, cobol_grammarParser.ProgramContext, CobolVisitor> {
-
-    protected Logger logger;
 
     /**
      * The default constructor. Supplies all necessary parameters to the super class.
@@ -23,8 +21,7 @@ public class CobolSourceTranspilerImpl extends AbstractSourceTranspiler<cobol_gr
                 cobol_grammarParser::program,
                 CobolVisitor::new);
 
-        this.logger = LogManager.getLogger(CobolSourceTranspilerImpl.class);
-        super.logger = this.logger;
+        super.log = log;
     }
 
 }

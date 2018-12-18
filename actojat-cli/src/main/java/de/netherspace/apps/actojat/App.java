@@ -1,15 +1,13 @@
 package de.netherspace.apps.actojat;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class App {
-
-    private static final Logger logger = LogManager.getLogger(App.class);
 
     public static void main(String[] args) {
         if (args.length < 5) {
-            logger.error("Not enough arguments!");
+            log.error("Not enough arguments!");
             return;
         }
 
@@ -27,7 +25,7 @@ public class App {
             language = Language.C;
 
         } else {
-            logger.error("The language '" + languageString + " is not supported!");
+            log.error("The language '" + languageString + " is not supported!");
             return;
         }
 

@@ -1,36 +1,30 @@
 package de.netherspace.apps.actojat;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.languages.c.CSourceTranspilerImpl;
 import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Implements the command line logic.
  */
+@Slf4j
 public class CliRunnerImpl implements CliRunner {
-
-    private static final Logger logger = LogManager.getLogger(CliRunnerImpl.class);
-
 
     @Override
     public boolean run(String sourceFile, String clazzName, String basePackage, App.Language language, boolean showGuiTree) {
-        logger.debug("The source file is: " + sourceFile);
+        log.debug("The source file is: " + sourceFile);
 
         SourceTranspiler transpiler;
         if (language == App.Language.COBOL) {
@@ -44,7 +38,7 @@ public class CliRunnerImpl implements CliRunner {
             ParseTree parseTree = transpiler.parseInputStream(inputStream);
             JavaLanguageConstruct ir = transpiler.generateIntermediateJavaRepresentation(parseTree);
             String sourceCode = transpiler.generateSourceCode(ir, clazzName, basePackage);
-            logger.debug(sourceCode);
+            log.debug(sourceCode);
 
             //display parse tree graphically:
             if (showGuiTree) {
@@ -58,7 +52,7 @@ public class CliRunnerImpl implements CliRunner {
             }
 
         } catch (IOException | ParserException | SourceGenerationException | IntermediateRepresentationException e) {
-            logger.error("An error occurred:", e);
+            log.error("An error occurred:", e);
             return false;
         }
 

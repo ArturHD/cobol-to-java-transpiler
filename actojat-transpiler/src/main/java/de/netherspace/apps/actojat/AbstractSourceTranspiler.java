@@ -1,16 +1,12 @@
 package de.netherspace.apps.actojat;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
-import de.netherspace.apps.actojat.util.*;
+import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
+import de.netherspace.apps.actojat.util.ParserException;
+import de.netherspace.apps.actojat.util.SourceErrorHandler;
+import de.netherspace.apps.actojat.util.SourceErrorListener;
+import de.netherspace.apps.actojat.util.SourceGenerationException;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenFactory;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -20,7 +16,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.UnbufferedCharStream;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 
 /**
@@ -34,7 +37,7 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser, C extends ParserRuleContext, V extends AbstractParseTreeVisitor<JavaLanguageConstruct>> implements SourceTranspiler {
 
-    protected Logger logger;
+    protected Logger log;
 
     private Function<CharStream, L> lexerFactoryExpr;
     private Function<CommonTokenStream, P> parserFactoryExpr;
@@ -65,7 +68,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser
 
     @Override
     public ParseTree parseInputStream(InputStream inputStream) throws ParserException {
-        logger.info("Starting to parse input stream...");
+        log.info("Starting to parse input stream...");
         CharStream inputCharStream = new UnbufferedCharStream(inputStream);
 
         // create lexer and token stream:
@@ -85,15 +88,15 @@ public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser
 
         // create the parse tree by calling the start symbol:
         ParseTree parseTree = startsymbolExpr.apply(parser);
-        logger.debug("\n" + parseTree.toStringTree(parser) + "\n");
+        log.debug("\n" + parseTree.toStringTree(parser) + "\n");
 
         //did an error occur during parsing?
         if (errorHandler.isErrorFlag()
                 || errorListener.isErrorFlag() || lexerErrorListener.isErrorFlag()) {
-            logger.error("I couldn't parse the given piece of source code!");
+            log.error("I couldn't parse the given piece of source code!");
             throw new ParserException();
         }
-        logger.debug("I could successfully parse the given piece of source code");
+        log.debug("I could successfully parse the given piece of source code");
 
         return parseTree;
     }
@@ -105,7 +108,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser
         V visitor = visitorFactoryExpr.get();
         JavaLanguageConstruct program = visitor.visit(parseTree);
         if (program == null) {
-            logger.error("I couldn't walk the whole parse tree!");
+            log.error("I couldn't walk the whole parse tree!");
             throw new IntermediateRepresentationException();
         }
         return program;
@@ -118,13 +121,13 @@ public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser
         irTranslator.setBasePackage(basePackage);
 
         if (!(program instanceof Program)) {
-            logger.error("The given JavaLanguageConstruct is not of type Program!");
+            log.error("The given JavaLanguageConstruct is not of type Program!");
             throw new SourceGenerationException();
         }
 
         String code = irTranslator.generateCodeFromIR((Program) program);
         if (code == null) {
-            logger.error("I couldn't generate the actual Java code!");
+            log.error("I couldn't generate the actual Java code!");
             throw new SourceGenerationException();
         }
         return code;
@@ -132,7 +135,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer, P extends Parser
 
     @Override
     public List<File> enrichSourceCode(String code) {
-        logger.debug(code);
+        log.debug(code);
         //TODO: do autoformatting of the generated source: org.eclipse.jdt.core.formatter
         //TODO: create Maven project
         //TODO:...
