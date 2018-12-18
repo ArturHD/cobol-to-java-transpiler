@@ -5,21 +5,24 @@ import java.util.List;
 
 public class Program extends JavaLanguageConstruct {
 
-    private List<Method> methods;
-    private List<Import> imports;
+  private List<Method> methods;
+  private List<Import> imports;
 
-    public Program() {
-        super();
-        this.methods = new LinkedList<>();
-        this.imports = new LinkedList<>();
-    }
+  /**
+   * Default constructor.
+   */
+  public Program() {
+    super();
+    this.methods = new LinkedList<>();
+    this.imports = new LinkedList<>();
+  }
 
-    public List<Method> getMethods() {
-        return methods;
-    }
+  public List<Method> getMethods() {
+    return methods;
+  }
 
-    public List<Import> getImports() {
-        return imports;
-    }
+  public List<Import> getImports() {
+    return imports;
+  }
 
 }

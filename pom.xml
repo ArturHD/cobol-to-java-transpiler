@@ -124,6 +124,12 @@
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${MVN_ANTLR_VERSION}</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.0.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>

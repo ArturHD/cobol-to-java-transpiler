@@ -5,24 +5,24 @@ import java.util.List;
 
 public class FunctionCall extends Statement {
 
-    private String name;
-    private List<String> parameters;
+  private String name;
+  private List<String> parameters;
 
-    public FunctionCall() {
-        super();
-        this.parameters = new LinkedList<>();
-    }
+  public FunctionCall() {
+    super();
+    this.parameters = new LinkedList<>();
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public List<String> getParameters() {
-        return parameters;
-    }
+  public List<String> getParameters() {
+    return parameters;
+  }
 
 }

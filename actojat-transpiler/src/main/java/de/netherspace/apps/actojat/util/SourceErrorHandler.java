@@ -11,40 +11,42 @@ import org.antlr.v4.runtime.Token;
  */
 public class SourceErrorHandler extends DefaultErrorStrategy implements ANTLRErrorStrategy {
 
-	private boolean errorFlag;
+  private boolean errorFlag;
 
-	/**
-	 * The default constructor.
-	 */
-	public SourceErrorHandler() {
-		super();
-		this.errorFlag = false;
-	}
+  /**
+   * The default constructor.
+   */
+  public SourceErrorHandler() {
+    super();
+    this.errorFlag = false;
+  }
 
-	@Override
-	public void recover(Parser recognizer, RecognitionException e) throws RecognitionException {
-		this.errorFlag = true;
-		super.recover(recognizer, e);
-	}
-	
-	@Override
-	public void reportError(Parser recognizer, RecognitionException e) {
-		this.errorFlag = true;
-		super.reportError(recognizer, e);
-	}
-	
-	@Override
-	public Token recoverInline(Parser recognizer) throws RecognitionException {
-		this.errorFlag = true;
-		return super.recoverInline(recognizer);
-	}
+  @Override
+  public void recover(Parser recognizer,
+                      RecognitionException exception) throws RecognitionException {
+    this.errorFlag = true;
+    super.recover(recognizer, exception);
+  }
 
-	/**
-	 * Returns the error flag.
-	 * @return true if an error occurred, false otherwise
-	 */
-	public boolean isErrorFlag() {
-		return errorFlag;
-	}
+  @Override
+  public void reportError(Parser recognizer, RecognitionException exception) {
+    this.errorFlag = true;
+    super.reportError(recognizer, exception);
+  }
+
+  @Override
+  public Token recoverInline(Parser recognizer) throws RecognitionException {
+    this.errorFlag = true;
+    return super.recoverInline(recognizer);
+  }
+
+  /**
+   * Returns the error flag.
+   *
+   * @return true if an error occurred, false otherwise
+   */
+  public boolean isErrorFlag() {
+    return errorFlag;
+  }
 
 }

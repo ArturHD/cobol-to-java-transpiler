@@ -5,9 +5,9 @@ package de.netherspace.apps.actojat.util;
  */
 public class SourceGenerationException extends Exception {
 
-	/**
-	 * The serialization ID.
-	 */
-	private static final long serialVersionUID = -2204356397545873133L;
+  /**
+   * The serialization ID.
+   */
+  private static final long serialVersionUID = -2204356397545873133L;
 
 }

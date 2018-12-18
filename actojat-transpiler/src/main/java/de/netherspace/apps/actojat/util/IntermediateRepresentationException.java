@@ -6,9 +6,9 @@ package de.netherspace.apps.actojat.util;
  */
 public class IntermediateRepresentationException extends Exception {
 
-	/**
-	 * The serialization ID.
-	 */
-	private static final long serialVersionUID = 1697070861403793376L;
+  /**
+   * The serialization ID.
+   */
+  private static final long serialVersionUID = 1697070861403793376L;
 
 }
