@@ -1,5 +1,6 @@
 package de.netherspace.apps.actojat.util;
 
+import lombok.Getter;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.Parser;
@@ -15,6 +16,7 @@ import java.util.BitSet;
  */
 public class SourceErrorListener extends BaseErrorListener implements ANTLRErrorListener {
 
+  @Getter
   private boolean errorFlag;
 
   /**
@@ -39,15 +41,6 @@ public class SourceErrorListener extends BaseErrorListener implements ANTLRError
                               BitSet ambigAlts, ATNConfigSet configs) {
     this.errorFlag = true;
     super.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs);
-  }
-
-  /**
-   * Returns the error flag.
-   *
-   * @return true if an error occurred, false otherwise
-   */
-  public boolean isErrorFlag() {
-    return errorFlag;
   }
 
 }

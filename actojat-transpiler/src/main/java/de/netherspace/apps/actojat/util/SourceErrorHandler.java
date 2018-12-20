@@ -1,5 +1,6 @@
 package de.netherspace.apps.actojat.util;
 
+import lombok.Getter;
 import org.antlr.v4.runtime.ANTLRErrorStrategy;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.Parser;
@@ -11,6 +12,7 @@ import org.antlr.v4.runtime.Token;
  */
 public class SourceErrorHandler extends DefaultErrorStrategy implements ANTLRErrorStrategy {
 
+  @Getter
   private boolean errorFlag;
 
   /**
@@ -38,15 +40,6 @@ public class SourceErrorHandler extends DefaultErrorStrategy implements ANTLRErr
   public Token recoverInline(Parser recognizer) throws RecognitionException {
     this.errorFlag = true;
     return super.recoverInline(recognizer);
-  }
-
-  /**
-   * Returns the error flag.
-   *
-   * @return true if an error occurred, false otherwise
-   */
-  public boolean isErrorFlag() {
-    return errorFlag;
   }
 
 }

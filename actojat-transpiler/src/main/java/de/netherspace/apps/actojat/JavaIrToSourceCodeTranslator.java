@@ -7,6 +7,8 @@ import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +22,15 @@ import java.util.function.Function;
 public class JavaIrToSourceCodeTranslator {
 
   private StringBuilder builder;
+
+  @Getter
+  @Setter
   private String className;
+
+  @Getter
+  @Setter
   private String basePackage;
+
   private Map<String, String> systemFunctions;
 
   /**
@@ -129,45 +138,5 @@ public class JavaIrToSourceCodeTranslator {
 
     return signature + "{" + body + "}";
   };
-
-
-  /**
-   * Returns the className.
-   *
-   * @return the className
-   */
-  public String getClassName() {
-    return className;
-  }
-
-
-  /**
-   * Sets the className.
-   *
-   * @param className the className
-   */
-  public void setClassName(String className) {
-    this.className = className;
-  }
-
-
-  /**
-   * Returns the basePackage.
-   *
-   * @return the basePackage
-   */
-  public String getBasePackage() {
-    return basePackage;
-  }
-
-
-  /**
-   * Sets the basePackage.
-   *
-   * @param basePackage the basePackage
-   */
-  public void setBasePackage(String basePackage) {
-    this.basePackage = basePackage;
-  }
 
 }
