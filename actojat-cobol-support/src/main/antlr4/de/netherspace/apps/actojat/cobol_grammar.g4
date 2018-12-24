@@ -108,4 +108,3 @@ fragment CHARACTER	: [a-zA-Z]
 
 fragment ALLCHARS	: ([a-zA-Z] | '-' | '/' | '_' )
 					;
-

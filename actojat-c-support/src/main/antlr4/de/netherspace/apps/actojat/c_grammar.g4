@@ -1,4 +1,4 @@
-// This context-free (i.e. Type-2) grammar describes a subset of GCC's syntax.
+// This context-free grammar describes a subset of GCC's C syntax.
 grammar c_grammar;
 
 
@@ -156,4 +156,3 @@ fragment CHARACTER	: [a-zA-Z]
 
 fragment ALLCHARS	: ([a-zA-Z] | '-' | '/' | '_' )
 					;
-

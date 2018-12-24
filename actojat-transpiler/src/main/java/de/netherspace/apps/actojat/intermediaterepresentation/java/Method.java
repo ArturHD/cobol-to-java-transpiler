@@ -18,11 +18,25 @@ public class Method extends JavaLanguageConstruct {
   @Getter
   private List<Argument> arguments;
 
+
   /**
    * Default constructor.
    */
   public Method() {
     super();
+    this.statements = new LinkedList<>();
+    this.arguments = new LinkedList<>();
+  }
+
+
+  /**
+   * Auxiliary constructor.
+   *
+   * @param name the method's name
+   */
+  public Method(String name) {
+    super();
+    this.name = name;
     this.statements = new LinkedList<>();
     this.arguments = new LinkedList<>();
   }

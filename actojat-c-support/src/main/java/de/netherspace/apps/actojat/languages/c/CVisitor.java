@@ -32,7 +32,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
   /**
    * The default constructor.
    */
-  public CVisitor() {
+  CVisitor() {
     super();
     this.javaProgram = new Program();
   }
@@ -43,14 +43,6 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
     super.visit(tree);
     return javaProgram;
   }
-
-
-  /**
-   * Maps a C function to a Java method's name.
-   */
-  Function<c_grammarParser.FunctiondeclrContext, String> functionToJavaMethod = cfunction -> {
-    return cfunction.ID().getText();
-  };
 
 
   /**
@@ -74,23 +66,6 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
 
 
   /**
-   * Maps a C left-hand side identifier to a Java identifier.
-   */
-  Function<c_grammarParser.LhsContext, String> lhsToJavaIdentifier = x -> {
-    return x.ID().getText();
-  };
-
-
-  /**
-   * Maps a C right-hand side to a Java RHS.
-   */
-  Function<c_grammarParser.RhsContext, String> rhsToJavaIdentifier = y -> {
-    return y.getText();
-    //TODO: composite expressions!
-  };
-
-
-  /**
    * Maps a C assignment operator to a Java assignm. op.
    */
   Function<TerminalNode, String> assignmentOperatorToJavaOperator = op -> {
@@ -98,35 +73,10 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
   };
 
 
-  /**
-   * Maps a C expression to a Java statement.
-   */
-  Function<c_grammarParser.ExpressionContext, Statement> expressionToJavaStatement = ex -> {
-    if (ex.functioncall() != null) {
-      FunctionCall functionCall = new FunctionCall();
-      functionCall.setName(ex.functioncall().ID().getText()); //TODO!
-      if (ex.functioncall().parameterlist() != null) {
-        functionCall.getParameters()
-            .add(ex.functioncall().parameterlist().parameter(0).getText()); //TODO!
-      }
-      return functionCall;
-    }
-    if (ex.lhs() != null) {
-      Assignment stmnt = new Assignment();
-      stmnt.setLhs(lhsToJavaIdentifier.apply(ex.lhs()));
-      stmnt.setRhs(rhsToJavaIdentifier.apply(ex.rhs()));
-      return stmnt;
-    }
-
-    System.err.println("coudln't determine statement type.....");
-    return null;
-  };
-
-
   @Override
   public JavaLanguageConstruct visitFunctiondeclr(c_grammarParser.FunctiondeclrContext ctx) {
-    Method javaMethod = new Method();
-    javaMethod.setName(functionToJavaMethod.apply(ctx));
+    final String methodName = computeMethodName(ctx);
+    final Method javaMethod = new Method(methodName);
 
     /*List<Argument> jarguments = argumentsToJavaArgs.apply(ctx.argumentlist())
                              .entrySet()
@@ -136,7 +86,8 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
     //TODO: keep order!
     javaMethod.getArguments().addAll(jarguments);*/
 
-    List<Statement> jstatements = ctx.block().expressionlist()
+    final List<Statement> jstatements = ctx.block()
+        .expressionlist()
         .expression()
         .stream()
         .map(expressionToJavaStatement)
@@ -150,24 +101,80 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
 
 
   /**
-   * Maps a C include to a Java's import file name.
+   * Maps a C function to a Java method's name.
    */
-  Function<c_grammarParser.ImportheaderContext, String> includeToJavaImportName = include -> {
-    String includeWithoutSeperatingDot = include.FILEID()
-        .getText().replaceAll("\\.", "_");
-    String includeWithoutSlashes = includeWithoutSeperatingDot
-        .replaceAll("/", "_");
-    String includeWithoutDashes = includeWithoutSlashes.replaceAll("-", "_");
-    return includeWithoutDashes;
+  private String computeMethodName(c_grammarParser.FunctiondeclrContext ctx) {
+    return ctx.ID().getText();
+  }
+
+
+  /**
+   * Maps a C expression to a Java statement.
+   */
+  private Function<c_grammarParser.ExpressionContext, Statement> expressionToJavaStatement = ex -> {
+
+    // TODO: distinguish whether its a function call via the grammar!
+    if (ex.functioncall() != null) {
+      // set the function's name (e.g. 'doSomething' for 'bla = doSomething();' ):
+      final String functionName = ex.functioncall().ID().getText();
+      final FunctionCall functionCall = new FunctionCall(functionName);
+      if (ex.functioncall().parameterlist() != null) {
+        functionCall.getParameters()
+            .add(ex.functioncall().parameterlist().parameter(0).getText()); //TODO!
+      }
+      return functionCall;
+    }
+
+    // its a mere assignment:
+    if (ex.lhs() != null) {
+      final Assignment stmnt = new Assignment();
+      stmnt.setLhs(computeLeftHandSide(ex.lhs()));
+      stmnt.setRhs(computeRightHandSide(ex.rhs()));
+      return stmnt;
+    }
+
+    System.err.println("couldn't determine statement type.....");
+    return null;
   };
+
+
+  /**
+   * Maps a left-hand side identifier to a Java identifier.
+   */
+  private String computeLeftHandSide(c_grammarParser.LhsContext lhs) {
+    return lhs.ID().getText();
+  }
+
+
+  /**
+   * Maps a right-hand side to a Java RHS.
+   */
+  private String computeRightHandSide(c_grammarParser.RhsContext rhs) {
+    // TODO: composite expressions!
+    return rhs.getText();
+  }
 
 
   @Override
   public JavaLanguageConstruct visitImportheader(c_grammarParser.ImportheaderContext ctx) {
-    Import jimport = new Import();
-    jimport.setName(includeToJavaImportName.apply(ctx));
+    final String importName = computeImportName(ctx);
+    final Import jimport = new Import(importName);
     javaProgram.getImports().add(jimport);
     return jimport;
+  }
+
+
+  /**
+   * Maps a C include to a Java's import file name.
+   */
+  private String computeImportName(c_grammarParser.ImportheaderContext include) {
+    final String includeWithoutSeperatingDot = include.FILEID()
+        .getText().replaceAll("\\.", "_");
+    final String includeWithoutSlashes = includeWithoutSeperatingDot
+        .replaceAll("/", "_");
+    final String includeWithoutDashes = includeWithoutSlashes
+        .replaceAll("-", "_");
+    return includeWithoutDashes;
   }
 
 //  @Override
