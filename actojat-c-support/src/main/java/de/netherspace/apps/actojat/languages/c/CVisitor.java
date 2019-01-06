@@ -58,9 +58,9 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
    * Maps a C argument (consisting of a type and a name) to a Java argument.
    */
   Function<Entry<String, String>, Argument> argEntryToJavaArgument = e -> {
-    Argument jargument = new Argument();
-    jargument.setName(e.getKey());
-    jargument.setType(e.getValue());
+    final String name = e.getKey();
+    final String type = e.getValue();
+    Argument jargument = new Argument(type, name);
     return jargument;
   };
 

@@ -1,6 +1,7 @@
 package de.netherspace.apps.actojat;
 
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
@@ -9,6 +10,7 @@ import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.function.Function;
 /**
  * A translator that generates Java code from an intermediate representation.
  */
+@Slf4j
 public class JavaIrToSourceCodeTranslator {
 
   private StringBuilder builder;
@@ -31,17 +34,15 @@ public class JavaIrToSourceCodeTranslator {
   @Setter
   private String basePackage;
 
-  private Map<String, String> systemFunctions;
+  private Map<String, BasicFunction> systemFunctions;
 
   /**
    * The default constructor.
    */
-  public JavaIrToSourceCodeTranslator() {
+  JavaIrToSourceCodeTranslator(Map<String, BasicFunction> systemFunctions) {
     super();
     this.builder = new StringBuilder();
-    this.systemFunctions = new HashMap<>();
-
-    this.systemFunctions.put("printf", "System.out.println"); //TODO: load from file!
+    this.systemFunctions = systemFunctions;
   }
 
 
@@ -79,19 +80,20 @@ public class JavaIrToSourceCodeTranslator {
   /**
    * Appends a string to the instance's string builder.
    */
-  Consumer<String> append = s -> builder.append(s);
+  private final Consumer<String> append = s -> builder.append(s);
 
 
   /**
    * Accumulates a string.
    */
-  BinaryOperator<String> stringAccumulator = (accumulatedBody, stmnt) -> accumulatedBody + stmnt;
+  private final BinaryOperator<String> stringAccumulator
+      = (accumulatedBody, stmnt) -> accumulatedBody + stmnt;
 
 
   /**
    * Maps an IR import to its corresponding code snippet.
    */
-  Function<Import, String> irImportToCode = i -> {
+  private final Function<Import, String> irImportToCode = i -> {
     return "import " + this.basePackage + "." + i.getName() + ";";
   };
 
@@ -99,20 +101,29 @@ public class JavaIrToSourceCodeTranslator {
   /**
    * Maps an IR statement to its corresponding code snippet.
    */
-  Function<Statement, String> statementToCode = stmnt -> {
+  private final Function<Statement, String> statementToCode = stmnt -> {
     if (stmnt instanceof Assignment) {
-      Assignment assignment = (Assignment) stmnt;
+      final Assignment assignment = (Assignment) stmnt;
       return assignment.getLhs() + "=" + assignment.getRhs() + ";";
       //TODO: composite expressions!
 
     } else if (stmnt instanceof FunctionCall) {
-      FunctionCall functionCall = (FunctionCall) stmnt;
-      String parameters = functionCall.getParameters()
+      final FunctionCall functionCall = (FunctionCall) stmnt;
+
+      final String parameters = functionCall
+          .getParameters()
           .stream()
-          .reduce("", stringAccumulator);//TODO: correct mapping...
-      String functionName = systemFunctions.getOrDefault(functionCall.getName(),
-          functionCall.getName());
+          .reduce("", this.stringAccumulator); // TODO: correct mapping...
+
+      final BasicFunction f = this.systemFunctions.get(functionCall.getName());
+      final String functionName;
+      if (f == null) {
+        functionName = functionCall.getName();
+      } else {
+        functionName = f.getRawName();
+      }
       return functionName + "(" + parameters + ")" + ";";
+
     } else {
       return ""; //ooops...
     }
@@ -122,7 +133,7 @@ public class JavaIrToSourceCodeTranslator {
   /**
    * Maps an IR method to its corresponding code snippet.
    */
-  Function<Method, String> irMethodToCode = m -> {
+  private final Function<Method, String> irMethodToCode = m -> {
     String defaultAccessModifier = "public";
     String defaultReturnType = "void";
 

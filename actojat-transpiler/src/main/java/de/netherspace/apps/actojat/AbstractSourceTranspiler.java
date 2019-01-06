@@ -1,5 +1,6 @@
 package de.netherspace.apps.actojat;
 
+import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -47,25 +49,29 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
   private Function<P, C> startsymbolExpr;
   private Supplier<V> visitorFactoryExpr;
   private List<String> ruleNames;
+  private Supplier<Map<String, BasicFunction>> systemFunctionsSupplier;
 
 
   /**
    * The constructor.
    *
-   * @param lexerFactoryExpr   A lambda expression for creating new lexer instances
-   * @param parserFactoryExpr  A lambda expression for creating new parser instances
-   * @param startsymbolExpr    A lambda expression for calling the grammar's start symbol
-   * @param visitorFactoryExpr A lambda expression for creating new visitor instances
+   * @param lexerFactoryExpr        A function for creating new lexer instances
+   * @param parserFactoryExpr       A function for creating new parser instances
+   * @param startsymbolExpr         A function for calling the grammar's start symbol
+   * @param visitorFactoryExpr      A supplier for creating new visitor instances
+   * @param systemFunctionsSupplier A map that maps functions from the source language to Java
    */
   public AbstractSourceTranspiler(Function<CharStream, L> lexerFactoryExpr,
                                   Function<CommonTokenStream, P> parserFactoryExpr,
                                   Function<P, C> startsymbolExpr,
-                                  Supplier<V> visitorFactoryExpr) {
+                                  Supplier<V> visitorFactoryExpr,
+                                  Supplier<Map<String, BasicFunction>> systemFunctionsSupplier) {
     super();
     this.lexerFactoryExpr = lexerFactoryExpr;
     this.parserFactoryExpr = parserFactoryExpr;
     this.startsymbolExpr = startsymbolExpr;
     this.visitorFactoryExpr = visitorFactoryExpr;
+    this.systemFunctionsSupplier = systemFunctionsSupplier;
   }
 
 
@@ -121,7 +127,8 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
   @Override
   public String generateSourceCode(JavaLanguageConstruct program, String name, String basePackage)
       throws SourceGenerationException {
-    JavaIrToSourceCodeTranslator irTranslator = new JavaIrToSourceCodeTranslator();
+    final Map<String, BasicFunction> systemFunctions = systemFunctionsSupplier.get();
+    JavaIrToSourceCodeTranslator irTranslator = new JavaIrToSourceCodeTranslator(systemFunctions);
     irTranslator.setClassName(name);
     irTranslator.setBasePackage(basePackage);
 

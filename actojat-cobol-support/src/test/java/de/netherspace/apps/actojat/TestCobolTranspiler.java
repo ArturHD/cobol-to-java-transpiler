@@ -6,11 +6,12 @@ import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
 /**
- * These are tests to ensure the COBOL transpiler's basics is working.
+ * These are tests to ensure the COBOL transpiler's basics are working.
  */
 public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTranspilerImpl> {
 
@@ -24,6 +25,16 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
     }
 
 
+    @Test
+    @Ignore
+    public void testCobolHelloWorldTranspilation() throws ParserException, SourceGenerationException, IOException, IntermediateRepresentationException {
+//        final String sourceFile = "cobol-sources/test-source-4.cob";
+        final String sourceFile = "cobol-sources/test-source-10.cob";
+        final String clazzName = "HelloCobol";
+        final String expectedCode = "package cobol.test.pckg;public class HelloCobol {public void paragraph_DisplayHelloWorld(){display(\"HelloWorld!\");}}";
+        doTranspilationTest(sourceFile, clazzName, expectedCode);
+    }
+
     /**
      * Tests, whether the transpiler successfully transpiles an (empty) Cobol section.
      *
@@ -33,10 +44,11 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
+    @Ignore
     public void testEmptyCobolSectionTranspilation() throws ParserException, SourceGenerationException, IOException, IntermediateRepresentationException {
-        String sourceFile = "cobol-sources/test-source-2.cob";
-        String clazzName = "CobolTest1";
-        String expectedCode = "package cobol.test.pckg;public class CobolTest1 {public void section_0000_MAIN(){}public void section_0040_DB_CONN(){}public void section_0100_INIT(){}}";
+        final String sourceFile = "cobol-sources/test-source-2.cob";
+        final String clazzName = "CobolTest1";
+        final String expectedCode = "package cobol.test.pckg;public class CobolTest1 {public void section_0000_MAIN(){}public void section_0040_DB_CONN(){}public void section_0100_INIT(){}}";
         doTranspilationTest(sourceFile, clazzName, expectedCode);
     }
 
@@ -49,10 +61,12 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
+    @Ignore
     public void testCobolImportTranspilation() throws ParserException, SourceGenerationException, IOException, IntermediateRepresentationException {
-        String sourceFile = "cobol-sources/test-source-4.cob";
-        String clazzName = "CobolTest2";
-        String expectedCode = "package cobol.test.pckg;import cobol.test.pckg.cobol_TEST_IMPORT_cpy;import cobol.test.pckg.cobol_bla_bli_blubb_cpy;import cobol.test.pckg.cobol_log_12340_sql_error_cpy;import cobol.test.pckg.cobol_SMURF_SECTIONS_cpy;public class CobolTest2 {public void section_0000_MAIN(){}}";
+//        final String sourceFile = "cobol-sources/test-source-4.cob";
+        final String sourceFile = "cobol-sources/test-source-08.cob";
+        final String clazzName = "CobolTest2";
+        final String expectedCode = "package cobol.test.pckg;import cobol.test.pckg.cobol_TEST_IMPORT_cpy;import cobol.test.pckg.cobol_bla_bli_blubb_cpy;import cobol.test.pckg.cobol_log_12340_sql_error_cpy;import cobol.test.pckg.cobol_SMURF_SECTIONS_cpy;public class CobolTest2 {public void section_0000_MAIN(){}}";
         doTranspilationTest(sourceFile, clazzName, expectedCode);
     }
 
