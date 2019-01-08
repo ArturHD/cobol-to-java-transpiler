@@ -16,13 +16,13 @@ public class App {
       return;
     }
 
-    String sourceFile = args[0];
-    String clazzName = args[1];
-    String basePackage = args[2];
-    String languageString = args[3];
-    boolean showGuiTree = Boolean.parseBoolean(args[4]);
+    final String sourceFile = args[0];
+    final String clazzName = args[1];
+    final String basePackage = args[2];
+    final String languageString = args[3];
+    final boolean showGuiTree = Boolean.parseBoolean(args[4]);
 
-    Language language;
+    final Language language;
     if (languageString.equalsIgnoreCase("cobol")) {
       language = Language.COBOL;
 
