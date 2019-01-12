@@ -16,7 +16,7 @@ public class Method extends JavaLanguageConstruct {
   private List<Statement> statements;
 
   @Getter
-  private List<Argument> arguments;
+  private List<ArgumentDeclaration> arguments;
 
 
   /**

@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 @AllArgsConstructor
-public class ArgumentDeclaration extends JavaLanguageConstruct {
+public class Expression extends Statement {
 
-  private String type;
-  private String name;
+  @Getter
+  @Setter
+  private String[] parts;
 
 }

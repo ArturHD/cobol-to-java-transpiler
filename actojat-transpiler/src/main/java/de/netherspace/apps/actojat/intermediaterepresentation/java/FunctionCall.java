@@ -18,7 +18,7 @@ public class FunctionCall extends Statement {
   private String name;
 
   @Getter
-  private List<String> parameters;
+  private List<Expression> parameters;
 
 
   /**

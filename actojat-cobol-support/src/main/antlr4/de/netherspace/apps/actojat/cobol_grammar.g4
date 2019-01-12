@@ -3,8 +3,8 @@ grammar cobol_grammar;
 
 
 // The grammar's start symbol:
-program				    : division+
-					    ;
+program                 : division+
+                        ;
 
 
 
@@ -88,48 +88,48 @@ reportsection           : REPORT SECTION DOT
                         // TODO: ...
                         ;
 
-importcopyfile		    : COPY QUOTATIONMARK FILEID QUOTATIONMARK DOT
-					    ;
+importcopyfile          : COPY QUOTATIONMARK FILEID QUOTATIONMARK DOT
+                        ;
 
 // TODO: are tailing imports parts of the COBOL85 standard or a MF COBOL gimmick?
-tailingimports		    : importcopyfile+
-					    ;
+tailingimports          : importcopyfile+
+                        ;
 
 
 // "PROCEDURE DIVISION."
 proceduredivision       : PROCEDUREDIV USING ID DOT (paragraph | section)+
                         | PROCEDUREDIV DOT (paragraph | section)+
-					    ;
+                        ;
 
 section                 : sectiondecl paragraph+
                         ;
 
-paragraph			    : ID DOT sentence+
-					    ;
+paragraph               : ID DOT sentence+
+                        ;
 
 sentence                : statement+ DOT
                         ;
 
-sectionend			    : SECTIONNAME DOT EXIT PROGRAM DOT
-					    | SECTIONNAME DOT EXIT DOT
-					    ;
+sectionend              : SECTIONNAME DOT EXIT PROGRAM DOT
+                        | SECTIONNAME DOT EXIT DOT
+                        ;
 
-sectiondecl			    : SECTIONNAME SECTION
-					    ;
+sectiondecl             : SECTIONNAME SECTION
+                        ;
 
-block				    : STARTSECT DOT
-//					    | STARTSECT statements DOT
-					    ;
+block                   : STARTSECT DOT
+//                      | STARTSECT statements DOT
+                        ;
 
-statement			    : operation operand+
-					    ;
-					
-operation			    : SUBTRACT
+statement               : operation operand+
+                        ;
+                    
+operation               : SUBTRACT
                         | DISPLAY
                         | COMPUTE
                         | MOVE
-					    ;
-					
+                        ;
+                    
 operand                 : STRINGVALUE
                         // TODO: ...
                         ;
@@ -137,26 +137,26 @@ operand                 : STRINGVALUE
 
 // ################ The set of terminals ################
 
-IDENTDIV	            : 'IDENTIFICATION DIVISION'
-					    ;
+IDENTDIV                : 'IDENTIFICATION DIVISION'
+                        ;
 
-ENVIRONMENTDIV	        : 'ENVIRONMENT DIVISION'
-					    ;
+ENVIRONMENTDIV          : 'ENVIRONMENT DIVISION'
+                        ;
 
 SYMBOLICCHARS           : 'SYMBOLIC CHARACTERS'
                         ;
 
-PROCEDUREDIV	        : 'PROCEDURE DIVISION'
-					    ;
+PROCEDUREDIV            : 'PROCEDURE DIVISION'
+                        ;
 
-WORKINGSTORAGE	        : 'WORKING-STORAGE'
-					    ;
+WORKINGSTORAGE          : 'WORKING-STORAGE'
+                        ;
 
-STARTSECT		        : 'START-SECTION.'
-					    ;
+STARTSECT               : 'START-SECTION.'
+                        ;
 
 DATADIV                 : 'DATA DIVISION'
-					    ;
+                        ;
 
 DECIMALPOINT            : 'DECIMAL-POINT'
                         ;
@@ -176,14 +176,14 @@ PROGRAMID               : 'PROGRAM-ID'
 SUBTRACT                : 'SUBTRACT'
                         ;
 
-SECTION			        : 'SECTION'
-					    ;
+SECTION                 : 'SECTION'
+                        ;
 
 LINKAGE                 : 'LINKAGE'
                         ;
 
-PROGRAM			        : 'PROGRAM'
-					    ;
+PROGRAM                 : 'PROGRAM'
+                        ;
 
 DISPLAY                 : 'DISPLAY'
                         ;
@@ -197,22 +197,22 @@ AUTHOR                  : 'AUTHOR'
 REPORT                  : 'REPORT'
                         ;
 
-USING	                : 'USING'
-					    ;
+USING                   : 'USING'
+                        ;
 
-EXIT			        : 'EXIT'
-					    ;
+EXIT                    : 'EXIT'
+                        ;
 
 FILE                    : 'FILE'
                         ;
 
-PRIMITIVETYPE		    : 'int'
-					    | 'void'
-					    ;
-					
-COPY		            : 'copy '
-					    | 'COPY '
-					    ;
+PRIMITIVETYPE           : 'int'
+                        | 'void'
+                        ;
+                    
+COPY                    : 'copy '
+                        | 'COPY '
+                        ;
 
 IS                      : 'IS'
                         ;
@@ -223,40 +223,40 @@ MOVE                    : 'MV'
 STRINGVALUE             : QUOTATIONMARK ALLCHARS+ QUOTATIONMARK
                         ;
 
-DOT					    : '.'
-					    ;
+DOT                     : '.'
+                        ;
 
-QUOTATIONMARK		    : '"'
-					    ;
+QUOTATIONMARK           : '"'
+                        ;
 
 
 // identifiers are matched last:
-SECTIONNAME			    : DIGIT+ ('-' (CHARACTER+))+
-					    ;
+SECTIONNAME             : DIGIT+ ('-' (CHARACTER+))+
+                        ;
 
-FILEID				    : (ALLCHARS | DIGIT)+ DOT CHARACTER+
-					    ;
+FILEID                  : (ALLCHARS | DIGIT)+ DOT CHARACTER+
+                        ;
 
-ID					    : ALLCHARS+
-					    ;
+ID                      : ALLCHARS+
+                        ;
 
 // auxiliary terminals:
-PLACEHOLDER			    : CHARACTER* ; // TODO: loeschen!!!!
+PLACEHOLDER             : CHARACTER* ; // TODO: loeschen!!!!
 
-WHITESPACE			    : [ \t]+ -> channel(HIDDEN)
-					    ;
+WHITESPACE              : [ \t]+ -> channel(HIDDEN)
+                        ;
 
-LINEBREAK			    : [\r\n]+ -> skip
-					    ;
+LINEBREAK               : [\r\n]+ -> skip
+                        ;
 
 
 
 // fragments, which are part of the grammar but NOT actual terminals:
-fragment DIGIT		    : [0-9]
-					    ;
+fragment DIGIT          : [0-9]
+                        ;
 
-fragment CHARACTER	    : [a-zA-Z]
-					    ;
+fragment CHARACTER      : [a-zA-Z]
+                        ;
 
-fragment ALLCHARS	    : ([a-zA-Z] | '-' | '/' | '_' | '!')
-					    ;
+fragment ALLCHARS       : ([a-zA-Z] | '-' | '/' | '_' | '!')
+                        ;

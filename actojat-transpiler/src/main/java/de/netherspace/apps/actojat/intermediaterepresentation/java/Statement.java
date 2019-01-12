@@ -1,5 +1,5 @@
 package de.netherspace.apps.actojat.intermediaterepresentation.java;
 
-public abstract class Statement {
+public abstract class Statement extends JavaLanguageConstruct {
 
 }
