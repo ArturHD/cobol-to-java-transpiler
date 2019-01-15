@@ -13,6 +13,7 @@ import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.slf4j.Logger;
 
 
 /**
@@ -22,6 +23,7 @@ public abstract class AbstractTranspilerTest<T extends SourceTranspiler> {
 
     private Supplier<SourceTranspiler> constructorExpr;
     private String testBasePackage;
+    protected Logger log;
 
 
     /**
@@ -59,7 +61,7 @@ public abstract class AbstractTranspilerTest<T extends SourceTranspiler> {
         assertNotNull(ir);
 
         final String actualCode = transpiler.generateSourceCode(ir, clazzName, testBasePackage);
-        System.out.println(actualCode); // TODO: write the formatted code instead!
+        log.debug(actualCode);
         assertEquals(expectedCode, actualCode);
     }
 

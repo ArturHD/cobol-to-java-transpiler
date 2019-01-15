@@ -2,6 +2,7 @@ package de.netherspace.apps.actojat;
 
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BinaryOperator;
@@ -113,7 +115,9 @@ public class JavaIrToSourceCodeTranslator {
       final String parameters = functionCall
           .getParameters()
           .stream()
-          .reduce("", this.stringAccumulator); // TODO: correct mapping...
+          .map(Expression::getParts) // TODO: correct mapping...
+          .flatMap(a -> Arrays.stream(a))
+          .reduce("", this.stringAccumulator);
 
       final BasicFunction f = this.systemFunctions.get(functionCall.getName());
       final String functionName;
@@ -134,11 +138,13 @@ public class JavaIrToSourceCodeTranslator {
    * Maps an IR method to its corresponding code snippet.
    */
   private final Function<Method, String> irMethodToCode = m -> {
-    String defaultAccessModifier = "public";
-    String defaultReturnType = "void";
+    final String defaultAccessModifier = "public";
+    final String defaultReturnType = "void";
 
-    String signature = defaultAccessModifier + " " + defaultReturnType + " " + m.getName() + "()";
-    String body = null;
+    final String signature = defaultAccessModifier + " "
+                              + defaultReturnType + " "
+                              + m.getName() + "()";
+    final String body;
     if (m.getStatements().isEmpty()) {
       body = "";
     } else {

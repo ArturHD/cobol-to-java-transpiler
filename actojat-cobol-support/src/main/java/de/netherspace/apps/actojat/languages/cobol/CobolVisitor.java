@@ -2,13 +2,14 @@ package de.netherspace.apps.actojat.languages.cobol;
 
 import de.netherspace.apps.actojat.cobol_grammarBaseVisitor;
 import de.netherspace.apps.actojat.cobol_grammarParser;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Argument;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
+import de.netherspace.apps.actojat.languages.BaseVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.List;
@@ -20,7 +21,8 @@ import java.util.stream.Collectors;
  * A visitor implementation that generates an intermediate representation for a
  * particular parse tree.
  */
-public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct> {
+public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct>
+                          implements BaseVisitor {
 
   private Program javaProgram;
 
@@ -79,18 +81,19 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
       = sentence -> {
         final cobol_grammarParser.StatementContext cobolStatement = sentence.statement().get(0);
         final String functionName = cobolStatement.operation().getText();
-        final List<Argument> parameters = cobolStatement
+        FunctionCall functionCall = new FunctionCall(functionName);
+
+        final List<Expression> parameters = cobolStatement
             .operand()
             .stream()
-            .map(this.operandToJavaArgument)
+            .map(this.operandToJavaExpression)
             .collect(Collectors.toList());
-        System.out.println("\n\n functionName: " + functionName);
         /*
-         * TODO: A) "DISPLAY", "MV" etc should have their own rule - then we can easy switch-case!
-         * TODO: B) how to split multiple COBOL statements? By "DISPLAY", ... tokens?
+         * TODO: How to split multiple (i.e. sequentially written) COBOL statements?
+         * TODO: By "DISPLAY", ... tokens?
          */
-        FunctionCall functionCall = new FunctionCall(functionName);
-        // TODO: add parameters...
+
+        functionCall.getParameters().addAll(parameters);
         return functionCall;
       };
 
@@ -98,13 +101,13 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
   /**
    * Maps a COBOL operand (e.g. the "HelloWorld" in
    * DISPLAY "HelloWorld"
-   * ) to Java argument.
+   * ) to a Java expression.
    */
-  private final Function<cobol_grammarParser.OperandContext, Argument> operandToJavaArgument
+  private final Function<cobol_grammarParser.OperandContext, Expression> operandToJavaExpression
       = op -> {
-        final String name = op.getText();
-        final String type = ""; // TODO: map the actual type!
-        return new Argument(type, name);
+        final String[] parts = { op.getText() };
+        final Expression expr = new Expression(parts);
+        return expr;
       };
 
 

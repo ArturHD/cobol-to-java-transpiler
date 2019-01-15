@@ -6,6 +6,7 @@ import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -13,6 +14,7 @@ import org.junit.Test;
 /**
  * These are tests to ensure the COBOL transpiler's basics are working.
  */
+@Slf4j
 public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTranspilerImpl> {
 
     private static final String cobolBasePackage = "cobol.test.pckg";
@@ -22,16 +24,15 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
      */
     public TestCobolTranspiler() {
         super(CobolSourceTranspilerImpl::new, cobolBasePackage);
+        super.log = log;
     }
 
 
     @Test
-    @Ignore
     public void testCobolHelloWorldTranspilation() throws ParserException, SourceGenerationException, IOException, IntermediateRepresentationException {
-//        final String sourceFile = "cobol-sources/test-source-4.cob";
         final String sourceFile = "cobol-sources/test-source-10.cob";
         final String clazzName = "HelloCobol";
-        final String expectedCode = "package cobol.test.pckg;public class HelloCobol {public void paragraph_DisplayHelloWorld(){display(\"HelloWorld!\");}}";
+        final String expectedCode = "package cobol.test.pckg;public class HelloCobol {public void paragraph_DisplayHelloWorld(){System.out.println(\"HelloWorld!\");}}";
         doTranspilationTest(sourceFile, clazzName, expectedCode);
     }
 

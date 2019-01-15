@@ -2,20 +2,20 @@ package de.netherspace.apps.actojat.languages.c;
 
 import de.netherspace.apps.actojat.c_grammarBaseVisitor;
 import de.netherspace.apps.actojat.c_grammarParser;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Argument;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
+import de.netherspace.apps.actojat.languages.BaseVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * A visitor implementation that generates an intermediate representation for a
  * particular parse tree.
  */
-public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
+public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implements BaseVisitor  {
 
   private Program javaProgram;
 
@@ -51,17 +51,6 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
   Function<c_grammarParser.ArgumentlistContext, Map<String, String>> argumentsToJavaArgs = args -> {
     //TODO!
     return null;
-  };
-
-
-  /**
-   * Maps a C argument (consisting of a type and a name) to a Java argument.
-   */
-  Function<Entry<String, String>, Argument> argEntryToJavaArgument = e -> {
-    final String name = e.getKey();
-    final String type = e.getValue();
-    Argument jargument = new Argument(type, name);
-    return jargument;
   };
 
 
@@ -109,6 +98,19 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
 
 
   /**
+   * Maps a C parameter (e.g. the "HelloWorld" in
+   * printf("HelloWorld")
+   * ) to a Java expression.
+   */
+  private final Function<c_grammarParser.ParameterContext, Expression> parameterToJavaExpression
+      = param -> {
+        final String[] parts = { param.getText() };
+        final Expression expr = new Expression(parts);
+        return expr;
+      };
+
+
+  /**
    * Maps a C expression to a Java statement.
    */
   private Function<c_grammarParser.ExpressionContext, Statement> expressionToJavaStatement = ex -> {
@@ -118,9 +120,15 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
       // set the function's name (e.g. 'doSomething' for 'bla = doSomething();' ):
       final String functionName = ex.functioncall().ID().getText();
       final FunctionCall functionCall = new FunctionCall(functionName);
+
       if (ex.functioncall().parameterlist() != null) {
-        functionCall.getParameters()
-            .add(ex.functioncall().parameterlist().parameter(0).getText()); //TODO!
+        final List<Expression> parameters = ex.functioncall()
+            .parameterlist()
+            .parameter()
+            .stream()
+            .map(this.parameterToJavaExpression)
+            .collect(Collectors.toList());
+        functionCall.getParameters().addAll(parameters);
       }
       return functionCall;
     }
@@ -151,6 +159,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
    */
   private String computeRightHandSide(c_grammarParser.RhsContext rhs) {
     // TODO: composite expressions!
+    // TODO: return "Expression.class"!
     return rhs.getText();
   }
 
@@ -176,47 +185,5 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> {
         .replaceAll("-", "_");
     return includeWithoutDashes;
   }
-
-//  @Override
-//  public JavaLanguageConstruct visitChildren(RuleNode node) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public JavaLanguageConstruct visitTerminal(TerminalNode node) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public JavaLanguageConstruct visitErrorNode(ErrorNode node) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public JavaLanguageConstruct visitProgram(ProgramContext ctx) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public JavaLanguageConstruct visitImports(ImportsContext ctx) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public JavaLanguageConstruct visitFunctionlist(FunctionlistContext ctx) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public JavaLanguageConstruct visitBlock(BlockContext ctx) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
 
 }

@@ -6,12 +6,14 @@ import de.netherspace.apps.actojat.languages.c.CSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 
 /**
  * These are tests to ensure the C transpiler's basics is working.
  */
+@Slf4j
 public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImpl> {
 
     private static final String cBasePackage = "c.test.pckg";
@@ -22,6 +24,7 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
      */
     public TestCTranspiler() {
         super(CSourceTranspilerImpl::new, cBasePackage);
+        super.log = log;
     }
 
 
