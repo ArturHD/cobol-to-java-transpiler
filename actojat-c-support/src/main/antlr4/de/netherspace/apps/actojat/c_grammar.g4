@@ -3,156 +3,157 @@ grammar c_grammar;
 
 
 // The grammar's start symbol:
-program				//: statements
-					: functionlist
-					| imports functionlist
-//					| imports globalvariables functionlist
-					;
+program             //: statements
+                    : functionlist
+                    | imports functionlist
+//                  | imports globalvariables functionlist
+                    ;
 
-// The set of variables:
-imports				: importheader+
-					;
+// ################ The set of variables ################
+imports             : importheader+
+                    ;
 
-functionlist		: functiondeclr+
-					;
+functionlist        : functiondeclr+
+                    ;
 
-importheader		: INCLUDEKWRD OPENINGANGLEQUOTE FILEID CLOSINGANGLEQUOTE
-					| INCLUDEKWRD QUOTATIONMARK FILEID QUOTATIONMARK
-					;
+importheader        : INCLUDEKWRD OPENINGANGLEQUOTE FILEID CLOSINGANGLEQUOTE
+                    | INCLUDEKWRD QUOTATIONMARK FILEID QUOTATIONMARK
+                    ;
 
 //TODO: recognize non-primitive and n-dimensional types!
-functiondeclr		: PRIMITIVETYPE ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS block
-//					| NDIMTYPE ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS block
-					;
+functiondeclr       : PRIMITIVETYPE ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS block
+//                  | NDIMTYPE ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS block
+                    ;
 
-block				: OPENINGCURLYBRACKET expressionlist CLOSINGCURLYBRACKET
-					;
+block               : OPENINGCURLYBRACKET expressionlist CLOSINGCURLYBRACKET
+                    ;
 
-expression			: lhs ASSIGNMENTOP rhs SEMICOLON
-					| functioncall SEMICOLON
-					;
+expression          : lhs ASSIGNMENTOP rhs SEMICOLON
+                    | functioncall SEMICOLON
+                    ;
 
-functioncall		: ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS
-					| ID OPENINGPARENTHESIS CLOSINGPARENTHESIS
-					;
+functioncall        : ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS
+                    | ID OPENINGPARENTHESIS CLOSINGPARENTHESIS
+                    ;
 
-argumentlist		: argument*
-					;
+argumentlist        : argument*
+                    ;
 
-expressionlist		: expression*
-					;
+expressionlist      : expression*
+                    ;
 
-argument			: ID ID //TODO!
-					;
+argument            : ID ID //TODO!
+                    ;
 
-parameterlist		: parameter (COMMA parameter)+
-					| parameter
-					;
+parameterlist       : parameter (COMMA parameter)+
+                    | parameter
+                    ;
 
-parameter			: STRING //e.g. bla("Hello World");
-//					| ID //e.g. blubb(tigerente);
-					;
+parameter           : STRING //e.g. bla("Hello World");
+//                  | ID //e.g. blubb(tigerente);
+                    ;
 
-lhs					: ID
-					;
+lhs                 : ID
+                    ;
 
-rhs					: ID operand ID
+rhs                 : ID operand ID
 //TODO: composite expressions!
-					| ID
-					;
+                    | ID
+                    ;
 
-operand				: PLUSSIGN
-					| MINUSSIGN
-					| ASTERISK
-					| SLASH
-					;
-
-
-// The set of terminals:
-WHITESPACE			: [ \t]+ -> channel(HIDDEN)
-					;
-
-LINEBREAK			: [\r\n]+ -> skip
-					;
-
-DOT					: '.'
-					;
-
-COMMA				: ','
-					;
-
-QUOTATIONMARK		: '"'
-					;
-
-SINGLEQUOTE			: '\''
-					;
-
-OPENINGANGLEQUOTE	: '<'
-					;
-
-CLOSINGANGLEQUOTE	: '>'
-					;
-
-OPENINGPARENTHESIS	: '('
-					;
-
-CLOSINGPARENTHESIS	: ')'
-					;
-
-OPENINGBRACKET		: '['
-					;
-
-CLOSINGBRACKET		: ']'
-					;
-
-OPENINGCURLYBRACKET	: '{'
-					;
-
-CLOSINGCURLYBRACKET	: '}'
-					;
-
-ASSIGNMENTOP		: '='
-					;
-
-SEMICOLON			: ';'
-					;
-
-MINUSSIGN			: '-'
-					;
-
-PLUSSIGN			: '+'
-					;
-
-ASTERISK			: '*'
-					;
-
-SLASH				: '/'
-					;
-
-PRIMITIVETYPE		: 'int'
-					| 'void'
-					;
-
-INCLUDEKWRD			: '#include'
-					;
-
-FILEID				: (ALLCHARS | DIGIT)+ DOT CHARACTER+
-					;
-
-STRING				: QUOTATIONMARK (CHARACTER | DIGIT | WHITESPACE)+ QUOTATIONMARK
-					;
-
-ID					: CHARACTER+
-					;
+operand             : PLUSSIGN
+                    | MINUSSIGN
+                    | ASTERISK
+                    | SLASH
+                    ;
 
 
+// ################ The set of terminals ################
 
-// Fragments which are part of the grammar but NOT actual terminals:
-fragment DIGIT		: [0-9]
-					;
+WHITESPACE          : [ \t]+ -> channel(HIDDEN)
+                    ;
 
-fragment CHARACTER	: [a-zA-Z]
-					;
+LINEBREAK           : [\r\n]+ -> skip
+                    ;
 
-fragment ALLCHARS	: ([a-zA-Z] | '-' | '/' | '_' )
-					;
+DOT                 : '.'
+                    ;
+
+COMMA               : ','
+                    ;
+
+QUOTATIONMARK       : '"'
+                    ;
+
+SINGLEQUOTE         : '\''
+                    ;
+
+OPENINGANGLEQUOTE   : '<'
+                    ;
+
+CLOSINGANGLEQUOTE   : '>'
+                    ;
+
+OPENINGPARENTHESIS  : '('
+                    ;
+
+CLOSINGPARENTHESIS  : ')'
+                    ;
+
+OPENINGBRACKET      : '['
+                    ;
+
+CLOSINGBRACKET      : ']'
+                    ;
+
+OPENINGCURLYBRACKET : '{'
+                    ;
+
+CLOSINGCURLYBRACKET : '}'
+                    ;
+
+ASSIGNMENTOP        : '='
+                    ;
+
+SEMICOLON           : ';'
+                    ;
+
+MINUSSIGN           : '-'
+                    ;
+
+PLUSSIGN            : '+'
+                    ;
+
+ASTERISK            : '*'
+                    ;
+
+SLASH               : '/'
+                    ;
+
+PRIMITIVETYPE       : 'int'
+                    | 'void'
+                    ;
+
+INCLUDEKWRD         : '#include'
+                    ;
+
+FILEID              : (ALLCHARS | DIGIT)+ DOT CHARACTER+
+                    ;
+
+STRING              : QUOTATIONMARK (CHARACTER | DIGIT | WHITESPACE)+ QUOTATIONMARK
+                    ;
+
+ID                  : CHARACTER+
+                    ;
+
+
+
+// fragments, which are part of the grammar but NOT actual terminals:
+fragment DIGIT      : [0-9]
+                    ;
+
+fragment CHARACTER  : [a-zA-Z]
+                    ;
+
+fragment ALLCHARS   : ([a-zA-Z] | '-' | '/' | '_' )
+                    ;
