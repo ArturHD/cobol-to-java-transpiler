@@ -39,10 +39,31 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
   @Test
   public void testCobolHelloWorldTranspilation() throws ParserException, SourceGenerationException,
       IOException, IntermediateRepresentationException {
-    final String sourceFile = "cobol-sources/test-source-10.cob";
+    final String sourceFile = "cobol-sources/test-source-helloworld.cob";
     final String clazzName = "HelloCobol";
     final String expectedCode = "package cobol.test.pckg;public class HelloCobol {public"
         + " void paragraph_DisplayHelloWorld(){System.out.println(\"HelloWorld!\");}}";
+    doTranspilationTest(sourceFile, clazzName, expectedCode);
+  }
+
+
+  /**
+   * * Tests, whether the transpiler successfully transpiles a program containing a simple loop.
+   *
+   * @throws ParserException                     If a parser exception occurs
+   * @throws SourceGenerationException           If a source code generation exception occurs
+   * @throws IOException                         If an IO exception occurs
+   * @throws IntermediateRepresentationException If an IR generation exception occurs
+   */
+  @Test
+  @Ignore
+  public void testCobolSimpleLoopTranspilation() throws ParserException, SourceGenerationException,
+      IOException, IntermediateRepresentationException {
+    final String sourceFile = "cobol-sources/test-source-simpleloop.cob";
+    final String clazzName = "SimpleLoop";
+    final String expectedCode = "package cobol.test.pckg;public class SimpleLoop {public"
+        + " void paragraph_DisplayHelloWorld(){System.out.println(\"HelloWorld!\");}}";
+    // TODO: add the exp. String!
     doTranspilationTest(sourceFile, clazzName, expectedCode);
   }
 
