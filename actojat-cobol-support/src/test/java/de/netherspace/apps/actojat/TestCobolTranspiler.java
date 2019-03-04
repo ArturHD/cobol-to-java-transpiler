@@ -37,6 +37,7 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
    * @throws IntermediateRepresentationException If an IR generation exception occurs
    */
   @Test
+  @Ignore
   public void testCobolHelloWorldTranspilation() throws ParserException, SourceGenerationException,
       IOException, IntermediateRepresentationException {
     final String sourceFile = "cobol-sources/test-source-helloworld.cob";
@@ -56,7 +57,6 @@ public class TestCobolTranspiler extends AbstractTranspilerTest<CobolSourceTrans
    * @throws IntermediateRepresentationException If an IR generation exception occurs
    */
   @Test
-  @Ignore
   public void testCobolSimpleLoopTranspilation() throws ParserException, SourceGenerationException,
       IOException, IntermediateRepresentationException {
     final String sourceFile = "cobol-sources/test-source-simpleloop.cob";

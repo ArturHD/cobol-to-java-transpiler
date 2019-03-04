@@ -2,9 +2,10 @@ package de.netherspace.apps.actojat.intermediaterepresentation.java;
 
 import lombok.Getter;
 
-public enum BasicFunction {
+public enum BasicFunction { // TODO: rename to 'BasicConstruct'
 
-  PRINTLN("System.out.println");
+  PRINTLN("System.out.println"),
+  RETURN("return");
 
   @Getter
   private final String rawName;

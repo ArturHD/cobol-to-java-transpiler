@@ -4,6 +4,8 @@ import de.netherspace.apps.actojat.AbstractSourceTranspiler;
 import de.netherspace.apps.actojat.cobol_grammarLexer;
 import de.netherspace.apps.actojat.cobol_grammarParser;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
+import de.netherspace.apps.actojat.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -20,9 +22,10 @@ public class CobolSourceTranspilerImpl extends AbstractSourceTranspiler<cobol_gr
                                                                 cobol_grammarParser.ProgramContext,
                                                                 CobolVisitor> {
 
-  private static final Supplier<Map<String, BasicFunction>> systemFunctionsSupplier = () -> {
-    HashMap<String, BasicFunction> map = new HashMap<>();
-    map.put("DISPLAY", BasicFunction.PRINTLN);
+  private static final Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier = () -> {
+    HashMap<String, Pair<BasicFunction, JavaConstructType>> map = new HashMap<>();
+    map.put("DISPLAY", new Pair<>(BasicFunction.PRINTLN, JavaConstructType.FUNCTION));
+    map.put("STOP", new Pair<>(BasicFunction.RETURN, JavaConstructType.KEYWORD));
     return map;
   };
 

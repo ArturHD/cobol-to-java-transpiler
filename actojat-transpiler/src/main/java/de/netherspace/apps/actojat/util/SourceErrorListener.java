@@ -1,6 +1,7 @@
 package de.netherspace.apps.actojat.util;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.Parser;
@@ -14,6 +15,7 @@ import java.util.BitSet;
 /**
  * A Custom ErrorListener that sets a certain error flag whenever an error occurs.
  */
+@Slf4j
 public class SourceErrorListener extends BaseErrorListener implements ANTLRErrorListener {
 
   @Getter
@@ -32,6 +34,7 @@ public class SourceErrorListener extends BaseErrorListener implements ANTLRError
                           int line, int charPositionInLine,
                           String msg, RecognitionException exception) {
     this.errorFlag = true;
+    log.error("Syntax Error found!" + msg);
     super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception);
   }
 
@@ -40,6 +43,7 @@ public class SourceErrorListener extends BaseErrorListener implements ANTLRError
                               int stopIndex, boolean exact,
                               BitSet ambigAlts, ATNConfigSet configs) {
     this.errorFlag = true;
+    log.error("Ambiguity found!");
     super.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs);
   }
 

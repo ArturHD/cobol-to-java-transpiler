@@ -76,7 +76,8 @@ filesection             : FILE SECTION DOT
                         ;
 
 workingstoragesection   //: WORKINGSTORAGE SECTION DOT (datadecl | importcopyfile)+
-                        : WORKINGSTORAGE SECTION DOT (importcopyfile)+ // TODO: data declaration!
+                        : WORKINGSTORAGE SECTION DOT (importcopyfile)+
+                        | WORKINGSTORAGE SECTION DOT (datadeclaration)+ // TODO: data decl. AND imports possible!
                         | WORKINGSTORAGE SECTION DOT
                         ; // TODO: fix the (A|B)+ rule!
 
@@ -93,6 +94,9 @@ importcopyfile          : COPY QUOTATIONMARK FILEID QUOTATIONMARK DOT
 
 // TODO: are tailing imports parts of the COBOL85 standard or a MF COBOL gimmick?
 tailingimports          : importcopyfile+
+                        ;
+
+datadeclaration         : NUMBER ID PIC NUMBER VALUE NUMBER DOT // TODO: fix this rule (2nd and 3rd 'NUMBER' are placeholders only)!
                         ;
 
 
@@ -123,14 +127,19 @@ block                   : STARTSECT DOT
 
 statement               : operation operand+
                         ;
-                    
+
 operation               : SUBTRACT
                         | DISPLAY
+                        | PERFORM
                         | COMPUTE
                         | MOVE
+                        | STOP
                         ;
-                    
-operand                 : STRINGVALUE
+
+operand                 : TIMES
+                        | RUN
+                        | STRINGVALUE
+                        | ID
                         // TODO: ...
                         ;
 
@@ -188,6 +197,9 @@ PROGRAM                 : 'PROGRAM'
 DISPLAY                 : 'DISPLAY'
                         ;
 
+PERFORM                 : 'PERFORM'
+                        ;
+
 COMPUTE                 : 'COMPUTE'
                         ;
 
@@ -200,16 +212,27 @@ REPORT                  : 'REPORT'
 USING                   : 'USING'
                         ;
 
+VALUE                   : 'VALUE'
+                        ;
+
+TIMES                   : 'TIMES'
+                        ;
+
 EXIT                    : 'EXIT'
+                        ;
+
+STOP                    : 'STOP'
                         ;
 
 FILE                    : 'FILE'
                         ;
 
-PRIMITIVETYPE           : 'int'
-                        | 'void'
+PIC                     : 'PIC'
                         ;
-                    
+
+RUN                     : 'RUN'
+                        ;
+
 COPY                    : 'copy '
                         | 'COPY '
                         ;
@@ -235,6 +258,9 @@ SECTIONNAME             : DIGIT+ ('-' (CHARACTER+))+
                         ;
 
 FILEID                  : (ALLCHARS | DIGIT)+ DOT CHARACTER+
+                        ;
+
+NUMBER                  : DIGIT+
                         ;
 
 ID                      : ALLCHARS+

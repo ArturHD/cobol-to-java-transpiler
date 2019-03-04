@@ -1,9 +1,11 @@
 package de.netherspace.apps.actojat;
 
 import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
+import de.netherspace.apps.actojat.util.Pair;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceErrorHandler;
 import de.netherspace.apps.actojat.util.SourceErrorListener;
@@ -49,7 +51,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
   private Function<P, C> startsymbolExpr;
   private Supplier<V> visitorFactoryExpr;
   private List<String> ruleNames;
-  private Supplier<Map<String, BasicFunction>> systemFunctionsSupplier;
+  private Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier;
 
 
   /**
@@ -65,7 +67,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
                                   Function<CommonTokenStream, P> parserFactoryExpr,
                                   Function<P, C> startsymbolExpr,
                                   Supplier<V> visitorFactoryExpr,
-                                  Supplier<Map<String, BasicFunction>> systemFunctionsSupplier) {
+                                  Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier) {
     super();
     this.lexerFactoryExpr = lexerFactoryExpr;
     this.parserFactoryExpr = parserFactoryExpr;
@@ -97,12 +99,16 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
 
     // create the parse tree by calling the start symbol:
     ParseTree parseTree = startsymbolExpr.apply(parser);
-    log.debug("\n" + parseTree.toStringTree(parser) + "\n");
+    log.debug("\n " + parseTree.toStringTree(parser) + "\n");
 
     //did an error occur during parsing?
     if (errorHandler.isErrorFlag()
-        || errorListener.isErrorFlag() || lexerErrorListener.isErrorFlag()) {
+        || errorListener.isErrorFlag()
+        || lexerErrorListener.isErrorFlag()) {
       log.error("I couldn't parse the given piece of source code!");
+      log.debug("  errorHandler.isErrorFlag() = " + errorHandler.isErrorFlag());
+      log.debug("  errorListener.isErrorFlag() = " + errorListener.isErrorFlag());
+      log.debug("  lexerErrorListener.isErrorFlag() = " + lexerErrorListener.isErrorFlag());
       throw new ParserException();
     }
     log.debug("I could successfully parse the given piece of source code");
