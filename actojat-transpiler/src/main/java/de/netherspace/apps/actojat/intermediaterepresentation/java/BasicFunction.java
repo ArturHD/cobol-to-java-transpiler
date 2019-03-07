@@ -5,7 +5,8 @@ import lombok.Getter;
 public enum BasicFunction { // TODO: rename to 'BasicConstruct'
 
   PRINTLN("System.out.println"),
-  RETURN("return");
+  RETURN("return"),
+  FORLOOP("for(...)");
 
   @Getter
   private final String rawName;

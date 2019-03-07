@@ -67,7 +67,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
                                   Function<CommonTokenStream, P> parserFactoryExpr,
                                   Function<P, C> startsymbolExpr,
                                   Supplier<V> visitorFactoryExpr,
-                                  Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier) {
+            Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier) {
     super();
     this.lexerFactoryExpr = lexerFactoryExpr;
     this.parserFactoryExpr = parserFactoryExpr;
@@ -133,7 +133,8 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
   @Override
   public String generateSourceCode(JavaLanguageConstruct program, String name, String basePackage)
       throws SourceGenerationException {
-    final Map<String, BasicFunction> systemFunctions = systemFunctionsSupplier.get();
+    final Map<String, Pair<BasicFunction, JavaConstructType>> systemFunctions
+        = systemFunctionsSupplier.get();
     JavaIrToSourceCodeTranslator irTranslator = new JavaIrToSourceCodeTranslator(systemFunctions);
     irTranslator.setClassName(name);
     irTranslator.setBasePackage(basePackage);

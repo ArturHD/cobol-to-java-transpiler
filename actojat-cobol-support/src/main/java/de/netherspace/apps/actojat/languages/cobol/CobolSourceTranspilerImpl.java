@@ -22,12 +22,14 @@ public class CobolSourceTranspilerImpl extends AbstractSourceTranspiler<cobol_gr
                                                                 cobol_grammarParser.ProgramContext,
                                                                 CobolVisitor> {
 
-  private static final Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier = () -> {
-    HashMap<String, Pair<BasicFunction, JavaConstructType>> map = new HashMap<>();
-    map.put("DISPLAY", new Pair<>(BasicFunction.PRINTLN, JavaConstructType.FUNCTION));
-    map.put("STOP", new Pair<>(BasicFunction.RETURN, JavaConstructType.KEYWORD));
-    return map;
-  };
+  private static final Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>>
+      systemFunctionsSupplier = () -> {
+        HashMap<String, Pair<BasicFunction, JavaConstructType>> map = new HashMap<>();
+        map.put("DISPLAY", new Pair<>(BasicFunction.PRINTLN, JavaConstructType.FUNCTION));
+        map.put("STOP", new Pair<>(BasicFunction.RETURN, JavaConstructType.KEYWORD));
+        map.put("FORLOOP", new Pair<>(BasicFunction.FORLOOP, JavaConstructType.KEYWORD));
+        return map;
+      };
 
   /**
    * The default constructor. Supplies all necessary parameters to the super class.

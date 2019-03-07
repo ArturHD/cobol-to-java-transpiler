@@ -3,11 +3,14 @@ package de.netherspace.apps.actojat;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.ForLoop;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
+import de.netherspace.apps.actojat.util.Pair;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +22,7 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A translator that generates Java code from an intermediate representation.
@@ -36,12 +40,13 @@ public class JavaIrToSourceCodeTranslator {
   @Setter
   private String basePackage;
 
-  private Map<String, BasicFunction> systemFunctions;
+  private Map<String, Pair<BasicFunction, JavaConstructType>> systemFunctions;
 
   /**
    * The default constructor.
    */
-  JavaIrToSourceCodeTranslator(Map<String, BasicFunction> systemFunctions) {
+  JavaIrToSourceCodeTranslator(Map<String, Pair<BasicFunction,
+      JavaConstructType>> systemFunctions) {
     super();
     this.builder = new StringBuilder();
     this.systemFunctions = systemFunctions;
@@ -104,30 +109,65 @@ public class JavaIrToSourceCodeTranslator {
    * Maps an IR statement to its corresponding code snippet.
    */
   private final Function<Statement, String> statementToCode = stmnt -> {
+    // is the statement an assignment?
     if (stmnt instanceof Assignment) {
       final Assignment assignment = (Assignment) stmnt;
       return assignment.getLhs() + "=" + assignment.getRhs() + ";";
       //TODO: composite expressions!
 
+
+      // is the statement a for-loop?
+    } else if (stmnt instanceof ForLoop) {
+      final ForLoop loop = (ForLoop) stmnt;
+      final String loopHeader = "for (" + loop.getLoopCounter() + ")";
+
+      final String loopBody = Arrays
+          .stream(loop.getBody())
+          .map(this.statementToCode)
+          .reduce("", this.stringAccumulator);
+
+      return loopHeader + " { " + loopBody + " };";
+
+
+      // is the statement a function call?
     } else if (stmnt instanceof FunctionCall) {
       final FunctionCall functionCall = (FunctionCall) stmnt;
 
+      // extract its parameters (e.g. the "Hello!" in DISPLAY("Hello!")):
       final String parameters = functionCall
           .getParameters()
           .stream()
           .map(Expression::getParts) // TODO: correct mapping...
           .flatMap(a -> Arrays.stream(a))
+          //.map(param -> param + ", ")
           .reduce("", this.stringAccumulator);
 
-      final BasicFunction f = this.systemFunctions.get(functionCall.getName());
+      // check, whether this source statement maps canonically to a
+      // pre-defined Java method (e.g. "DISPLAY" -> "System.out.println"):
       final String functionName;
-      if (f == null) {
+      if (!this.systemFunctions.containsKey(functionCall.getName())) {
+        // no, therefore we'll take its original name:
         functionName = functionCall.getName();
+
       } else {
-        functionName = f.getRawName();
+        // yes, there is a corresponding Java method!
+        final Pair<BasicFunction, JavaConstructType> systemFunction = this
+            .systemFunctions
+            .get(functionCall.getName());
+        final BasicFunction f = systemFunction.getFirst();
+        final JavaConstructType constructType = systemFunction.getSecond();
+
+        // check, if its a _method_ or a mere _keyword_ (e.g. "return"):
+        if (constructType == JavaConstructType.KEYWORD) {
+          return f.getRawName() + ";";
+        } else {
+          functionName = f.getRawName();
+        }
       }
       return functionName + "(" + parameters + ")" + ";";
 
+
+      // the statement is neither an assignment nor a function call nor a loop, nor a ...:
     } else {
       return ""; //ooops...
     }

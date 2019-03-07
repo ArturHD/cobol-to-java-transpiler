@@ -125,7 +125,40 @@ block                   : STARTSECT DOT
 //                      | STARTSECT statements DOT
                         ;
 
-statement               : operation operand+
+statement               : performtimes
+                        | performuntil
+                        | performvarying
+                        | performsinglefunction
+                        | displayvalue
+                        | stopoperation
+                        //: operation operand+
+                        ;
+
+performtimes            : PERFORM blockname counter TIMES // ID = FunctionName
+                        ;
+
+blockname               : ID
+                        ;
+
+counter                 : (NUMBER | ID)
+                        ;
+
+performuntil            : PERFORM ID UNTIL condition // ID = FunctionName
+                        ;
+
+performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM // ID = FunctionName
+                        ;
+
+performsinglefunction   :PERFORM ID // ID = FunctionName
+                        ;
+
+condition               : PLACEHOLDER // TODO!
+                        ;
+
+displayvalue            : DISPLAY STRINGVALUE+
+                        ;
+
+stopoperation           : STOP RUN
                         ;
 
 operation               : SUBTRACT
@@ -137,6 +170,7 @@ operation               : SUBTRACT
                         ;
 
 operand                 : TIMES
+                        | UNTIL
                         | RUN
                         | STRINGVALUE
                         | ID
@@ -203,6 +237,9 @@ PERFORM                 : 'PERFORM'
 COMPUTE                 : 'COMPUTE'
                         ;
 
+VARYING                 : 'VARYING'
+                        ;
+
 AUTHOR                  : 'AUTHOR'
                         ;
 
@@ -210,6 +247,9 @@ REPORT                  : 'REPORT'
                         ;
 
 USING                   : 'USING'
+                        ;
+
+UNTIL                   : 'UNTIL'
                         ;
 
 VALUE                   : 'VALUE'
@@ -225,6 +265,9 @@ STOP                    : 'STOP'
                         ;
 
 FILE                    : 'FILE'
+                        ;
+
+FROM                    : 'FROM'
                         ;
 
 PIC                     : 'PIC'

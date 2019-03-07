@@ -6,14 +6,14 @@ import lombok.Getter;
 /**
  * A generic pair: UxT.
  *
- * @param <T> the type of T
- * @param <U> the type of U
+ * @param <T> the type of First
+ * @param <U> the type of Second
  */
 @Getter
 @AllArgsConstructor
 public class Pair<T, U> {
 
-  private T t;
-  private U u;
+  private T first;
+  private U second;
 
 }

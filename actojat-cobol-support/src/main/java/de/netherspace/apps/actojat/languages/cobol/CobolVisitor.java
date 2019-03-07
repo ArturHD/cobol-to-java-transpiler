@@ -3,6 +3,7 @@ package de.netherspace.apps.actojat.languages.cobol;
 import de.netherspace.apps.actojat.cobol_grammarBaseVisitor;
 import de.netherspace.apps.actojat.cobol_grammarParser;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.ForLoop;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
@@ -11,6 +12,7 @@ import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
 import de.netherspace.apps.actojat.languages.BaseVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.List;
 import java.util.function.Function;
@@ -80,21 +82,78 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
   private final Function<cobol_grammarParser.SentenceContext, Statement> sentenceToJavaStatement
       = sentence -> {
         final cobol_grammarParser.StatementContext cobolStatement = sentence.statement().get(0);
-        final String functionName = cobolStatement.operation().getText();
-        FunctionCall functionCall = new FunctionCall(functionName);
 
-        final List<Expression> parameters = cobolStatement
-            .operand()
-            .stream()
-            .map(this.operandToJavaExpression)
-            .collect(Collectors.toList());
-        /*
-         * TODO: How to split multiple (i.e. sequentially written) COBOL statements?
-         * TODO: By "DISPLAY", ... tokens?
-         */
+        final boolean isDisplayvalueStatement = cobolStatement.displayvalue() != null;
+        final boolean isPerformtimesStatement = cobolStatement.performtimes() != null;
+        final boolean isPerformuntilStatement = cobolStatement.performuntil() != null;
+        final boolean isPerformvaryingStatement = cobolStatement.performvarying() != null;
+        final boolean isPerformFunctionStatement = cobolStatement.performsinglefunction() != null;
+        final boolean isStopoperationStatement = cobolStatement.stopoperation() != null;
 
-        functionCall.getParameters().addAll(parameters);
-        return functionCall;
+        // "DISPLAY ... ":
+        if (isDisplayvalueStatement) {
+          final String functionName = "DISPLAY"; // TODO: make an enum holding these values!
+          final FunctionCall functionCall = new FunctionCall(functionName);
+
+          final List<Expression> parameters = cobolStatement.displayvalue()
+              .STRINGVALUE()
+              .stream()
+              .map(this.stringvalueToJavaExpression)
+              .collect(Collectors.toList());
+
+          functionCall.getParameters().addAll(parameters);
+          return functionCall;
+
+          // "PERFORM ... TIMES":
+        } else if (isPerformtimesStatement) {
+          final cobol_grammarParser.PerformtimesContext performtimes = cobolStatement
+              .performtimes();
+          final cobol_grammarParser.CounterContext loopCounter = performtimes.counter();
+          final cobol_grammarParser.BlocknameContext blockname = performtimes.blockname();
+
+          final String functionName = blockname.getText();
+          final FunctionCall functionCall = new FunctionCall(functionName);
+
+          Statement[] body = { functionCall };
+          return new ForLoop(null, body); // TODO: map Cobol loop counter!
+
+          // "STOP ...":
+        } else if (isStopoperationStatement) {
+          final String functionName = "STOP"; // TODO: make an enum holding these values!
+          return new FunctionCall(functionName);
+        }
+
+        //        if (cobolStatement.operation().DISPLAY() != null) {
+        //          // TODO: ...
+        //
+        //        } else if (cobolStatement.operation().PERFORM() != null) {
+        //          // check the last operand ("PERFORM ... TIMES/UNTIL"):
+        //          final cobol_grammarParser.OperandContext lastOperand = cobolStatement
+        //              .operand()
+        //              .get(cobolStatement.operand().size() - 1);
+        //          // Loop or mere function call?
+        //          final boolean lastOperandIsTimes = lastOperand.TIMES() != null;
+        //          if (lastOperandIsTimes) {
+        //            // TODO: FOR loop!
+        //            System.out.println("For Loop!!"); // TODO: erase!
+        //          }
+        //        }
+        //
+        //        final String functionName = cobolStatement.operation().getText();
+        //
+        //        // TODO: FunctionCall OR Keyword OR Construct,
+        //        // TODO: e.g. Perform -> dispatch , Perform...Times -> for()
+        //        FunctionCall functionCall = new FunctionCall(functionName);
+        //
+        //        final List<Expression> parameters = cobolStatement
+        //            .operand()
+        //            .stream()
+        //            .map(this.operandToJavaExpression)
+        //            .collect(Collectors.toList());
+        //
+        //        functionCall.getParameters().addAll(parameters);
+        //        return functionCall;
+        return new FunctionCall(cobolStatement.getText());
       };
 
 
@@ -106,10 +165,13 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
   private final Function<cobol_grammarParser.OperandContext, Expression> operandToJavaExpression
       = op -> {
         final String[] parts = { op.getText() };
-        final Expression expr = new Expression(parts);
-        return expr;
+        return new Expression(parts);
       };
 
+  private Function<? super TerminalNode, Expression> stringvalueToJavaExpression = s -> {
+    final String[] parts = { s.getText() };
+    return new Expression(parts);
+  };
 
   /**
    * Computes a Java method name from a COBOL section's signature.
