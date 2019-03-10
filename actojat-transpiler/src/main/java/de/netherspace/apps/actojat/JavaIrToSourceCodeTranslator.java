@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * A translator that generates Java code from an intermediate representation.
@@ -41,6 +40,7 @@ public class JavaIrToSourceCodeTranslator {
   private String basePackage;
 
   private Map<String, Pair<BasicFunction, JavaConstructType>> systemFunctions;
+  private Map<String, Method> sourceMethodNamesToJavaMethods;
 
   /**
    * The default constructor.
@@ -50,6 +50,7 @@ public class JavaIrToSourceCodeTranslator {
     super();
     this.builder = new StringBuilder();
     this.systemFunctions = systemFunctions;
+    this.sourceMethodNamesToJavaMethods = new HashMap<>();
   }
 
 
@@ -74,12 +75,16 @@ public class JavaIrToSourceCodeTranslator {
 
     append.accept("public class " + this.className + " {");
 
-    program.getMethods().stream()
+    // store the sourceMethodName -> JavaIrMethod mapping as a member:
+    this.sourceMethodNamesToJavaMethods = program.getMethods();
+
+    program.getMethods()
+        .values()
+        .stream()
         .map(irMethodToCode)
         .forEach(append);
 
     append.accept("}");
-
     return builder.toString();
   }
 
@@ -147,7 +152,8 @@ public class JavaIrToSourceCodeTranslator {
       final String functionName;
       if (!this.systemFunctions.containsKey(functionCall.getName())) {
         // no, therefore we'll take its original name:
-        functionName = functionCall.getName();
+        final Method m = this.sourceMethodNamesToJavaMethods.get(functionCall.getName());
+        functionName = m.getName();
 
       } else {
         // yes, there is a corresponding Java method!
@@ -188,7 +194,8 @@ public class JavaIrToSourceCodeTranslator {
     if (m.getStatements().isEmpty()) {
       body = "";
     } else {
-      body = m.getStatements().stream()
+      body = m.getStatements()
+          .stream()
           .map(statementToCode)
           .reduce("", stringAccumulator);
     }

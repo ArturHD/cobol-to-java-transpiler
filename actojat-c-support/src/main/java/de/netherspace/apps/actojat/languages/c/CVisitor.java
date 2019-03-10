@@ -72,7 +72,6 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
                              .stream()
                              .map(argEntryToJavaArgument)
                              .collect(Collectors.toList());
-    //TODO: keep order!
     javaMethod.getArguments().addAll(jarguments);*/
 
     final List<Statement> jstatements = ctx.block()
@@ -81,10 +80,9 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
         .stream()
         .map(expressionToJavaStatement)
         .collect(Collectors.toList());
-    //TODO: keep order!
     javaMethod.getStatements().addAll(jstatements);
 
-    javaProgram.getMethods().add(javaMethod);
+    javaProgram.getMethods().put(methodName, javaMethod);
     return javaMethod;
   }
 
@@ -102,7 +100,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    * printf("HelloWorld")
    * ) to a Java expression.
    */
-  private final Function<c_grammarParser.ParameterContext, Expression> parameterToJavaExpression
+  private final Function<c_grammarParser.ArgumentContext, Expression> parameterToJavaExpression
       = param -> {
         final String[] parts = { param.getText() };
         final Expression expr = new Expression(parts);
@@ -121,10 +119,10 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
       final String functionName = ex.functioncall().ID().getText();
       final FunctionCall functionCall = new FunctionCall(functionName);
 
-      if (ex.functioncall().parameterlist() != null) {
+      if (ex.functioncall().argumentlist() != null) {
         final List<Expression> parameters = ex.functioncall()
-            .parameterlist()
-            .parameter()
+            .argumentlist()
+            .argument()
             .stream()
             .map(this.parameterToJavaExpression)
             .collect(Collectors.toList());

@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -78,7 +79,12 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
 
 
   @Override
-  public ParseTree parseInputStream(InputStream inputStream) throws ParserException {
+  public ParseTree parseInputStream(InputStream inputStream) throws ParserException,
+      FileNotFoundException {
+    if (inputStream == null) {
+      throw new FileNotFoundException("The input stream was null!");
+    }
+
     log.info("Starting to parse input stream...");
     CharStream inputCharStream = new UnbufferedCharStream(inputStream);
 

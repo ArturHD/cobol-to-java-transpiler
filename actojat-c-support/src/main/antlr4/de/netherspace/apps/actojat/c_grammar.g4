@@ -21,8 +21,8 @@ importheader        : INCLUDEKWRD OPENINGANGLEQUOTE FILEID CLOSINGANGLEQUOTE
                     ;
 
 //TODO: recognize non-primitive and n-dimensional types!
-functiondeclr       : PRIMITIVETYPE ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS block
-//                  | NDIMTYPE ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS block
+functiondeclr       : PRIMITIVETYPE ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS block
+//                  | NDIMTYPE ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS block
                     ;
 
 block               : OPENINGCURLYBRACKET expressionlist CLOSINGCURLYBRACKET
@@ -32,24 +32,21 @@ expression          : lhs ASSIGNMENTOP rhs SEMICOLON
                     | functioncall SEMICOLON
                     ;
 
-functioncall        : ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS
+functioncall        : ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS
                     | ID OPENINGPARENTHESIS CLOSINGPARENTHESIS
-                    ;
-
-argumentlist        : argument*
                     ;
 
 expressionlist      : expression*
                     ;
 
-argument            : ID ID //TODO!
+parameterlist       : (PRIMITIVETYPE ID)*
                     ;
 
-parameterlist       : parameter (COMMA parameter)+
-                    | parameter
+argumentlist        : argument (COMMA argument)+
+                    | argument
                     ;
 
-parameter           : STRING //e.g. bla("Hello World");
+argument            : STRING //e.g. bla("Hello World");
 //                  | ID //e.g. blubb(tigerente);
                     ;
 

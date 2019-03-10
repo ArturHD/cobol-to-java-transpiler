@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
 /**
  * A visitor implementation that generates an intermediate representation for a
  * particular parse tree.
@@ -60,6 +59,7 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
 
   @Override
   public JavaLanguageConstruct visitParagraph(cobol_grammarParser.ParagraphContext ctx) {
+    final String sourceName = ctx.ID().getText();
     final String methodName = computeMethodName(ctx);
     final Method javaMethod = new Method(methodName);
 
@@ -68,10 +68,9 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
         .stream()
         .map(this.sentenceToJavaStatement)
         .collect(Collectors.toList());
-    //TODO: keep order!
     javaMethod.getStatements().addAll(javaStatements);
 
-    javaProgram.getMethods().add(javaMethod);
+    javaProgram.getMethods().put(sourceName, javaMethod);
     return javaMethod;
   }
 
@@ -108,14 +107,19 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
         } else if (isPerformtimesStatement) {
           final cobol_grammarParser.PerformtimesContext performtimes = cobolStatement
               .performtimes();
-          final cobol_grammarParser.CounterContext loopCounter = performtimes.counter();
+          final cobol_grammarParser.CounterContext cobolLoopCounter = performtimes.counter();
           final cobol_grammarParser.BlocknameContext blockname = performtimes.blockname();
 
           final String functionName = blockname.getText();
+          final String loopCounter = computeForLoopCounter(cobolLoopCounter);
           final FunctionCall functionCall = new FunctionCall(functionName);
 
           Statement[] body = { functionCall };
-          return new ForLoop(null, body); // TODO: map Cobol loop counter!
+          return new ForLoop(loopCounter, body);
+
+          // "PERFORM ... UNTIL":
+        } else if (isPerformuntilStatement) {
+          // TODO!
 
           // "STOP ...":
         } else if (isStopoperationStatement) {
@@ -168,10 +172,25 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
         return new Expression(parts);
       };
 
+
   private Function<? super TerminalNode, Expression> stringvalueToJavaExpression = s -> {
     final String[] parts = { s.getText() };
     return new Expression(parts);
   };
+
+
+  /**
+   * Computes a Java for-loop counter signature.
+   *
+   * @param cobolLoopCounter the original
+   * @return the Java counter signature
+   */
+  private String computeForLoopCounter(cobol_grammarParser.CounterContext cobolLoopCounter) {
+    final String cobolLoopCounterText = cobolLoopCounter.getText();
+    final String counter = cobolLoopCounterText; // TODO ...
+    return null;
+  }
+
 
   /**
    * Computes a Java method name from a COBOL section's signature.

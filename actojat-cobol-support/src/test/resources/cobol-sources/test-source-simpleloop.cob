@@ -11,4 +11,9 @@
       STOP RUN.
 
  DisplayHelloWorld.
-      DISPLAY "HelloWorld!".
+      DISPLAY "Hello".
+      DISPLAY "World!".
+
+ DoSomethingElse.
+      DISPLAY "Something".
+      DISPLAY "else!".

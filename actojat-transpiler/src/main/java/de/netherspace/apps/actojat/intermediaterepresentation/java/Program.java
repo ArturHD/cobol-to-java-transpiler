@@ -2,13 +2,15 @@ package de.netherspace.apps.actojat.intermediaterepresentation.java;
 
 import lombok.Getter;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class Program extends JavaLanguageConstruct {
 
   @Getter
-  private List<Method> methods;
+  private Map<String, Method> methods;
 
   @Getter
   private List<Import> imports;
@@ -18,7 +20,7 @@ public class Program extends JavaLanguageConstruct {
    */
   public Program() {
     super();
-    this.methods = new LinkedList<>();
+    this.methods = new HashMap<>();
     this.imports = new LinkedList<>();
   }
 

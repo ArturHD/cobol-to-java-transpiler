@@ -64,4 +64,19 @@ public abstract class AbstractTranspilerTest<T extends SourceTranspiler> {
     assertEquals(expectedCode, actualCode);
   }
 
+
+  /**
+   * Performs a transpilation attempt only. Should be used to test whether the underlying
+   * abstract transpiler implementation properly handles missing source files.
+   *
+   * @param sourceFile The source file which should be transpiled
+   * @throws ParserException If a parser exception occurs
+   * @throws IOException     If an IO exception occurs
+   */
+  protected void testSourceNotFound(String sourceFile) throws ParserException, IOException {
+    final SourceTranspiler transpiler = constructorExpr.get();
+    final InputStream inputStream = getClass().getClassLoader().getResourceAsStream(sourceFile);
+    transpiler.parseInputStream(inputStream);
+  }
+
 }
