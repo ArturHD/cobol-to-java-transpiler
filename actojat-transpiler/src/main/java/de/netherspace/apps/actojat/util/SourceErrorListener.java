@@ -34,7 +34,7 @@ public class SourceErrorListener extends BaseErrorListener implements ANTLRError
                           int line, int charPositionInLine,
                           String msg, RecognitionException exception) {
     this.errorFlag = true;
-    log.error("Syntax Error found!" + msg);
+    log.error("Syntax Error found: " + msg);
     super.syntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, exception);
   }
 

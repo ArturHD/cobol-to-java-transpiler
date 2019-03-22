@@ -32,8 +32,8 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
   /**
    * Tests, whether the transpiler gracefully aborts when a source file is not found.
    *
-   * @throws ParserException                     If a parser exception occurs
-   * @throws IOException                         If an IO exception occurs
+   * @throws ParserException If a parser exception occurs
+   * @throws IOException     If an IO exception occurs
    */
   @Test(expected = FileNotFoundException.class)
   public void testCSourceNotFound() throws ParserException, IOException {
@@ -51,13 +51,34 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
    * @throws IntermediateRepresentationException If an IR generation exception occurs
    */
   @Test
-  @Ignore
   public void testCHelloWorldTranspilation() throws ParserException, SourceGenerationException,
       IOException, IntermediateRepresentationException {
     String sourceFile = "c-sources/test-source-helloworld.c";
     String clazzName = "HelloC";
-    String expectedCode = "package c.test.pckg;public class HelloC"
-        + " {public void main(){}public void bla(){}}";
+    String expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;public"
+        + " class HelloC {public void main(){System.out.println(\"Hello\");"
+        + "System.out.println(\"World\");return;}}";
+    doTranspilationTest(sourceFile, clazzName, expectedCode);
+  }
+
+
+  /**
+   * Tests, whether the transpiler successfully transpiles a simple for-loop.
+   *
+   * @throws ParserException                     If a parser exception occurs
+   * @throws SourceGenerationException           If a source code generation exception occurs
+   * @throws IOException                         If an IO exception occurs
+   * @throws IntermediateRepresentationException If an IR generation exception occurs
+   */
+  @Test
+  @Ignore
+  public void testCSimpleLoopTranspilation() throws ParserException, SourceGenerationException,
+      IOException, IntermediateRepresentationException {
+    String sourceFile = "c-sources/test-source-forloop.c";
+    String clazzName = "ForLoop";
+    String expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;public"
+        + " class HelloC {public void main(){System.out.println(\"Hello\");"
+        + "System.out.println(\"World\");return;}}";
     doTranspilationTest(sourceFile, clazzName, expectedCode);
   }
 

@@ -112,7 +112,6 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    * Maps a C expression to a Java statement.
    */
   private Function<c_grammarParser.ExpressionContext, Statement> expressionToJavaStatement = ex -> {
-
     // TODO: distinguish whether its a function call via the grammar!
     if (ex.functioncall() != null) {
       // set the function's name (e.g. 'doSomething' for 'bla = doSomething();' ):
@@ -132,14 +131,23 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
     }
 
     // its a mere assignment:
-    if (ex.lhs() != null) {
+    /*if (ex.assignment() != null) {
       final Assignment stmnt = new Assignment();
-      stmnt.setLhs(computeLeftHandSide(ex.lhs()));
-      stmnt.setRhs(computeRightHandSide(ex.rhs()));
+      stmnt.setLhs(computeLeftHandSide(ex.assignment().lhs()));
+      stmnt.setRhs(computeRightHandSide(ex.assignment().rhs()));
       return stmnt;
+    }*/
+
+    if (ex.returnstatement() != null) {
+      final String functionName = "return"; // TODO: create an enum holding these values!
+      final FunctionCall functionCall = new FunctionCall(functionName);
+      // ...
+      return functionCall;
     }
 
-    System.err.println("couldn't determine statement type.....");
+    System.err.println("couldn't determine statement type:");
+    System.err.println(" " + ex.getText());
+    System.err.println(" ~> ex.functioncall() == null!");
     return null;
   };
 
@@ -175,13 +183,14 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    * Maps a C include to a Java's import file name.
    */
   private String computeImportName(c_grammarParser.ImportheaderContext include) {
-    final String includeWithoutSeperatingDot = include.FILEID()
+    final String includeWithoutSeparatingDot = include.FILEID()
         .getText().replaceAll("\\.", "_");
-    final String includeWithoutSlashes = includeWithoutSeperatingDot
+    final String includeWithoutSlashes = includeWithoutSeparatingDot
         .replaceAll("/", "_");
     final String includeWithoutDashes = includeWithoutSlashes
         .replaceAll("-", "_");
     return includeWithoutDashes;
+    // TODO: blacklist standard libs (e.g. "<stdio.h>")!
   }
 
 }

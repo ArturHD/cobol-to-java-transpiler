@@ -149,7 +149,7 @@ performuntil            : PERFORM ID UNTIL condition // ID = FunctionName
 performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM // ID = FunctionName
                         ;
 
-performsinglefunction   :PERFORM ID // ID = FunctionName
+performsinglefunction   : PERFORM ID // ID = FunctionName
                         ;
 
 condition               : PLACEHOLDER // TODO!
@@ -174,7 +174,6 @@ operand                 : TIMES
                         | RUN
                         | STRINGVALUE
                         | ID
-                        // TODO: ...
                         ;
 
 

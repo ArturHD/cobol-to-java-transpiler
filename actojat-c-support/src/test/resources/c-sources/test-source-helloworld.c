@@ -2,6 +2,6 @@
 
 int main(void) {
   printf("Hello");
-  printf("World!");
+  printf("World");
   return 0;
 }

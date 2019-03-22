@@ -16,30 +16,54 @@ imports             : importheader+
 functionlist        : functiondeclr+
                     ;
 
-importheader        : INCLUDEKWRD OPENINGANGLEQUOTE FILEID CLOSINGANGLEQUOTE
+importheader        : INCLUDEKWRD LESSER FILEID GREATER
                     | INCLUDEKWRD QUOTATIONMARK FILEID QUOTATIONMARK
                     ;
 
 //TODO: recognize non-primitive and n-dimensional types!
-functiondeclr       : PRIMITIVETYPE ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS block
+functiondeclr       : primitivetype ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS block
 //                  | NDIMTYPE ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS block
+                    ;
+
+primitivetype       : (INT | VOID)
+                    ;
+
+parameterlist       : (primitivetype ID)*
+                    | VOID
                     ;
 
 block               : OPENINGCURLYBRACKET expressionlist CLOSINGCURLYBRACKET
                     ;
 
-expression          : lhs ASSIGNMENTOP rhs SEMICOLON
+expressionlist      : expression*
+                    ;
+
+expression          : assignment SEMICOLON
                     | functioncall SEMICOLON
+                    | returnstatement SEMICOLON
+                    | forloop
+                    ;
+
+assignment          : lhs ASSIGNMENTOP rhs
                     ;
 
 functioncall        : ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS
                     | ID OPENINGPARENTHESIS CLOSINGPARENTHESIS
                     ;
 
-expressionlist      : expression*
+returnstatement     : RETURN rhs
+                    | RETURN
                     ;
 
-parameterlist       : (PRIMITIVETYPE ID)*
+forloop             : FOR OPENINGPARENTHESIS assignment SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
+                    | FOR OPENINGPARENTHESIS rhs SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
+                    ;
+
+condition           : (NUMBER | ID) comparisonoperator (NUMBER | ID) // TODO: could be any kind of value, not only a number!
+                    ;
+
+incrementstatement  : ID '++'
+                    | ID '--'
                     ;
 
 argumentlist        : argument (COMMA argument)+
@@ -50,12 +74,15 @@ argument            : STRING //e.g. bla("Hello World");
 //                  | ID //e.g. blubb(tigerente);
                     ;
 
-lhs                 : ID
+lhs                 : variabledecl
+                    | ID
                     ;
 
-rhs                 : ID operand ID
-//TODO: composite expressions!
-                    | ID
+rhs                 : (NUMBER | ID) operand (NUMBER | ID) //TODO: composite expressions!
+                    | (NUMBER | ID)
+                    ;
+
+variabledecl        : primitivetype ID // TODO: allow all possible types...
                     ;
 
 operand             : PLUSSIGN
@@ -64,13 +91,30 @@ operand             : PLUSSIGN
                     | SLASH
                     ;
 
+comparisonoperator  : LESSER
+                    | GREATER
+                    | EQUALS
+                    ;
+
 
 // ################ The set of terminals ################
 
-WHITESPACE          : [ \t]+ -> channel(HIDDEN)
+INCLUDEKWRD         : '#include'
                     ;
 
-LINEBREAK           : [\r\n]+ -> skip
+RETURN              : 'return'
+                    ;
+
+VOID                : 'void'
+                    ;
+
+INT                 : 'int'
+                    ;
+
+FOR                 : 'for'
+                    ;
+
+EQUALS              : '=='
                     ;
 
 DOT                 : '.'
@@ -85,10 +129,10 @@ QUOTATIONMARK       : '"'
 SINGLEQUOTE         : '\''
                     ;
 
-OPENINGANGLEQUOTE   : '<'
+LESSER              : '<'
                     ;
 
-CLOSINGANGLEQUOTE   : '>'
+GREATER             : '>'
                     ;
 
 OPENINGPARENTHESIS  : '('
@@ -127,22 +171,26 @@ ASTERISK            : '*'
 SLASH               : '/'
                     ;
 
-PRIMITIVETYPE       : 'int'
-                    | 'void'
-                    ;
-
-INCLUDEKWRD         : '#include'
-                    ;
-
+// identifiers are matched last:
 FILEID              : (ALLCHARS | DIGIT)+ DOT CHARACTER+
                     ;
 
 STRING              : QUOTATIONMARK (CHARACTER | DIGIT | WHITESPACE)+ QUOTATIONMARK
                     ;
 
+NUMBER              : DIGIT+
+                    ;
+
 ID                  : CHARACTER+
                     ;
 
+// auxiliary terminals:
+
+WHITESPACE          : [ \t]+ -> channel(HIDDEN)
+                    ;
+
+LINEBREAK           : [\r\n]+ -> skip
+                    ;
 
 
 // fragments, which are part of the grammar but NOT actual terminals:

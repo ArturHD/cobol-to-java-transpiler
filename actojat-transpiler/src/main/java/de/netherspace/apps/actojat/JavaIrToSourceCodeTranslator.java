@@ -166,6 +166,8 @@ public class JavaIrToSourceCodeTranslator {
         // check, if its a _method_ or a mere _keyword_ (e.g. "return"):
         if (constructType == JavaConstructType.KEYWORD) {
           return f.getRawName() + ";";
+          // TODO: if its a "return" WITH an associated value (e.g. "return 0" in C), then
+          // TODO: we have to map to "System.exit(value)" iff it's a main method!
         } else {
           functionName = f.getRawName();
         }

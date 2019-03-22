@@ -26,6 +26,7 @@ public class CSourceTranspilerImpl extends AbstractSourceTranspiler<c_grammarLex
       systemFunctionsSupplier = () -> {
         HashMap<String, Pair<BasicFunction, JavaConstructType>> map = new HashMap<>();
         map.put("printf", new Pair<>(BasicFunction.PRINTLN, JavaConstructType.FUNCTION));
+        map.put("return", new Pair<>(BasicFunction.RETURN, JavaConstructType.KEYWORD));
         return map;
       };
 
