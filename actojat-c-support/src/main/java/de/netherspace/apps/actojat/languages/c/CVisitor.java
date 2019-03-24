@@ -4,6 +4,7 @@ import de.netherspace.apps.actojat.c_grammarBaseVisitor;
 import de.netherspace.apps.actojat.c_grammarParser;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.ForLoop;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
  * A visitor implementation that generates an intermediate representation for a
  * particular parse tree.
  */
-public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implements BaseVisitor  {
+public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implements BaseVisitor {
 
   private Program javaProgram;
 
@@ -102,7 +103,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    */
   private final Function<c_grammarParser.ArgumentContext, Expression> parameterToJavaExpression
       = param -> {
-        final String[] parts = { param.getText() };
+        final String[] parts = {param.getText()};
         final Expression expr = new Expression(parts);
         return expr;
       };
@@ -145,10 +146,51 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
       return functionCall;
     }
 
+    if (ex.forloop() != null) {
+      final c_grammarParser.ForloopContext forLoop = ex.forloop();
+      return this.expressionToJavaForLoop.apply(forLoop);
+    }
+
     System.err.println("couldn't determine statement type:");
     System.err.println(" " + ex.getText());
-    System.err.println(" ~> ex.functioncall() == null!");
     return null;
+  };
+
+
+  /**
+   * Maps an expression to a Java for-loop.
+   */
+  private Function<c_grammarParser.ForloopContext, ForLoop> expressionToJavaForLoop = fl -> {
+    final Assignment loopVariable = new Assignment();
+    if (fl.assignment() != null) {
+      // Case 1: "for (int i=0, ..."
+      final String lhs = fl.assignment().lhs().getText();
+      final String rhs = fl.assignment().rhs().getText();
+      loopVariable.setRhs(rhs);
+      loopVariable.setLhs(lhs);
+
+    } else if (fl.rhs() != null) {
+      // Case 2: "for (i=0, ..."
+      final String rhs = fl.rhs().getText();
+      loopVariable.setRhs(rhs);
+
+    } else {
+      System.err.println("No loop variable present!");
+      return null;
+    }
+
+    String loopCondition = fl.condition().getText();
+    String loopIncrement = fl.incrementstatement().getText();
+
+    final Statement[] body = fl
+        .block()
+        .expressionlist()
+        .expression()
+        .stream()
+        .map(expressionToJavaStatement)
+        .toArray(Statement[]::new);
+
+    return new ForLoop(body, loopVariable, loopCondition, loopIncrement);
   };
 
 

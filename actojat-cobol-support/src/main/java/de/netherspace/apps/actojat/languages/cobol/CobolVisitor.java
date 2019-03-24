@@ -2,6 +2,7 @@ package de.netherspace.apps.actojat.languages.cobol;
 
 import de.netherspace.apps.actojat.cobol_grammarBaseVisitor;
 import de.netherspace.apps.actojat.cobol_grammarParser;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.ForLoop;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
@@ -115,7 +116,10 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
           final FunctionCall functionCall = new FunctionCall(functionName);
 
           Statement[] body = { functionCall };
-          return new ForLoop(loopCounter, body);
+          final Assignment loopVariable = null;
+          final String loopCondition = null;
+          final String loopIncrement = null;
+          return new ForLoop(body, loopVariable, loopCondition, loopIncrement);
 
           // "PERFORM ... UNTIL":
         } else if (isPerformuntilStatement) {

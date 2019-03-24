@@ -5,11 +5,24 @@ import lombok.Getter;
 @Getter
 public class ForLoop extends Loop {
 
-  private String loopCounter;
+  private Assignment loopVariable;
+  private String loopCondition;
+  private String loopIncrement;
 
-  public ForLoop(String loopCounter, Statement[] body) {
+  /**
+   * Constructor.
+   *
+   * @param body          the loop body
+   * @param loopVariable  the loop variable
+   * @param loopCondition the loop condition
+   * @param loopIncrement the loop increment statement
+   */
+  public ForLoop(Statement[] body, Assignment loopVariable,
+                 String loopCondition, String loopIncrement) {
     super(body);
-    this.loopCounter = loopCounter;
+    this.loopVariable = loopVariable;
+    this.loopCondition = loopCondition;
+    this.loopIncrement = loopIncrement;
   }
 
 }

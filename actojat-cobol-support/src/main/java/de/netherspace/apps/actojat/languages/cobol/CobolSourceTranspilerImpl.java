@@ -27,7 +27,6 @@ public class CobolSourceTranspilerImpl extends AbstractSourceTranspiler<cobol_gr
         HashMap<String, Pair<BasicFunction, JavaConstructType>> map = new HashMap<>();
         map.put("DISPLAY", new Pair<>(BasicFunction.PRINTLN, JavaConstructType.FUNCTION));
         map.put("STOP", new Pair<>(BasicFunction.RETURN, JavaConstructType.KEYWORD));
-        map.put("FORLOOP", new Pair<>(BasicFunction.FORLOOP, JavaConstructType.KEYWORD));
         return map;
       };
 

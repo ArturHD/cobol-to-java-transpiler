@@ -124,7 +124,12 @@ public class JavaIrToSourceCodeTranslator {
       // is the statement a for-loop?
     } else if (stmnt instanceof ForLoop) {
       final ForLoop loop = (ForLoop) stmnt;
-      final String loopHeader = "for (" + loop.getLoopCounter() + ")";
+      final String loopHeader = "for (" + loop.getLoopVariable().getLhs()
+          // TODO: map the loop variable as an actual assignment (to get the "=" etc.)!
+          + " " + loop.getLoopVariable().getRhs()
+          + ", " + loop.getLoopCondition()
+          + ", " + loop.getLoopIncrement()
+          + ")";
 
       final String loopBody = Arrays
           .stream(loop.getBody())
@@ -149,6 +154,7 @@ public class JavaIrToSourceCodeTranslator {
 
       // check, whether this source statement maps canonically to a
       // pre-defined Java method (e.g. "DISPLAY" -> "System.out.println"):
+      // TODO: extract to method!
       final String functionName;
       if (!this.systemFunctions.containsKey(functionCall.getName())) {
         // no, therefore we'll take its original name:
@@ -177,7 +183,7 @@ public class JavaIrToSourceCodeTranslator {
 
       // the statement is neither an assignment nor a function call nor a loop, nor a ...:
     } else {
-      return ""; //ooops...
+      return null; //ooops...
     }
   };
 
@@ -190,8 +196,8 @@ public class JavaIrToSourceCodeTranslator {
     final String defaultReturnType = "void";
 
     final String signature = defaultAccessModifier + " "
-                              + defaultReturnType + " "
-                              + m.getName() + "()";
+        + defaultReturnType + " "
+        + m.getName() + "()";
     final String body;
     if (m.getStatements().isEmpty()) {
       body = "";
