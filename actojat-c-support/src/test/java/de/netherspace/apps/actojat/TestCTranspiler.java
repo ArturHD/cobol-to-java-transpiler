@@ -51,14 +51,13 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
    * @throws IntermediateRepresentationException If an IR generation exception occurs
    */
   @Test
-  @Ignore
   public void testCHelloWorldTranspilation() throws ParserException, SourceGenerationException,
       IOException, IntermediateRepresentationException {
     String sourceFile = "c-sources/test-source-helloworld.c";
     String clazzName = "HelloC";
     String expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;public"
-        + " class HelloC {public void main(){System.out.println(\"Hello\");"
-        + "System.out.println(\"World\");return;}}";
+        + " class HelloC {public void main(){System.out.print(\"Hello\");"
+        + "System.out.print(\"World\");return;}}";
     doTranspilationTest(sourceFile, clazzName, expectedCode);
   }
 
@@ -77,9 +76,9 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
       IOException, IntermediateRepresentationException {
     String sourceFile = "c-sources/test-source-forloop.c";
     String clazzName = "ForLoop";
-    String expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;public"
-        + " class HelloC {public void main(){System.out.println(\"Hello\");"
-        + "System.out.println(\"World\");return;}}";
+    String expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;public class ForLoop {"
+        + "public void main(){for (int i=0, i<5, i++) { "
+        + "System.out.print(\"Uh\");System.out.print(\"yeah\"); };return;}}";
     doTranspilationTest(sourceFile, clazzName, expectedCode);
   }
 

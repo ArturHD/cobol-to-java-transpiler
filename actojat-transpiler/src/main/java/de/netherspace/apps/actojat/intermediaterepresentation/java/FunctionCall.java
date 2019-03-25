@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.util.LinkedList;
 import java.util.List;
 
+@Getter
 public class FunctionCall extends Statement {
 
   /**
@@ -13,11 +14,9 @@ public class FunctionCall extends Statement {
    * e.g. 'doSomething' for this example:
    *   bla = doSomething();
    */
-  @Getter
   @Setter
   private String name;
 
-  @Getter
   private List<Expression> parameters;
 
 

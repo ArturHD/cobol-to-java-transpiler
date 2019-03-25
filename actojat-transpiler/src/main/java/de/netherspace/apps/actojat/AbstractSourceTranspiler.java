@@ -141,7 +141,8 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
       throws SourceGenerationException {
     final Map<String, Pair<BasicFunction, JavaConstructType>> systemFunctions
         = systemFunctionsSupplier.get();
-    JavaIrToSourceCodeTranslator irTranslator = new JavaIrToSourceCodeTranslator(systemFunctions);
+    final JavaIrToSourceCodeTranslator irTranslator
+        = new JavaIrToSourceCodeTranslator(systemFunctions);
     irTranslator.setClassName(name);
     irTranslator.setBasePackage(basePackage);
 
@@ -150,7 +151,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
       throw new SourceGenerationException();
     }
 
-    String code = irTranslator.generateCodeFromIr((Program) program);
+    final String code = irTranslator.generateCodeFromIr((Program) program);
     if (code == null) {
       log.error("I couldn't generate the actual Java code!");
       throw new SourceGenerationException();

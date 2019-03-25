@@ -1,7 +1,9 @@
 package de.netherspace.apps.actojat;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
@@ -54,14 +56,14 @@ public abstract class AbstractTranspilerTest<T extends SourceTranspiler> {
     final SourceTranspiler transpiler = constructorExpr.get();
     final InputStream inputStream = getClass().getClassLoader().getResourceAsStream(sourceFile);
     final ParseTree parseTree = transpiler.parseInputStream(inputStream);
-    assertNotNull(parseTree);
+    assertThat(parseTree, is(not(nullValue())));
 
     final JavaLanguageConstruct ir = transpiler.generateIntermediateJavaRepresentation(parseTree);
-    assertNotNull(ir);
+    assertThat(ir, is(not(nullValue())));
 
-    final String actualCode = transpiler.generateSourceCode(ir, clazzName, testBasePackage);
-    log.debug(actualCode);
-    assertEquals(expectedCode, actualCode);
+    final String code = transpiler.generateSourceCode(ir, clazzName, testBasePackage);
+    log.debug(code);
+    assertThat(expectedCode, is(code));
   }
 
 

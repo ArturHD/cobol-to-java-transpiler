@@ -114,8 +114,12 @@ public class JavaIrToSourceCodeTranslator {
    * Maps an IR statement to its corresponding code snippet.
    */
   private final Function<Statement, String> statementToCode = stmnt -> {
+    log.trace("statementToCode() ...");
+    log.trace("Statement = " + stmnt);
+
     // is the statement an assignment?
     if (stmnt instanceof Assignment) {
+      log.trace("The statement is an assignment!");
       final Assignment assignment = (Assignment) stmnt;
       return assignment.getLhs() + "=" + assignment.getRhs() + ";";
       //TODO: composite expressions!
@@ -123,68 +127,102 @@ public class JavaIrToSourceCodeTranslator {
 
       // is the statement a for-loop?
     } else if (stmnt instanceof ForLoop) {
+      log.trace("The statement is a foor-loop!");
       final ForLoop loop = (ForLoop) stmnt;
-      final String loopHeader = "for (" + loop.getLoopVariable().getLhs()
-          // TODO: map the loop variable as an actual assignment (to get the "=" etc.)!
-          + " " + loop.getLoopVariable().getRhs()
-          + ", " + loop.getLoopCondition()
-          + ", " + loop.getLoopIncrement()
-          + ")";
-
-      final String loopBody = Arrays
-          .stream(loop.getBody())
-          .map(this.statementToCode)
-          .reduce("", this.stringAccumulator);
-
-      return loopHeader + " { " + loopBody + " };";
+      return this.forLoopToCode.apply(loop);
 
 
       // is the statement a function call?
     } else if (stmnt instanceof FunctionCall) {
+      log.trace("The statement is a function call!");
       final FunctionCall functionCall = (FunctionCall) stmnt;
-
-      // extract its parameters (e.g. the "Hello!" in DISPLAY("Hello!")):
-      final String parameters = functionCall
-          .getParameters()
-          .stream()
-          .map(Expression::getParts) // TODO: correct mapping...
-          .flatMap(a -> Arrays.stream(a))
-          //.map(param -> param + ", ")
-          .reduce("", this.stringAccumulator);
-
-      // check, whether this source statement maps canonically to a
-      // pre-defined Java method (e.g. "DISPLAY" -> "System.out.println"):
-      // TODO: extract to method!
-      final String functionName;
-      if (!this.systemFunctions.containsKey(functionCall.getName())) {
-        // no, therefore we'll take its original name:
-        final Method m = this.sourceMethodNamesToJavaMethods.get(functionCall.getName());
-        functionName = m.getName();
-
-      } else {
-        // yes, there is a corresponding Java method!
-        final Pair<BasicFunction, JavaConstructType> systemFunction = this
-            .systemFunctions
-            .get(functionCall.getName());
-        final BasicFunction f = systemFunction.getFirst();
-        final JavaConstructType constructType = systemFunction.getSecond();
-
-        // check, if its a _method_ or a mere _keyword_ (e.g. "return"):
-        if (constructType == JavaConstructType.KEYWORD) {
-          return f.getRawName() + ";";
-          // TODO: if its a "return" WITH an associated value (e.g. "return 0" in C), then
-          // TODO: we have to map to "System.exit(value)" iff it's a main method!
-        } else {
-          functionName = f.getRawName();
-        }
-      }
-      return functionName + "(" + parameters + ")" + ";";
+      return this.functioncallToCode.apply(functionCall);
 
 
       // the statement is neither an assignment nor a function call nor a loop, nor a ...:
     } else {
+      log.error("Couldn't match statement!");
       return null; //ooops...
     }
+  };
+
+
+  /**
+   * Maps a for-loop to its corresponding code snippet.
+   */
+  private final Function<ForLoop, String> forLoopToCode = loop -> {
+    final String loopVariable;
+    if (loop.getLoopVariable().getLhs() != null) {
+      //loopVariable = loop.getLoopVariable().getLhs() + " " + loop.getLoopVariable().getRhs();
+      loopVariable = this.statementToCode.apply(loop.getLoopVariable());
+      // TODO: map the loop variable as an actual assignment (to get the "=" etc.)!
+    } else {
+      loopVariable = loop.getLoopVariable().getRhs();
+    }
+
+    final String loopHeader = "for (" + loopVariable
+        + ", " + loop.getLoopCondition()
+        + ", " + loop.getLoopIncrement()
+        + ")";
+
+    final String loopBody = Arrays
+        .stream(loop.getBody())
+        .map(this.statementToCode)
+        .reduce("", this.stringAccumulator);
+
+    return loopHeader + " { " + loopBody + " };";
+  };
+
+
+  /**
+   * Maps a function call to its corresponding code snippet.
+   */
+  private final Function<FunctionCall, String> functioncallToCode = functionCall -> {
+    // extract its parameters (e.g. the "Hello!" in DISPLAY("Hello!")):
+    log.trace("There are " + functionCall.getParameters().size() + " paraemter...");
+    final String parameters = functionCall
+        .getParameters()
+        .stream()
+        .map(Expression::getParts) // TODO: correct mapping...
+        .flatMap(a -> Arrays.stream(a))
+        //.map(param -> param + ", ")
+        .reduce("", this.stringAccumulator);
+    log.trace("The function's parameters are: '" + parameters + "'");
+
+    // check, whether this source statement maps canonically to a
+    // pre-defined Java method (e.g. "DISPLAY" -> "System.out.println"):
+    final String functionName;
+    if (!this.systemFunctions.containsKey(functionCall.getName())) {
+      // no, therefore we'll take its original name:
+      final String functionCallName = functionCall.getName();
+      log.trace("The function's name is: '" + functionCallName + "'");
+      final Method m = this.sourceMethodNamesToJavaMethods.get(functionCallName); // TODO: NPE?
+      System.out.println("m           = " + m); // TODO: erase!
+      System.out.println("m.getName() = " + m.getName()); // TODO: erase!
+      functionName = m.getName();
+
+    } else {
+      // yes, there is a corresponding Java method!
+      final Pair<BasicFunction, JavaConstructType> systemFunction = this
+          .systemFunctions
+          .get(functionCall.getName());
+      final BasicFunction f = systemFunction.getFirst();
+      final JavaConstructType constructType = systemFunction.getSecond();
+
+      // check, if its a _method_ or a mere _keyword_ (e.g. "return"):
+      if (constructType == JavaConstructType.KEYWORD) {
+        final String fc = f.getRawName() + ";";
+        log.trace("The transpiled function call is: '" + fc + "'");
+        return fc;
+        // TODO: if its a "return" WITH an associated value (e.g. "return 0" in C), then
+        // TODO: we have to map to "System.exit(value)" iff it's a main method!
+      } else {
+        functionName = f.getRawName();
+      }
+    }
+    final String fc = functionName + "(" + parameters + ")" + ";";
+    log.trace("The transpiled function call is: '" + fc + "'");
+    return fc;
   };
 
 
@@ -204,8 +242,8 @@ public class JavaIrToSourceCodeTranslator {
     } else {
       body = m.getStatements()
           .stream()
-          .map(statementToCode)
-          .reduce("", stringAccumulator);
+          .map(this.statementToCode)
+          .reduce("", this.stringAccumulator);
     }
 
     return signature + "{" + body + "}";
