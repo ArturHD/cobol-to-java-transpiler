@@ -132,12 +132,12 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
     }
 
     // its a mere assignment:
-    /*if (ex.assignment() != null) {
+    if (ex.assignment() != null) {
       final Assignment stmnt = new Assignment();
       stmnt.setLhs(computeLeftHandSide(ex.assignment().lhs()));
       stmnt.setRhs(computeRightHandSide(ex.assignment().rhs()));
       return stmnt;
-    }*/
+    }
 
     if (ex.returnstatement() != null) {
       final String functionName = "return"; // TODO: create an enum holding these values!
@@ -148,7 +148,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
 
     if (ex.forloop() != null) {
       final c_grammarParser.ForloopContext forLoop = ex.forloop();
-      return this.expressionToJavaForLoop.apply(forLoop);
+      return this.forLoopToJavaForLoop.apply(forLoop);
     }
 
     System.err.println("couldn't determine statement type:");
@@ -158,14 +158,14 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
 
 
   /**
-   * Maps an expression to a Java for-loop.
+   * Maps a C for-loop to a Java for-loop.
    */
-  private Function<c_grammarParser.ForloopContext, ForLoop> expressionToJavaForLoop = fl -> {
+  private Function<c_grammarParser.ForloopContext, ForLoop> forLoopToJavaForLoop = fl -> {
     final Assignment loopVariable = new Assignment();
     if (fl.assignment() != null) {
       // Case 1: "for (int i=0, ..."
       final String lhs = fl.assignment().lhs().getText();
-      final String rhs = fl.assignment().rhs().getText();
+      final String rhs = fl.assignment().rhs().getText(); // TODO: handle composite expr.'s!
       loopVariable.setRhs(rhs);
       loopVariable.setLhs(lhs);
 
@@ -198,7 +198,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    * Maps a left-hand side identifier to a Java identifier.
    */
   private String computeLeftHandSide(c_grammarParser.LhsContext lhs) {
-    return lhs.ID().getText();
+    return lhs.getText();
   }
 
 
@@ -206,9 +206,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    * Maps a right-hand side to a Java RHS.
    */
   private String computeRightHandSide(c_grammarParser.RhsContext rhs) {
-    // TODO: composite expressions!
-    // TODO: return "Expression.class"!
-    return rhs.getText();
+    return rhs.getText(); // TODO: recursively handle nested expressions!
   }
 
 

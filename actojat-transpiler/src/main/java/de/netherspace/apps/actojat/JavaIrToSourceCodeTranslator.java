@@ -179,7 +179,7 @@ public class JavaIrToSourceCodeTranslator {
    */
   private final Function<FunctionCall, String> functioncallToCode = functionCall -> {
     // extract its parameters (e.g. the "Hello!" in DISPLAY("Hello!")):
-    log.trace("There are " + functionCall.getParameters().size() + " paraemter...");
+    log.trace("There are " + functionCall.getParameters().size() + " parameters...");
     final String parameters = functionCall
         .getParameters()
         .stream()
@@ -196,9 +196,7 @@ public class JavaIrToSourceCodeTranslator {
       // no, therefore we'll take its original name:
       final String functionCallName = functionCall.getName();
       log.trace("The function's name is: '" + functionCallName + "'");
-      final Method m = this.sourceMethodNamesToJavaMethods.get(functionCallName); // TODO: NPE?
-      System.out.println("m           = " + m); // TODO: erase!
-      System.out.println("m.getName() = " + m.getName()); // TODO: erase!
+      final Method m = this.sourceMethodNamesToJavaMethods.get(functionCallName);
       functionName = m.getName();
 
     } else {

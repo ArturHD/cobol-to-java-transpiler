@@ -84,6 +84,26 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
 
 
   /**
+   * Tests, whether the transpiler successfully transpiles a simple assignment.
+   *
+   * @throws ParserException                     If a parser exception occurs
+   * @throws SourceGenerationException           If a source code generation exception occurs
+   * @throws IOException                         If an IO exception occurs
+   * @throws IntermediateRepresentationException If an IR generation exception occurs
+   */
+  @Test
+  @Ignore
+  public void testCSimpleAssignmentTranspilation() throws ParserException,
+      SourceGenerationException, IOException, IntermediateRepresentationException {
+    String sourceFile = "c-sources/test-source-simpleassignment.c";
+    String clazzName = "SimpleAssignment";
+    String expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;"
+        + "public class SimpleAssignment {public void main(){int x=0;x=5;}}";
+    doTranspilationTest(sourceFile, clazzName, expectedCode);
+  }
+
+
+  /**
    * Tests, whether the transpiler successfully transpiles an (empty) C function.
    *
    * @throws ParserException                     If a parser exception occurs
