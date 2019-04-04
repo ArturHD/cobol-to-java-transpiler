@@ -63,7 +63,7 @@ public abstract class AbstractTranspilerTest<T extends SourceTranspiler> {
 
     final String code = transpiler.generateSourceCode(ir, clazzName, testBasePackage);
     log.debug(code);
-    assertThat(expectedCode, is(code));
+    assertThat(code, is(expectedCode));
   }
 
 

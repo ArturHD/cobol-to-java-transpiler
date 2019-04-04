@@ -92,7 +92,6 @@ public class TestCTranspiler extends AbstractTranspilerTest<CSourceTranspilerImp
    * @throws IntermediateRepresentationException If an IR generation exception occurs
    */
   @Test
-  @Ignore
   public void testCSimpleAssignmentTranspilation() throws ParserException,
       SourceGenerationException, IOException, IntermediateRepresentationException {
     String sourceFile = "c-sources/test-source-simpleassignment.c";

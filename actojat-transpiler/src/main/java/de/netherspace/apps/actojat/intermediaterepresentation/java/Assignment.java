@@ -4,10 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class Assignment extends Statement {
 
-  private String lhs;
+  private LeftHandSide lhs;
+
+  @Setter
   private String rhs;
+
+  public Assignment(LeftHandSide lhs) {
+    this.lhs = lhs;
+  }
 
 }

@@ -7,6 +7,7 @@ import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.ForLoop;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.IrFactory;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
@@ -33,7 +34,7 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
    */
   CobolVisitor() {
     super();
-    this.javaProgram = new Program();
+    this.javaProgram = IrFactory.createProgram();
   }
 
 

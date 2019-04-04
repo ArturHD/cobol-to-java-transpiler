@@ -9,6 +9,7 @@ import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.IrFactory;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
@@ -61,8 +62,9 @@ public class IrTranspilationTest {
     final Method testMethod = newMethod(methodName);
     program.getMethods().put(methodName, testMethod);
 
-    final Assignment assignment1 = new Assignment();
-    assignment1.setLhs("int j");
+    final Assignment assignment1 = IrFactory.createAssignment();
+    assignment1.getLhs().setType("int");
+    assignment1.getLhs().setVariableName("j");
     assignment1.setRhs("0");
     testMethod.getStatements().add(assignment1);
 
@@ -163,7 +165,7 @@ public class IrTranspilationTest {
    * @return the newly created program
    */
   private Program newProgram() {
-    final Program program = new Program();
+    final Program program = IrFactory.createProgram();
     assertThat(program.getMethods(), is(not(nullValue())));
     assertThat(program.getImports(), is(not(nullValue())));
     return program;

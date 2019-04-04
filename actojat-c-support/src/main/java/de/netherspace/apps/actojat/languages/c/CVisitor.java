@@ -7,11 +7,13 @@ import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.ForLoop;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
+import de.netherspace.apps.actojat.intermediaterepresentation.java.IrFactory;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
 import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
 import de.netherspace.apps.actojat.languages.BaseVisitor;
+import de.netherspace.apps.actojat.util.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -35,7 +37,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    */
   CVisitor() {
     super();
-    this.javaProgram = new Program();
+    this.javaProgram = IrFactory.createProgram();
   }
 
 
@@ -133,10 +135,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
 
     // its a mere assignment:
     if (ex.assignment() != null) {
-      final Assignment stmnt = new Assignment();
-      stmnt.setLhs(computeLeftHandSide(ex.assignment().lhs()));
-      stmnt.setRhs(computeRightHandSide(ex.assignment().rhs()));
-      return stmnt;
+      return this.assignmentToJavaAssignment.apply(ex.assignment());
     }
 
     if (ex.returnstatement() != null) {
@@ -161,13 +160,10 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
    * Maps a C for-loop to a Java for-loop.
    */
   private Function<c_grammarParser.ForloopContext, ForLoop> forLoopToJavaForLoop = fl -> {
-    final Assignment loopVariable = new Assignment();
+    Assignment loopVariable = IrFactory.createAssignment();
     if (fl.assignment() != null) {
       // Case 1: "for (int i=0, ..."
-      final String lhs = fl.assignment().lhs().getText();
-      final String rhs = fl.assignment().rhs().getText(); // TODO: handle composite expr.'s!
-      loopVariable.setRhs(rhs);
-      loopVariable.setLhs(lhs);
+      loopVariable = this.assignmentToJavaAssignment.apply(fl.assignment());
 
     } else if (fl.rhs() != null) {
       // Case 2: "for (i=0, ..."
@@ -195,10 +191,34 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
 
 
   /**
+   * Maps a C assignment to a Java assignment.
+   */
+  private Function<c_grammarParser.AssignmentContext, Assignment> assignmentToJavaAssignment
+      = assignment -> {
+        final Pair<String, String> lhs = this.computeLeftHandSide(assignment.lhs());
+        final String lhsTypeAnnotation = lhs.getFirst();
+        final String lhsVariableName = lhs.getSecond();
+        final Assignment javaAssignment = IrFactory.createAssignment();
+        javaAssignment.getLhs().setType(lhsTypeAnnotation);
+        javaAssignment.getLhs().setVariableName(lhsVariableName);
+        javaAssignment.setRhs(this.computeRightHandSide(assignment.rhs()));
+        return javaAssignment;
+      };
+
+
+  /**
    * Maps a left-hand side identifier to a Java identifier.
    */
-  private String computeLeftHandSide(c_grammarParser.LhsContext lhs) {
-    return lhs.getText();
+  private Pair<String, String> computeLeftHandSide(c_grammarParser.LhsContext lhs) {
+    if (lhs.variabledecl() != null) {
+      final String typeAnnotation = lhs.variabledecl().primitivetype().getText();
+      final String variableName = lhs.variabledecl().ID().getText();
+      return new Pair<>(typeAnnotation, variableName);
+
+    } else {
+      final String variableName = lhs.ID().getText();
+      return new Pair<>(null, variableName);
+    }
   }
 
 

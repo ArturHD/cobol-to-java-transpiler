@@ -121,8 +121,14 @@ public class JavaIrToSourceCodeTranslator {
     if (stmnt instanceof Assignment) {
       log.trace("The statement is an assignment!");
       final Assignment assignment = (Assignment) stmnt;
-      return assignment.getLhs() + "=" + assignment.getRhs() + ";";
-      //TODO: composite expressions!
+      if (assignment.getLhs().getType() != null) {
+        return assignment.getLhs().getType()
+            + " " + assignment.getLhs().getVariableName()
+            + "=" + assignment.getRhs() + ";";
+      } else {
+        return assignment.getLhs().getVariableName() + "=" + assignment.getRhs() + ";";
+      }
+      //TODO: nested expressions!
 
 
       // is the statement a for-loop?
