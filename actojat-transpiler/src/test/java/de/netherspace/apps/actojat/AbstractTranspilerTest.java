@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
-import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
+import de.netherspace.apps.actojat.ir.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.ParserException;
 import de.netherspace.apps.actojat.util.SourceGenerationException;

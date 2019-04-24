@@ -1,9 +1,9 @@
 package de.netherspace.apps.actojat;
 
-import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
+import de.netherspace.apps.actojat.ir.java.BasicConstruct;
+import de.netherspace.apps.actojat.ir.java.JavaConstructType;
+import de.netherspace.apps.actojat.ir.java.JavaLanguageConstruct;
+import de.netherspace.apps.actojat.ir.java.Program;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;
 import de.netherspace.apps.actojat.util.Pair;
 import de.netherspace.apps.actojat.util.ParserException;
@@ -52,7 +52,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
   private Function<P, C> startsymbolExpr;
   private Supplier<V> visitorFactoryExpr;
   private List<String> ruleNames;
-  private Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier;
+  private Supplier<Map<String, Pair<BasicConstruct, JavaConstructType>>> systemFunctionsSupplier;
 
 
   /**
@@ -68,7 +68,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
                                   Function<CommonTokenStream, P> parserFactoryExpr,
                                   Function<P, C> startsymbolExpr,
                                   Supplier<V> visitorFactoryExpr,
-            Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>> systemFunctionsSupplier) {
+            Supplier<Map<String,Pair<BasicConstruct, JavaConstructType>>> systemFunctionsSupplier) {
     super();
     this.lexerFactoryExpr = lexerFactoryExpr;
     this.parserFactoryExpr = parserFactoryExpr;
@@ -139,7 +139,7 @@ public abstract class AbstractSourceTranspiler<L extends Lexer,
   @Override
   public String generateSourceCode(JavaLanguageConstruct program, String name, String basePackage)
       throws SourceGenerationException {
-    final Map<String, Pair<BasicFunction, JavaConstructType>> systemFunctions
+    final Map<String, Pair<BasicConstruct, JavaConstructType>> systemFunctions
         = systemFunctionsSupplier.get();
     final JavaIrToSourceCodeTranslator irTranslator
         = new JavaIrToSourceCodeTranslator(systemFunctions);

@@ -1,15 +1,15 @@
 package de.netherspace.apps.actojat;
 
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.ForLoop;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Import;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Statement;
+import de.netherspace.apps.actojat.ir.java.Assignment;
+import de.netherspace.apps.actojat.ir.java.BasicConstruct;
+import de.netherspace.apps.actojat.ir.java.Expression;
+import de.netherspace.apps.actojat.ir.java.ForLoop;
+import de.netherspace.apps.actojat.ir.java.FunctionCall;
+import de.netherspace.apps.actojat.ir.java.Import;
+import de.netherspace.apps.actojat.ir.java.JavaConstructType;
+import de.netherspace.apps.actojat.ir.java.Method;
+import de.netherspace.apps.actojat.ir.java.Program;
+import de.netherspace.apps.actojat.ir.java.Statement;
 import de.netherspace.apps.actojat.util.Pair;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
 import lombok.Getter;
@@ -39,13 +39,13 @@ public class JavaIrToSourceCodeTranslator {
   @Setter
   private String basePackage;
 
-  private Map<String, Pair<BasicFunction, JavaConstructType>> systemFunctions;
+  private Map<String, Pair<BasicConstruct, JavaConstructType>> systemFunctions;
   private Map<String, Method> sourceMethodNamesToJavaMethods;
 
   /**
    * The default constructor.
    */
-  JavaIrToSourceCodeTranslator(Map<String, Pair<BasicFunction,
+  JavaIrToSourceCodeTranslator(Map<String, Pair<BasicConstruct,
       JavaConstructType>> systemFunctions) {
     super();
     this.builder = new StringBuilder();
@@ -207,10 +207,10 @@ public class JavaIrToSourceCodeTranslator {
 
     } else {
       // yes, there is a corresponding Java method!
-      final Pair<BasicFunction, JavaConstructType> systemFunction = this
+      final Pair<BasicConstruct, JavaConstructType> systemFunction = this
           .systemFunctions
           .get(functionCall.getName());
-      final BasicFunction f = systemFunction.getFirst();
+      final BasicConstruct f = systemFunction.getFirst();
       final JavaConstructType constructType = systemFunction.getSecond();
 
       // check, if its a _method_ or a mere _keyword_ (e.g. "return"):

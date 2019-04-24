@@ -5,14 +5,15 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Assignment;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Expression;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.FunctionCall;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.IrFactory;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Method;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.Program;
+import de.netherspace.apps.actojat.ir.java.Assignment;
+import de.netherspace.apps.actojat.ir.java.BasicConstruct;
+import de.netherspace.apps.actojat.ir.java.Expression;
+import de.netherspace.apps.actojat.ir.java.FunctionCall;
+import de.netherspace.apps.actojat.ir.java.IrFactory;
+import de.netherspace.apps.actojat.ir.java.JavaConstructType;
+import de.netherspace.apps.actojat.ir.java.LeftHandSide;
+import de.netherspace.apps.actojat.ir.java.Method;
+import de.netherspace.apps.actojat.ir.java.Program;
 import de.netherspace.apps.actojat.util.Pair;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class IrTranspilationTest {
 
   private static final String testBasePackage = "actojat.ir.test.pckg";
+  private final IrFactory irFactory = new IrFactory();
 
 
   @Test
@@ -37,12 +39,12 @@ public class IrTranspilationTest {
     program.getMethods().put(methodName, method);
 
     // this statement appears inside of "myMethod" and calls "doSomething":
-    final FunctionCall statement1 = new FunctionCall("doSomethingElse");
+    final FunctionCall statement1 = irFactory.createFunctionCall("doSomethingElse");
     assertThat(method.getStatements(), is(not(nullValue())));
     method.getStatements().add(statement1);
 
     final String methodName2 = "doSomethingElse";
-    final Method method2 = new Method(methodName2);
+    final Method method2 = irFactory.createMethod(methodName2);
     program.getMethods().put(methodName2, method2);
 
     assertThat(program.getMethods().containsKey("myMethod"), is(true));
@@ -62,10 +64,11 @@ public class IrTranspilationTest {
     final Method testMethod = newMethod(methodName);
     program.getMethods().put(methodName, testMethod);
 
-    final Assignment assignment1 = IrFactory.createAssignment();
-    assignment1.getLhs().setType("int");
-    assignment1.getLhs().setVariableName("j");
-    assignment1.setRhs("0");
+    final String type = "int";
+    final String variableName = "j";
+    final LeftHandSide lhs = irFactory.createLeftHandSide(type, variableName);
+    final String rhs = "0";
+    final Assignment assignment1 = irFactory.createAssignment(lhs, rhs);
     testMethod.getStatements().add(assignment1);
 
     final String expectedCode = "package actojat.ir.test.pckg;"
@@ -83,9 +86,9 @@ public class IrTranspilationTest {
     program.getMethods().put(methodName, method);
 
     // this statement appears inside of "helloWorld" and prints "HelloWorld":
-    final FunctionCall statement1 = new FunctionCall("Print");
+    final FunctionCall statement1 = irFactory.createFunctionCall("Print");
     final String[] parts1 = {"\"HelloWorld\""};
-    statement1.getParameters().add(new Expression(parts1));
+    statement1.getParameters().add(irFactory.createExpression(parts1));
     assertThat(method.getStatements(), is(not(nullValue())));
     method.getStatements().add(statement1);
 
@@ -111,10 +114,10 @@ public class IrTranspilationTest {
    *
    * @return a map containing the functions and their IR enum value.
    */
-  private HashMap<String, Pair<BasicFunction, JavaConstructType>> systemFunctions() {
-    HashMap<String, Pair<BasicFunction, JavaConstructType>> map = new HashMap<>();
-    map.put("Print", new Pair<>(BasicFunction.PRINT, JavaConstructType.FUNCTION));
-    map.put("Return", new Pair<>(BasicFunction.RETURN, JavaConstructType.KEYWORD));
+  private HashMap<String, Pair<BasicConstruct, JavaConstructType>> systemFunctions() {
+    HashMap<String, Pair<BasicConstruct, JavaConstructType>> map = new HashMap<>();
+    map.put("Print", new Pair<>(BasicConstruct.PRINT, JavaConstructType.FUNCTION));
+    map.put("Return", new Pair<>(BasicConstruct.RETURN, JavaConstructType.KEYWORD));
     return map;
   }
 
@@ -129,7 +132,7 @@ public class IrTranspilationTest {
    */
   private void doTranspilationTest(Program program, String clazzName, String expectedCode)
       throws SourceGenerationException {
-    final HashMap<String, Pair<BasicFunction, JavaConstructType>> sysFunctions = systemFunctions();
+    final HashMap<String, Pair<BasicConstruct, JavaConstructType>> sysFunctions = systemFunctions();
     final String code = generateCode(program, clazzName, testBasePackage, sysFunctions);
     assertThat(code, is(not(nullValue())));
     log.debug(code);
@@ -148,7 +151,7 @@ public class IrTranspilationTest {
    * @throws SourceGenerationException If a source code generation exception occurs
    */
   private String generateCode(Program program, String clazzName, String basePackage,
-                              Map<String, Pair<BasicFunction, JavaConstructType>> systemFunctions)
+                              Map<String, Pair<BasicConstruct, JavaConstructType>> systemFunctions)
       throws SourceGenerationException {
     final JavaIrToSourceCodeTranslator irTranslator
         = new JavaIrToSourceCodeTranslator(systemFunctions);
@@ -165,7 +168,7 @@ public class IrTranspilationTest {
    * @return the newly created program
    */
   private Program newProgram() {
-    final Program program = IrFactory.createProgram();
+    final Program program = irFactory.createProgram();
     assertThat(program.getMethods(), is(not(nullValue())));
     assertThat(program.getImports(), is(not(nullValue())));
     return program;
@@ -181,7 +184,7 @@ public class IrTranspilationTest {
    * @return the newly created method
    */
   private Method newMethod(String methodName) {
-    final Method testMethod = new Method(methodName);
+    final Method testMethod = irFactory.createMethod(methodName);
     assertThat(testMethod.getStatements(), is(not(nullValue())));
     assertThat(testMethod.getArguments(), is(not(nullValue())));
     return testMethod;
