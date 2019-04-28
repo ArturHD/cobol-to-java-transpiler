@@ -3,8 +3,8 @@ package de.netherspace.apps.actojat.languages.c;
 import de.netherspace.apps.actojat.AbstractSourceTranspiler;
 import de.netherspace.apps.actojat.c_grammarLexer;
 import de.netherspace.apps.actojat.c_grammarParser;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.BasicFunction;
-import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaConstructType;
+import de.netherspace.apps.actojat.ir.java.BasicConstruct;
+import de.netherspace.apps.actojat.ir.java.JavaConstructType;
 import de.netherspace.apps.actojat.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,11 +22,11 @@ public class CSourceTranspilerImpl extends AbstractSourceTranspiler<c_grammarLex
                                                                     c_grammarParser.ProgramContext,
                                                                     CVisitor> {
 
-  private static final Supplier<Map<String, Pair<BasicFunction, JavaConstructType>>>
+  private static final Supplier<Map<String, Pair<BasicConstruct, JavaConstructType>>>
       systemFunctionsSupplier = () -> {
-        HashMap<String, Pair<BasicFunction, JavaConstructType>> map = new HashMap<>();
-        map.put("printf", new Pair<>(BasicFunction.PRINT, JavaConstructType.FUNCTION));
-        map.put("return", new Pair<>(BasicFunction.RETURN, JavaConstructType.KEYWORD));
+        HashMap<String, Pair<BasicConstruct, JavaConstructType>> map = new HashMap<>();
+        map.put("printf", new Pair<>(BasicConstruct.PRINT, JavaConstructType.FUNCTION));
+        map.put("return", new Pair<>(BasicConstruct.RETURN, JavaConstructType.KEYWORD));
         return map;
       };
 

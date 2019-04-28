@@ -18,11 +18,26 @@ class IrFactory {
         return Assignment(lhs = lhs, rhs = rhs, comment = null)
     }
 
-    fun createLeftHandSide(type: String, variableName: String): LeftHandSide {
+    fun createLeftHandSide(type: String?, variableName: String): LeftHandSide {
         return LeftHandSide(type = type, variableName = variableName)
     }
 
-    fun createExpression(parts: Array<String>) : Expression {
+    fun createExpression(parts: Array<String>): Expression {
         return Expression(parts = parts, comment = null)
     }
+
+    fun createArgumentDeclaration(type: String, name: String): ArgumentDeclaration {
+        return ArgumentDeclaration(type = type, name = name, comment = null)
+    }
+
+    fun createForLoop(loopVariable: Assignment, loopCondition: String,
+                      loopIncrement: String, body: Array<Statement>): ForLoop {
+        return ForLoop(loopVariable = loopVariable, loopCondition = loopCondition,
+                loopIncrement = loopIncrement, body = body, comment = null)
+    }
+
+    fun createImport(name: String): Import {
+        return Import(name = name, comment = null)
+    }
+
 }

@@ -1,6 +1,6 @@
 package de.netherspace.apps.actojat;
 
-import de.netherspace.apps.actojat.intermediaterepresentation.java.JavaLanguageConstruct;
+import de.netherspace.apps.actojat.ir.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.languages.c.CSourceTranspilerImpl;
 import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl;
 import de.netherspace.apps.actojat.util.IntermediateRepresentationException;

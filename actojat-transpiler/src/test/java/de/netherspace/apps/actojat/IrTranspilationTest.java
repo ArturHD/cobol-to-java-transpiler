@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.nullValue;
 
 import de.netherspace.apps.actojat.ir.java.Assignment;
 import de.netherspace.apps.actojat.ir.java.BasicConstruct;
-import de.netherspace.apps.actojat.ir.java.Expression;
 import de.netherspace.apps.actojat.ir.java.FunctionCall;
 import de.netherspace.apps.actojat.ir.java.IrFactory;
 import de.netherspace.apps.actojat.ir.java.JavaConstructType;
@@ -27,6 +26,7 @@ import java.util.Map;
 public class IrTranspilationTest {
 
   private static final String testBasePackage = "actojat.ir.test.pckg";
+
   private final IrFactory irFactory = new IrFactory();
 
 
