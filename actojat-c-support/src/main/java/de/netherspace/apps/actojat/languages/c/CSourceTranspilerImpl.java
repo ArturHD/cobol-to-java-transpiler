@@ -5,7 +5,7 @@ import de.netherspace.apps.actojat.c_grammarLexer;
 import de.netherspace.apps.actojat.c_grammarParser;
 import de.netherspace.apps.actojat.ir.java.BasicConstruct;
 import de.netherspace.apps.actojat.ir.java.JavaConstructType;
-import de.netherspace.apps.actojat.util.Pair;
+import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;

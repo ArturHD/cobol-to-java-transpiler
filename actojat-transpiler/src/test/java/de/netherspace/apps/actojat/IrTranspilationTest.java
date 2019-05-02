@@ -13,8 +13,8 @@ import de.netherspace.apps.actojat.ir.java.JavaConstructType;
 import de.netherspace.apps.actojat.ir.java.LeftHandSide;
 import de.netherspace.apps.actojat.ir.java.Method;
 import de.netherspace.apps.actojat.ir.java.Program;
-import de.netherspace.apps.actojat.util.Pair;
 import de.netherspace.apps.actojat.util.SourceGenerationException;
+import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -154,10 +154,8 @@ public class IrTranspilationTest {
                               Map<String, Pair<BasicConstruct, JavaConstructType>> systemFunctions)
       throws SourceGenerationException {
     final JavaIrToSourceCodeTranslator irTranslator
-        = new JavaIrToSourceCodeTranslator(systemFunctions);
-    irTranslator.setClassName(clazzName);
-    irTranslator.setBasePackage(basePackage);
-    return irTranslator.generateCodeFromIr(program);
+        = new JavaIrToSourceCodeTranslatorImpl(systemFunctions);
+    return irTranslator.generateCodeFromIr(program, clazzName, basePackage);
   }
 
 

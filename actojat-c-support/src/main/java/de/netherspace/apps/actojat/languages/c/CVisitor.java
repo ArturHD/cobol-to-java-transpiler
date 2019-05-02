@@ -14,7 +14,7 @@ import de.netherspace.apps.actojat.ir.java.Method;
 import de.netherspace.apps.actojat.ir.java.Program;
 import de.netherspace.apps.actojat.ir.java.Statement;
 import de.netherspace.apps.actojat.languages.BaseVisitor;
-import de.netherspace.apps.actojat.util.Pair;
+import kotlin.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
