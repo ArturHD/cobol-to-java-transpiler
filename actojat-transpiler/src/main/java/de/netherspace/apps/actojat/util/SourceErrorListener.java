@@ -1,6 +1,5 @@
 package de.netherspace.apps.actojat.util;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -18,7 +17,6 @@ import java.util.BitSet;
 @Slf4j
 public class SourceErrorListener extends BaseErrorListener implements ANTLRErrorListener {
 
-  @Getter
   private boolean errorFlag;
 
   /**
@@ -45,6 +43,10 @@ public class SourceErrorListener extends BaseErrorListener implements ANTLRError
     this.errorFlag = true;
     log.error("Ambiguity found!");
     super.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs);
+  }
+
+  public boolean isErrorFlag() {
+    return errorFlag;
   }
 
 }

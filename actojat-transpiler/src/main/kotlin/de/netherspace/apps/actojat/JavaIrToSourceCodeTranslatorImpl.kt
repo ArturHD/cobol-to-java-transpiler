@@ -14,7 +14,7 @@ class JavaIrToSourceCodeTranslatorImpl(
     private val builder: StringBuilder = StringBuilder()
     private lateinit var sourceMethodNamesToJavaMethods: Map<String, Method>
 
-    override fun generateCodeFromIr(program: Program, className: String, basePackage: String): String {
+    override fun generateCodeFromIr(program: Program, className: String, basePackage: String): Result<String> {
         if (className.isEmpty() || basePackage.isEmpty()) {
             throw SourceGenerationException() // TODO: return a Result.failure() instead!
         }
@@ -35,7 +35,7 @@ class JavaIrToSourceCodeTranslatorImpl(
                 .forEach { mc -> append(mc) }
 
         append("}")
-        return builder.toString()
+        return Result.success(builder.toString())
     }
 
     private fun append(s: String) {
