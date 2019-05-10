@@ -38,9 +38,8 @@ public class CSourceTranspilerImpl extends AbstractSourceTranspiler<c_grammarLex
         c_grammarParser::new,
         c_grammarParser::program,
         CVisitor::new,
-        systemFunctionsSupplier);
-
-    super.log = log;
+        systemFunctionsSupplier,
+        log);
   }
 
 }

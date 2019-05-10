@@ -3,21 +3,23 @@ package de.netherspace.apps.actojat
 import de.netherspace.apps.actojat.ir.java.Program
 import org.hamcrest.MatcherAssert.assertThat
 import org.slf4j.LoggerFactory
+import java.io.InputStream
 import org.hamcrest.Matchers.`is` as Is
 
 /**
  * An abstract test class.
  */
-abstract class AbstractTranspilerTest(
+abstract class AbstractTranspilerTest<T>(
         private val constructorExpr: java.util.function.Supplier<SourceTranspiler>,
         private val testBasePackage: String
-) {
+) where T : SourceTranspiler {
+
     private val log = LoggerFactory.getLogger(AbstractTranspilerTest::class.java)
 
     /**
      * Performs an actual transpilation test.
      *
-     * @param sourceFile   The source file which is transpiled
+     * @param source       The source which will be transpiled
      * @param clazzName    The desired class name
      * @param expectedCode The expected source code after transpilation
      * @throws ParserException                     If a parser exception occurs
@@ -25,10 +27,9 @@ abstract class AbstractTranspilerTest(
      * @throws IOException                         If an IO exception occurs
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
-    fun doTranspilationTest(sourceFile: String, clazzName: String, expectedCode: String) {
+    fun doTranspilationTest(source: InputStream, clazzName: String, expectedCode: String) {
         val transpiler = constructorExpr.get()
-        val inputStream = AbstractTranspilerTest::class.java.getResourceAsStream(sourceFile)
-        val parseTreeResult = transpiler.parseInputStream(inputStream)
+        val parseTreeResult = transpiler.parseInputStream(source)
         parseTreeResult.fold({ parseTree ->
             println(" The parseTree is: $parseTree")
         }, { e ->

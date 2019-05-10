@@ -2,6 +2,7 @@ package de.netherspace.apps.actojat.languages.cobol;
 
 import de.netherspace.apps.actojat.cobol_grammarBaseVisitor;
 import de.netherspace.apps.actojat.cobol_grammarParser;
+import de.netherspace.apps.actojat.ir.java.ArgumentDeclaration;
 import de.netherspace.apps.actojat.ir.java.Assignment;
 import de.netherspace.apps.actojat.ir.java.Expression;
 import de.netherspace.apps.actojat.ir.java.ForLoop;
@@ -16,7 +17,11 @@ import de.netherspace.apps.actojat.languages.BaseVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -24,26 +29,16 @@ import java.util.stream.Collectors;
  * A visitor implementation that generates an intermediate representation for a
  * particular parse tree.
  */
-public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct>
-                          implements BaseVisitor {
+public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct> implements BaseVisitor {
 
   private final IrFactory irFactory = new IrFactory();
-
-  private Program javaProgram;
-
-  /**
-   * The default constructor.
-   */
-  CobolVisitor() {
-    super();
-    this.javaProgram = irFactory.createProgram();
-  }
-
+  private final Map<String, Method> methods = new HashMap<>();
+  private final List<Import> imports = new LinkedList<>();
 
   @Override
   public JavaLanguageConstruct visit(ParseTree tree) {
     super.visit(tree);
-    return javaProgram;
+    return new Program(methods, imports, null);
   }
 
 
@@ -65,16 +60,18 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
   public JavaLanguageConstruct visitParagraph(cobol_grammarParser.ParagraphContext ctx) {
     final String sourceName = ctx.ID().getText();
     final String methodName = computeMethodName(ctx);
-    final Method javaMethod = irFactory.createMethod(methodName);
 
-    final List<Statement> javaStatements = ctx
+    final List<Statement> statements = ctx
         .sentence()
         .stream()
         .map(this.sentenceToJavaStatement)
         .collect(Collectors.toList());
-    javaMethod.getStatements().addAll(javaStatements);
 
-    javaProgram.getMethods().put(sourceName, javaMethod);
+    // TODO: COBOL statements have arguments as well (e.g. "PERFORM blockname counter TIMES")!
+    final List<ArgumentDeclaration> arguments = Collections.emptyList();
+
+    final Method javaMethod = new Method(methodName, statements, arguments, null);
+    methods.put(sourceName, javaMethod);
     return javaMethod;
   }
 
@@ -96,7 +93,6 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
         // "DISPLAY ... ":
         if (isDisplayvalueStatement) {
           final String functionName = "DISPLAY"; // TODO: make an enum holding these values!
-          final FunctionCall functionCall = irFactory.createFunctionCall(functionName);
 
           final List<Expression> parameters = cobolStatement.displayvalue()
               .STRINGVALUE()
@@ -104,8 +100,7 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
               .map(this.stringvalueToJavaExpression)
               .collect(Collectors.toList());
 
-          functionCall.getParameters().addAll(parameters);
-          return functionCall;
+          return new FunctionCall(functionName, parameters, null);
 
           // "PERFORM ... TIMES":
         } else if (isPerformtimesStatement) {
@@ -114,9 +109,10 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
           final cobol_grammarParser.CounterContext cobolLoopCounter = performtimes.counter();
           final cobol_grammarParser.BlocknameContext blockname = performtimes.blockname();
 
-          final String functionName = blockname.getText();
           final String loopCounter = computeForLoopCounter(cobolLoopCounter);
-          final FunctionCall functionCall = irFactory.createFunctionCall(functionName);
+          final String functionName = blockname.getText();
+          final List<Expression> parameters = Collections.emptyList();
+          final FunctionCall functionCall = new FunctionCall(functionName, parameters, null);
 
           Statement[] body = { functionCall };
           final Assignment loopVariable = null;
@@ -131,7 +127,8 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
           // "STOP ...":
         } else if (isStopoperationStatement) {
           final String functionName = "STOP"; // TODO: make an enum holding these values!
-          return irFactory.createFunctionCall(functionName);
+          final List<Expression> parameters = Collections.emptyList();
+          return new FunctionCall(functionName, parameters, null);
         }
 
         //        if (cobolStatement.operation().DISPLAY() != null) {
@@ -164,7 +161,8 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
         //
         //        functionCall.getParameters().addAll(parameters);
         //        return functionCall;
-        return irFactory.createFunctionCall(cobolStatement.getText());
+        final List<Expression> parameters = Collections.emptyList();
+        return new FunctionCall(cobolStatement.getText(), parameters, null);
       };
 
 
@@ -176,13 +174,13 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
   private final Function<cobol_grammarParser.OperandContext, Expression> operandToJavaExpression
       = op -> {
         final String[] parts = { op.getText() };
-        return irFactory.createExpression(parts);
+        return new Expression(parts, null);
       };
 
 
   private Function<? super TerminalNode, Expression> stringvalueToJavaExpression = s -> {
     final String[] parts = { s.getText() };
-    return irFactory.createExpression(parts);
+    return new Expression(parts, null);
   };
 
 
@@ -233,7 +231,7 @@ public class CobolVisitor extends cobol_grammarBaseVisitor<JavaLanguageConstruct
   public JavaLanguageConstruct visitImportcopyfile(cobol_grammarParser.ImportcopyfileContext ctx) {
     final String importName = computeImportName(ctx);
     final Import jimport = irFactory.createImport(importName);
-    javaProgram.getImports().add(jimport);
+    imports.add(jimport);
     return jimport;
   }
 

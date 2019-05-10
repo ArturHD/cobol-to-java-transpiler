@@ -38,9 +38,8 @@ public class CobolSourceTranspilerImpl extends AbstractSourceTranspiler<cobol_gr
         cobol_grammarParser::new,
         cobol_grammarParser::program,
         CobolVisitor::new,
-        systemFunctionsSupplier);
-
-    super.log = log;
+        systemFunctionsSupplier,
+        log);
   }
 
 }

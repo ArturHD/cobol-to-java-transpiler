@@ -2,6 +2,7 @@ package de.netherspace.apps.actojat.languages.c;
 
 import de.netherspace.apps.actojat.c_grammarBaseVisitor;
 import de.netherspace.apps.actojat.c_grammarParser;
+import de.netherspace.apps.actojat.ir.java.ArgumentDeclaration;
 import de.netherspace.apps.actojat.ir.java.Assignment;
 import de.netherspace.apps.actojat.ir.java.Expression;
 import de.netherspace.apps.actojat.ir.java.ForLoop;
@@ -18,11 +19,13 @@ import kotlin.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 
 /**
  * A visitor implementation that generates an intermediate representation for a
@@ -31,22 +34,13 @@ import java.util.stream.Collectors;
 public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implements BaseVisitor {
 
   private final IrFactory irFactory = new IrFactory();
-
-  private Program javaProgram;
-
-  /**
-   * The default constructor.
-   */
-  CVisitor() {
-    super();
-    this.javaProgram = irFactory.createProgram();
-  }
-
+  private final Map<String, Method> methods = new HashMap<>();
+  private final List<Import> imports = new LinkedList<>();
 
   @Override
   public JavaLanguageConstruct visit(ParseTree tree) {
     super.visit(tree);
-    return javaProgram;
+    return new Program(methods, imports, null);
   }
 
 
@@ -70,24 +64,25 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
   @Override
   public JavaLanguageConstruct visitFunctiondeclr(c_grammarParser.FunctiondeclrContext ctx) {
     final String methodName = computeMethodName(ctx);
-    final Method javaMethod = irFactory.createMethod(methodName);
+    final String sourceName = methodName; // TODO: this doesn't look right... Fix it!
 
     /*List<Argument> jarguments = argumentsToJavaArgs.apply(ctx.argumentlist())
                              .entrySet()
                              .stream()
                              .map(argEntryToJavaArgument)
                              .collect(Collectors.toList());
-    javaMethod.getArguments().addAll(jarguments);*/
+    */
+    final List<ArgumentDeclaration> arguments = Collections.emptyList(); // TODO: fix the above code!
 
-    final List<Statement> jstatements = ctx.block()
+    final List<Statement> statements = ctx.block()
         .expressionlist()
         .expression()
         .stream()
         .map(expressionToJavaStatement)
         .collect(Collectors.toList());
-    javaMethod.getStatements().addAll(jstatements);
 
-    javaProgram.getMethods().put(methodName, javaMethod);
+    final Method javaMethod = new Method(methodName, statements, arguments, null);
+    methods.put(sourceName, javaMethod);
     return javaMethod;
   }
 
@@ -108,7 +103,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
   private final Function<c_grammarParser.ArgumentContext, Expression> parameterToJavaExpression
       = param -> {
         final String[] parts = {param.getText()};
-        return irFactory.createExpression(parts);
+        return new Expression(parts, null);
       };
 
 
@@ -120,7 +115,6 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
     if (ex.functioncall() != null) {
       // set the function's name (e.g. 'doSomething' for 'bla = doSomething();' ):
       final String functionName = ex.functioncall().ID().getText();
-      final FunctionCall functionCall = irFactory.createFunctionCall(functionName);
 
       if (ex.functioncall().argumentlist() != null) {
         final List<Expression> parameters = ex.functioncall()
@@ -129,9 +123,11 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
             .stream()
             .map(this.parameterToJavaExpression)
             .collect(Collectors.toList());
-        functionCall.getParameters().addAll(parameters);
+        return new FunctionCall(functionName, parameters, null);
+      } else {
+        final List<Expression> parameters = Collections.emptyList();
+        return new FunctionCall(functionName, parameters, null);
       }
-      return functionCall;
     }
 
     // its a mere assignment:
@@ -141,7 +137,8 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
 
     if (ex.returnstatement() != null) {
       final String functionName = "return"; // TODO: create an enum holding these values!
-      final FunctionCall functionCall = irFactory.createFunctionCall(functionName);
+      final List<Expression> parameters = Collections.emptyList();
+      final FunctionCall functionCall = new FunctionCall(functionName, parameters, null);
       // ...
       return functionCall;
     }
@@ -200,9 +197,9 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
         final Pair<String, String> lhs = this.computeLeftHandSide(assignment.lhs());
         final String lhsTypeAnnotation = lhs.getFirst();
         final String lhsVariableName = lhs.getSecond();
-        final LeftHandSide jlhs = irFactory.createLeftHandSide(lhsTypeAnnotation, lhsVariableName);
+        final LeftHandSide jlhs = new LeftHandSide(lhsTypeAnnotation, lhsVariableName);
         final String jrhs = this.computeRightHandSide(assignment.rhs());
-        return irFactory.createAssignment(jlhs, jrhs);
+        return new Assignment(jlhs, jrhs, null);
       };
 
 
@@ -234,7 +231,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
   public JavaLanguageConstruct visitImportheader(c_grammarParser.ImportheaderContext ctx) {
     final String importName = computeImportName(ctx);
     final Import jimport = irFactory.createImport(importName);
-    javaProgram.getImports().add(jimport);
+    imports.add(jimport);
     return jimport;
   }
 

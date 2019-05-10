@@ -8,6 +8,7 @@ import de.netherspace.apps.actojat.util.*
 import org.antlr.v4.runtime.*
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor
 import org.antlr.v4.runtime.tree.ParseTree
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
@@ -26,10 +27,9 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         private val parserFactoryExpr: java.util.function.Function<CommonTokenStream, P>,
         private val startsymbolExpr: java.util.function.Function<P, C>,
         private val visitorFactoryExpr: java.util.function.Supplier<V>,
-        private val systemFunctionsSupplier: java.util.function.Supplier<Map<String, Pair<BasicConstruct, JavaConstructType>>>
+        private val systemFunctionsSupplier: java.util.function.Supplier<Map<String, Pair<BasicConstruct, JavaConstructType>>>,
+        private val log: Logger
 ) : SourceTranspiler where L : Lexer, P : Parser, C : ParserRuleContext, V : AbstractParseTreeVisitor<JavaLanguageConstruct> {
-
-    private val log = LoggerFactory.getLogger(AbstractSourceTranspiler::class.java)
 
     private lateinit var ruleNames: List<String>
 
