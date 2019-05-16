@@ -8,7 +8,6 @@ import de.netherspace.apps.actojat.ir.java.Expression;
 import de.netherspace.apps.actojat.ir.java.ForLoop;
 import de.netherspace.apps.actojat.ir.java.FunctionCall;
 import de.netherspace.apps.actojat.ir.java.Import;
-import de.netherspace.apps.actojat.ir.java.IrFactory;
 import de.netherspace.apps.actojat.ir.java.JavaLanguageConstruct;
 import de.netherspace.apps.actojat.ir.java.LeftHandSide;
 import de.netherspace.apps.actojat.ir.java.Method;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
  */
 public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implements BaseVisitor {
 
-  private final IrFactory irFactory = new IrFactory();
   private final Map<String, Method> methods = new HashMap<>();
   private final List<Import> imports = new LinkedList<>();
 
@@ -185,7 +183,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
         .map(expressionToJavaStatement)
         .toArray(Statement[]::new);
 
-    return irFactory.createForLoop(loopVariable, loopCondition, loopIncrement, body);
+    return new ForLoop(loopVariable, loopCondition, loopIncrement, body, null);
   };
 
 
@@ -230,7 +228,7 @@ public class CVisitor extends c_grammarBaseVisitor<JavaLanguageConstruct> implem
   @Override
   public JavaLanguageConstruct visitImportheader(c_grammarParser.ImportheaderContext ctx) {
     final String importName = computeImportName(ctx);
-    final Import jimport = irFactory.createImport(importName);
+    final Import jimport = new Import(importName, null);
     imports.add(jimport);
     return jimport;
   }

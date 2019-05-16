@@ -64,7 +64,10 @@ class JavaIrToSourceCodeTranslatorImpl(
         log.trace("Statement = $statement")
 
         return when (statement) {
-            is Assignment -> assignmentToCode(statement)
+            is Assignment -> {
+                val jassignment = assignmentToCode(statement)
+                "$jassignment;"
+            }
             is ForLoop -> forLoopToCode(statement)
             is FunctionCall -> functionCallToCode(statement)
             else -> {
@@ -77,9 +80,9 @@ class JavaIrToSourceCodeTranslatorImpl(
     private fun assignmentToCode(assignment: Assignment): String {
         // TODO: nested expressions!
         return if (assignment.lhs.type != null) {
-            "${assignment.lhs.type} ${assignment.lhs.variableName}=${assignment.rhs};"
+            "${assignment.lhs.type} ${assignment.lhs.variableName}=${assignment.rhs}"
         } else {
-            "${assignment.lhs.variableName}=${assignment.rhs};"
+            "${assignment.lhs.variableName}=${assignment.rhs}"
         }
     }
 

@@ -37,7 +37,7 @@ class IrTranspilationTest {
                 comment = null
         )
 
-        // the program:
+        // the program that glues everything together:
         val methods = mapOf(
                 methodName to method,
                 methodName2 to method2
@@ -55,6 +55,7 @@ class IrTranspilationTest {
 
     @Test
     fun testSimpleAssignmentTranspilation() {
+        // a simple assignment (int j=0):
         val type = "int"
         val variableName = "j"
         val lhs = LeftHandSide(
@@ -68,6 +69,7 @@ class IrTranspilationTest {
                 comment = null
         )
 
+        // the assignment happens in this trivial method:
         val methodName = "myTestMethod"
         val testMethod = Method(
                 name = methodName,
@@ -76,6 +78,7 @@ class IrTranspilationTest {
                 comment = null
         )
 
+        // the program that glues everything together:
         val program = Program(
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
@@ -87,6 +90,9 @@ class IrTranspilationTest {
         doTranspilationTest(program, "SimpleAssignment1", expectedCode)
     }
 
+    /**
+     * Tests the transpilation of a very simple "print(HelloWorld)" IR.
+     */
     @Test
     fun testHelloWorldTranspilation() {
         // this statement appears inside of "helloWorld" and prints "HelloWorld":
@@ -109,6 +115,7 @@ class IrTranspilationTest {
                 comment = null
         )
 
+        // the program that glues everything together:
         val program = Program(
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
@@ -120,12 +127,65 @@ class IrTranspilationTest {
         doTranspilationTest(program, "HelloWorld", expectedCode)
     }
 
+
+    /**
+     * Tests the transpilation of a simple for-loop IR.
+     */
     @Test
-    @Ignore
     fun testForLoopTranspilation() {
-        // TODO: !!!
-        val b = true
-        assertThat(b, Is(true))
+        // this statement appears inside of the loop body:
+        val expr1 = Expression(
+                parts = arrayOf("\"ImStillLooping\""),
+                comment = null
+        )
+        val printStatement1: Statement = FunctionCall(
+                name = "Print",
+                parameters = listOf(expr1),
+                comment = null
+        )
+
+        // the actual loop construct:
+        val type = "int"
+        val variableName = "j"
+        val lhs = LeftHandSide(
+                type = type,
+                variableName = variableName
+        )
+        val rhs = "0"
+        val loopVariable = Assignment(
+                lhs = lhs,
+                rhs = rhs,
+                comment = null
+        )
+        val loopCondition = "j<10" // TODO: this should not be a simple String but rather a type of its own!
+        val loopIncrement = "j++" // TODO: this should not be a simple String but rather a type of its own!
+        val body = arrayOf(printStatement1)
+        val forLoop1 = ForLoop(
+                loopVariable = loopVariable,
+                loopCondition = loopCondition,
+                loopIncrement = loopIncrement,
+                body = body,
+                comment = null
+        )
+
+        // the method containing a for-loop:
+        val methodName = "crazyLooping"
+        val testMethod = Method(
+                name = methodName,
+                statements = listOf(forLoop1),
+                arguments = listOf(),
+                comment = null
+        )
+        // the program that glues everything together:
+        val program = Program(
+                methods = mapOf(methodName to testMethod),
+                imports = listOf(),
+                comment = null
+        )
+
+        val expectedCode = "package actojat.ir.test.pckg;public class ForLoooop {public void crazyLooping()" +
+                "{for (int j=0, j<10, j++) { System.out.print(\"ImStillLooping\"); };}}"
+        doTranspilationTest(program, "ForLoooop", expectedCode)
     }
 
     /**
