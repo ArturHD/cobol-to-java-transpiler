@@ -12,6 +12,9 @@ class IrTranspilationTest {
     private val log = LoggerFactory.getLogger(IrTranspilationTest::class.java)
     private val testBasePackage = "actojat.ir.test.pckg"
 
+    /**
+     * Tests the transpilation of a trivial function call.
+     */
     @Test
     fun testSimpleFunctionCallTranspilation() {
         // this statement appears inside the method "myMethod" and calls "doSomething":
@@ -53,6 +56,9 @@ class IrTranspilationTest {
         doTranspilationTest(program, "TestProgram1", expectedCode)
     }
 
+    /**
+     * Tests the transpilation of a simple assignment (int j=0).
+     */
     @Test
     fun testSimpleAssignmentTranspilation() {
         // a simple assignment (int j=0):
