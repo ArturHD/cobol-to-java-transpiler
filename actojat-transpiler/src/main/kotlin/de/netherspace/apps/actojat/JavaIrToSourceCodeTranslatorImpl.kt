@@ -71,7 +71,7 @@ class JavaIrToSourceCodeTranslatorImpl(
             is ForLoop -> forLoopToCode(statement)
             is FunctionCall -> functionCallToCode(statement)
             else -> {
-                log.error("Couldn't match statement!");
+                log.error("Couldn't match statement!")
                 null // TODO: return a Result.failure() instead!
             }
         }
@@ -79,7 +79,7 @@ class JavaIrToSourceCodeTranslatorImpl(
 
     private fun assignmentToCode(assignment: Assignment): String {
         // TODO: nested expressions!
-        return if (assignment.lhs.type != null) {
+        return if (!assignment.lhs.type.isNullOrEmpty()) {
             "${assignment.lhs.type} ${assignment.lhs.variableName}=${assignment.rhs}"
         } else {
             "${assignment.lhs.variableName}=${assignment.rhs}"
