@@ -9,7 +9,6 @@ import org.antlr.v4.runtime.*
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor
 import org.antlr.v4.runtime.tree.ParseTree
 import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
 
@@ -57,14 +56,15 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         log.debug("\n ${parseTree.toStringTree(parser)}\n")
 
         //did an error occur during parsing?
-        if (errorHandler.isErrorFlag
-                || errorListener.isErrorFlag
-                || lexerErrorListener.isErrorFlag) {
-            log.error("I couldn't parse the given piece of source code!")
-            log.debug("  errorHandler.isErrorFlag() = ${errorHandler.isErrorFlag}")
-            log.debug("  errorListener.isErrorFlag() = ${errorListener.isErrorFlag}")
-            log.debug("  lexerErrorListener.isErrorFlag() = ${lexerErrorListener.isErrorFlag}")
-            return Result.failure(ParserException())
+        if (errorHandler.isErrorFlag()
+                || errorListener.isErrorFlag()
+                || lexerErrorListener.isErrorFlag()) {
+            val m = "I couldn't parse the given piece of source code!"
+            log.error(m)
+            log.debug("  errorHandler.isErrorFlag() = ${errorHandler.isErrorFlag()}")
+            log.debug("  errorListener.isErrorFlag() = ${errorListener.isErrorFlag()}")
+            log.debug("  lexerErrorListener.isErrorFlag() = ${lexerErrorListener.isErrorFlag()}")
+            return Result.failure(ParserException(m))
         }
 
         log.debug("I could successfully parse the given piece of source code")
@@ -76,8 +76,9 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         val visitor: V = visitorFactoryExpr.get()
         val program = visitor.visit(parseTree)
         return if (program == null) {
-            log.error("I couldn't walk the whole parse tree!")
-            Result.failure(IntermediateRepresentationException())
+            val m = "I couldn't walk the whole parse tree!"
+            log.error(m)
+            Result.failure(IntermediateRepresentationException(m))
         } else {
             Result.success(program)
         }
@@ -85,12 +86,12 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
 
     override fun generateSourceCode(program: JavaLanguageConstruct, name: String, basePackage: String): Result<String> {
         if (program !is Program) {
-            log.error("The given JavaLanguageConstruct is not of type Program!")
-            return Result.failure(SourceGenerationException())
+            val m = "The given JavaLanguageConstruct is not of type Program!"
+            log.error(m)
+            return Result.failure(SourceGenerationException(m))
         }
 
-        val irTranslator: JavaIrToSourceCodeTranslator
-                = JavaIrToSourceCodeTranslatorImpl(systemFunctionsSupplier.get())
+        val irTranslator: JavaIrToSourceCodeTranslator = JavaIrToSourceCodeTranslatorImpl(systemFunctionsSupplier.get())
 
         return irTranslator.generateCodeFromIr(program = program,
                 basePackage = basePackage,

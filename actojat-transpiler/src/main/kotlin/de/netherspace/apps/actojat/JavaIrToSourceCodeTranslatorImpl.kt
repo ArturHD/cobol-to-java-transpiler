@@ -16,7 +16,9 @@ class JavaIrToSourceCodeTranslatorImpl(
 
     override fun generateCodeFromIr(program: Program, className: String, basePackage: String): Result<String> {
         if (className.isEmpty() || basePackage.isEmpty()) {
-            throw SourceGenerationException() // TODO: return a Result.failure() instead!
+            val m = "Class name or base package is missing!"
+            log.error(m)
+            return Result.failure(SourceGenerationException(m))
         }
 
         append("package $basePackage;")
