@@ -2,7 +2,6 @@ package de.netherspace.apps.actojat
 
 import de.netherspace.apps.actojat.ir.java.*
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.slf4j.LoggerFactory
 import org.hamcrest.Matchers.`is` as Is
