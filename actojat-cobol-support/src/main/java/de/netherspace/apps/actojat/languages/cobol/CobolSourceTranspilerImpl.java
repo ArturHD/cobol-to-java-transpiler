@@ -1,7 +1,6 @@
 package de.netherspace.apps.actojat.languages.cobol;
 
 import de.netherspace.apps.actojat.AbstractSourceTranspiler;
-import de.netherspace.apps.actojat.CobolVisitor;
 import de.netherspace.apps.actojat.cobol_grammarLexer;
 import de.netherspace.apps.actojat.cobol_grammarParser;
 import de.netherspace.apps.actojat.ir.java.BasicConstruct;

@@ -43,11 +43,10 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     fun testCobolHelloWorldTranspilation() {
         val sourceFile = "/cobol-sources/test-source-helloworld.cob"
         val clazzName = "HelloCobol"
-        val source = loadSourceFile(sourceFile)
         val expectedCode = "package cobol.test.pckg;public class HelloCobol {public" +
                 " void paragraph_DisplayHelloWorld(){System.out.println(\"HelloWorld!\");}}"
         doTranspilationTest(
-                source = source,
+                source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
                 expectedCode = expectedCode
         )
@@ -66,12 +65,11 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     fun testCobolSimpleLoopTranspilation() {
         val sourceFile = "/cobol-sources/test-source-simpleloop.cob"
         val clazzName = "SimpleLoop"
-        val source = loadSourceFile(sourceFile)
         val expectedCode = "package cobol.test.pckg;public class SimpleLoop {public" +
                 " void paragraph_DisplayHelloWorld(){System.out.println(\"HelloWorld!\");}}"
         // TODO: add the actual exp. string!
         doTranspilationTest(
-                source = source,
+                source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
                 expectedCode = expectedCode
         )
@@ -88,14 +86,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     @Ignore
     fun testEmptyCobolSectionTranspilation() {
-        val sourceFile = "cobol-sources/test-source-2.cob"
+        val sourceFile = "/cobol-sources/test-source-2.cob"
         val clazzName = "CobolTest1"
-        val source = loadSourceFile(sourceFile)
         val expectedCode = "package cobol.test.pckg;public class CobolTest1 {public void" +
                 " section_0000_MAIN(){}public void section_0040_DB_CONN(){}public" +
                 " void section_0100_INIT(){}}"
         doTranspilationTest(
-                source = source,
+                source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
                 expectedCode = expectedCode
         )
@@ -112,20 +109,25 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     @Ignore
     fun testCobolImportTranspilation() {
-        val sourceFile = "cobol-sources/test-source-08.cob" //"cobol-sources/test-source-4.cob"
+        val sourceFile = "/cobol-sources/test-source-08.cob" //"cobol-sources/test-source-4.cob"
         val clazzName = "CobolTest2"
-        val source = loadSourceFile(sourceFile)
         val expectedCode = "package cobol.test.pckg;import cobol.test.pckg" +
                 ".cobol_TEST_IMPORT_cpy;import cobol.test.pckg.cobol_bla_bli_blubb_cpy;import" +
                 " cobol.test.pckg.cobol_log_12340_sql_error_cpy;import cobol.test.pckg" +
                 ".cobol_SMURF_SECTIONS_cpy;public class CobolTest2 {public void section_0000_MAIN(){}}"
         doTranspilationTest(
-                source = source,
+                source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
                 expectedCode = expectedCode
         )
     }
 
+    /**
+     * Loads a source file as input stream.
+     *
+     * @param sourceFile the source file
+     * @return the input stream
+     */
     private fun loadSourceFile(sourceFile: String): InputStream {
         val inputStream: InputStream? = CobolTranspilerTest::class.java.getResourceAsStream(sourceFile)
         return inputStream ?: throw IllegalArgumentException("Source file not found!")

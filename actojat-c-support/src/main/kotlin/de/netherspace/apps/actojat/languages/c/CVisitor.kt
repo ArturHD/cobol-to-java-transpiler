@@ -1,5 +1,7 @@
-package de.netherspace.apps.actojat
+package de.netherspace.apps.actojat.languages.c
 
+import de.netherspace.apps.actojat.c_grammarBaseVisitor
+import de.netherspace.apps.actojat.c_grammarParser
 import de.netherspace.apps.actojat.ir.java.*
 import de.netherspace.apps.actojat.languages.BaseVisitor
 import org.antlr.v4.runtime.tree.ParseTree

@@ -1,5 +1,7 @@
-package de.netherspace.apps.actojat
+package de.netherspace.apps.actojat.languages.cobol
 
+import de.netherspace.apps.actojat.cobol_grammarBaseVisitor
+import de.netherspace.apps.actojat.cobol_grammarParser
 import de.netherspace.apps.actojat.ir.java.*
 import de.netherspace.apps.actojat.languages.BaseVisitor
 import org.antlr.v4.runtime.tree.ParseTree
