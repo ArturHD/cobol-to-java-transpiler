@@ -30,6 +30,6 @@ grammar file of your own that accepts your chosen source language,
 * use [ANTLR's Maven plugin](https://www.antlr.org/api/maven-plugin/latest/) to generate
 your parser and tokenizer classes, and
 
-* utilize actojat's [Abstract Source Transpiler class](actojat-transpiler/src/main/java/de/netherspace/apps/actojat/AbstractSourceTranspiler.java)
-as well as its [Java Intermediate Representation](actojat-transpiler/src/main/java/de/netherspace/apps/actojat/JavaIrToSourceCodeTranslator.java)
+* utilize actojat's [Abstract Source Transpiler class](actojat-transpiler/src/main/kotlin/de/netherspace/apps/actojat/AbstractSourceTranspiler.kt)
+as well as its [Java Intermediate Representation](actojat-transpiler/src/main/kotlin/de/netherspace/apps/actojat/JavaIrToSourceCodeTranslator.kt)
 to perform the actual transpilation step

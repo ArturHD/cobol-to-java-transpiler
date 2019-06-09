@@ -6,11 +6,15 @@ import de.netherspace.apps.actojat.ir.java.*
 import de.netherspace.apps.actojat.languages.BaseVisitor
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
+import java.security.MessageDigest
+import java.util.concurrent.atomic.AtomicInteger
 
 class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
 
     private val methods = mutableMapOf<String, Method>()
     private val imports = mutableListOf<Import>()
+    private val knownIDs = mutableListOf<String>()
+    private val internalIdCounter = AtomicInteger(0)
 
 
     override fun visit(tree: ParseTree?): JavaLanguageConstruct {
@@ -18,6 +22,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         return Program(
                 methods = methods,
                 imports = imports,
+                members = mapOf(),
                 comment = null
         )
     }
@@ -69,12 +74,25 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      */
     private fun computeMethodName(paragraph: cobol_grammarParser.ParagraphContext?): String {
         val methodPrefix = "paragraph_" // TODO: Cobol sections might start with digits...
-        val transformedSectiondecl : String = paragraph
+        val transformedSectiondecl: String = paragraph
                 ?.ID()
                 ?.text
                 ?.replace("-", "_")
                 ?: throw NullPointerException("Got a null value from the AST")
         return "$methodPrefix$transformedSectiondecl"
+    }
+
+    /**
+     * Maps a COBOL import to a Java import file name.
+     */
+    private fun computeImportName(ctx: cobol_grammarParser.ImportcopyfileContext): String {
+        val importPrefix = "cobol_" // TODO: Cobol imports might start with digits...
+        val transformedImport = ctx
+                .FILEID()
+                .text
+                .replace(Regex("\\."), "_") // import without separating dot
+                .replace("-", "_")
+        return "$importPrefix$transformedImport"
     }
 
     /**
@@ -111,30 +129,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             CobolStatementType.PERFORMTIMES -> {
                 // "PERFORM ... TIMES":
                 val performtimes = cobolStatement.performtimes()
-                val cobolLoopCounter = performtimes.counter()
-                val blockname = performtimes.blockname()
-
-                val functionName = blockname.text
-                val parameters = listOf<Expression>()
-                val functionCall = FunctionCall(
-                        name = functionName,
-                        parameters = parameters,
-                        comment = null
-                )
-                val loopCounter: String = computeForLoopCounter(cobolLoopCounter)
-
-                val body = arrayOf(functionCall)
-                val loopVariable: Assignment? = null // TODO: ...
-                val loopCondition: String? = null // TODO: ...
-                val loopIncrement: String? = null // TODO: ...
-//                ForLoop(
-//                        loopVariable = loopVariable,
-//                        loopCondition = loopCondition,
-//                        loopIncrement = loopIncrement,
-//                        body = body,
-//                        comment = null
-//                )
-                TODO("not implemented")
+                return cobolPerformTimesTojavaLoop(performtimes)
             }
 
             CobolStatementType.PERFORMUNTIL -> {
@@ -170,16 +165,40 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     /**
-     * Maps a Cobol import to a Java's import file name.
+     * Maps a COBOL "PERFORM ... TIMES" loop statement to a Java (for-)loop.
      */
-    private fun computeImportName(ctx: cobol_grammarParser.ImportcopyfileContext): String {
-        val importPrefix = "cobol_" // TODO: Cobol imports might start with digits...
-        val transformedImport = ctx
-                .FILEID()
-                .text
-                .replace(Regex("\\."), "_") // import without separating dot
-                .replace("-", "_")
-        return "$importPrefix$transformedImport"
+    private fun cobolPerformTimesTojavaLoop(performtimes: cobol_grammarParser.PerformtimesContext?): Statement {
+        val cobolLoopCounter = performtimes?.counter() ?: throw NullPointerException("Got a null value from the AST")
+        val blockname = performtimes.blockname()
+
+        val functionName = blockname.text
+        val parameters = listOf<Expression>()
+        val functionCall = FunctionCall(
+                name = functionName,
+                parameters = parameters,
+                comment = null
+        )
+        val body: Array<Statement> = arrayOf(functionCall)
+
+        val scopeName: String = functionName // TODO: this is ID of the function called! better: use the parent block's ID!
+        val leftHandSide = generateNewInternalIntegerVariable(scopeName, internalIdCounter)
+        val rightHandSide = "1" // e.g. "for(int i=1; ...) {...}
+        val loopVariable = Assignment(
+                lhs = leftHandSide,
+                rhs = rightHandSide,
+                comment = null
+        )
+
+        val loopCondition: String = computeForLoopCondition(loopVariable, cobolLoopCounter)
+        val loopIncrement = "${loopVariable.lhs.variableName}++"
+
+        return ForLoop(
+                loopVariable = loopVariable,
+                loopCondition = loopCondition,
+                loopIncrement = loopIncrement,
+                body = body,
+                comment = null
+        )
     }
 
     /**
@@ -194,11 +213,60 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     /**
-     * Computes a Java for-loop counter signature.
+     * Computes a Java for-loop condition.
      */
-    private fun computeForLoopCounter(cobolLoopCounter: cobol_grammarParser.CounterContext): String {
+    private fun computeForLoopCondition(loopVariable: Assignment,
+                                        cobolLoopCounter: cobol_grammarParser.CounterContext): String {
+        val variableName = loopVariable.lhs.variableName
+
         val counter = cobolLoopCounter.text
-        TODO("not implemented")
+        // TODO: ^ this should rather be the transformed variable name!
+
+        return "$variableName<=$counter"
+    }
+
+    /**
+     * Generates the LHS of a new (internal) integer variable declaration
+     * (e.g. "int internal202cb96") which is used for Java IR-internal constructs
+     * (e.g. a for-loop that represents a "PERFORM ... TIMES" COBOL statement).
+     */
+    private fun generateNewInternalIntegerVariable(scopeName: String, idCounter: AtomicInteger): LeftHandSide {
+        val type = "int"
+        val internalId = generateInternalId(scopeName, idCounter)
+
+        return LeftHandSide(
+                type = type,
+                variableName = internalId
+        )
+    }
+
+    /**
+     * Generates a unique identifier.
+     */
+    @Synchronized
+    private fun generateInternalId(scopeName: String, idCounter: AtomicInteger): String {
+        val i = idCounter.getAndIncrement()
+        val input = "$scopeName###$i"
+
+        val hash = MessageDigest
+                .getInstance("MD5")
+                .digest(input.toByteArray())
+                .asSequence()
+                .map { "%02x".format(it) }
+                .reduce { acc, s -> acc + s }
+
+
+        val substr = hash
+                .substring(0..6)
+                .toUpperCase()
+        val newInternalId = "_internal$substr"
+
+        return if (knownIDs.contains(newInternalId)) {
+            generateInternalId(scopeName, idCounter)
+        } else {
+            knownIDs.add(newInternalId)
+            newInternalId
+        }
     }
 
     /**

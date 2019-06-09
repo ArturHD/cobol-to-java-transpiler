@@ -90,7 +90,7 @@ class JavaIrToSourceCodeTranslatorImpl(
 
     private fun forLoopToCode(forLoop: ForLoop): String {
         val loopVariable = assignmentToCode(forLoop.loopVariable)
-        val loopHeader = "for ($loopVariable, ${forLoop.loopCondition}, ${forLoop.loopIncrement})"
+        val loopHeader = "for ($loopVariable; ${forLoop.loopCondition}; ${forLoop.loopIncrement})"
         val loopBody = forLoop
                 .body
                 .map { statement -> statementToCode(statement) }

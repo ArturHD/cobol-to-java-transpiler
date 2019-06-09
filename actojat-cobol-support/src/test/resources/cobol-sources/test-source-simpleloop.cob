@@ -1,19 +1,11 @@
  IDENTIFICATION DIVISION.
  PROGRAM-ID. SimpleLoop.
 
- DATA DIVISION.
- WORKING-STORAGE SECTION.
- 01 n PIC 9 VALUE 5.
-
  PROCEDURE DIVISION.
  MainProgram.
-      PERFORM DisplayHelloWorld n TIMES.
+      PERFORM DisplayHelloWorld 15 TIMES.
       STOP RUN.
 
  DisplayHelloWorld.
       DISPLAY "Hello".
       DISPLAY "World!".
-
- DoSomethingElse.
-      DISPLAY "Something".
-      DISPLAY "else!".
