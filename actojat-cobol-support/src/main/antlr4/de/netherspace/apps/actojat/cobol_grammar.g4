@@ -96,7 +96,13 @@ importcopyfile          : COPY QUOTATIONMARK FILEID QUOTATIONMARK DOT
 tailingimports          : importcopyfile+
                         ;
 
-datadeclaration         : NUMBER ID PIC NUMBER VALUE NUMBER DOT // TODO: fix this rule (2nd and 3rd 'NUMBER' are placeholders only)!
+datadeclaration         : datahierarchylevel ID datatype
+                        ;
+
+datahierarchylevel      : NUMBER
+                        ;
+
+datatype                : PIC NUMBER VALUE NUMBER DOT // TODO: fix this rule! (The 'NUMBER's are placeholders only!)
                         ;
 
 

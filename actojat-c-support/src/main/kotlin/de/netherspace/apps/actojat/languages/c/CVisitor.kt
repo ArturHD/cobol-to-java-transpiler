@@ -19,6 +19,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         return Program(
                 methods = methods,
                 imports = imports,
+                fields = mapOf(),
                 comment = null
         )
     }

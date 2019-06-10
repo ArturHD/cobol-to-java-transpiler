@@ -23,11 +23,18 @@ class JavaIrToSourceCodeTranslatorImpl(
 
         append("package $basePackage;")
 
+        // TODO: the IR should rather be organized as a tree!
+        // TODO: walk this tree with pattern matching/a visitor!
+
         program.imports
                 .map { import -> irImportToCode(import, basePackage) }
                 .forEach { ic -> append(ic) }
 
         append("public class $className {")
+
+        program.fields
+                .map { field -> irFieldToCode(field) }
+                .forEach { ic -> append(ic) }
 
         sourceMethodNamesToJavaMethods = program.methods // TODO: this looks strange! => refactor?!
 
@@ -46,6 +53,30 @@ class JavaIrToSourceCodeTranslatorImpl(
 
     private fun irImportToCode(import: Import, basePackage: String): String {
         return "import $basePackage.${import.name};"
+    }
+
+    private fun irFieldToCode(field: Map.Entry<String, Field>): String {
+        val fieldModifier = if (field.value.modifier == null) {
+            ""
+        } else {
+            field.value.modifier
+        }
+
+        return when (val fieldDecl = field.value.declaration) {
+            is VariableDeclaration.DeclarationWithoutInit -> {
+                val fieldname = fieldDecl.lhs.variableName
+                val type: String = fieldDecl.lhs.type
+                        ?: throw IllegalArgumentException("The type annotation must not be null!")
+                "$fieldModifier $type $fieldname;"
+            }
+            is VariableDeclaration.DeclarationWithInit -> {
+                val fieldname = fieldDecl.lhs.variableName
+                val type: String = fieldDecl.lhs.type
+                        ?: throw IllegalArgumentException("The type annotation must not be null!")
+                val initialization = fieldDecl.rhs
+                "$fieldModifier $type $fieldname = $initialization;"
+            }
+        }
     }
 
     private fun irMethodToCode(method: Method): String {

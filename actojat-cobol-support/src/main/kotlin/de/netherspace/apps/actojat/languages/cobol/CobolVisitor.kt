@@ -13,6 +13,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
     private val methods = mutableMapOf<String, Method>()
     private val imports = mutableListOf<Import>()
+    private val fields = mutableMapOf<String, Field>()
     private val knownIDs = mutableListOf<String>()
     private val internalIdCounter = AtomicInteger(0)
 
@@ -22,7 +23,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         return Program(
                 methods = methods,
                 imports = imports,
-                members = mapOf(),
+                fields = fields,
                 comment = null
         )
     }
@@ -67,6 +68,26 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         )
         imports.add(jimport) // TODO: the AST parent node should collect all imports from this function!
         return jimport
+    }
+
+    override fun visitDatadeclaration(ctx: cobol_grammarParser.DatadeclarationContext?): JavaLanguageConstruct {
+        val fieldName: String = ctx?.ID()?.text
+                ?: throw NullPointerException("Got a null value from the AST")
+        // TODO: transform name? (It might not have a valid Java name...)
+
+        val vardecl = VariableDeclaration.DeclarationWithInit(
+                lhs = LeftHandSide("long", fieldName), // TODO!
+                rhs = "99", // TODO!
+                comment = null
+        )
+        val field = Field(
+                modifier = "public", // TODO: should be an enum!
+                declaration = vardecl,
+                comment = null
+        )
+
+        fields[fieldName] = field
+        return field
     }
 
     /**
@@ -227,7 +248,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
     /**
      * Generates the LHS of a new (internal) integer variable declaration
-     * (e.g. "int internal202cb96") which is used for Java IR-internal constructs
+     * (e.g. "int _internal202cb96") which is used for Java IR-internal constructs
      * (e.g. a for-loop that represents a "PERFORM ... TIMES" COBOL statement).
      */
     private fun generateNewInternalIntegerVariable(scopeName: String, idCounter: AtomicInteger): LeftHandSide {
