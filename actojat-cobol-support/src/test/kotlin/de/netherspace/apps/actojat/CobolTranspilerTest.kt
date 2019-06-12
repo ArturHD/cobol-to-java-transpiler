@@ -83,11 +83,10 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
-    @Ignore
     fun testCobolLoopWithIdTranspilation() {
         val sourceFile = "/cobol-sources/test-source-loopwithid.cob"
         val clazzName = "LoopWithId"
-        val expectedCode = "package cobol.test.pckg;public class LoopWithId {public void paragraph_MainProgram(){" +
+        val expectedCode = "package cobol.test.pckg;public class LoopWithId {public int n = 5;public void paragraph_MainProgram(){" +
                 "for (int _internalDE7D3EA=1; _internalDE7D3EA<=n; _internalDE7D3EA++) { paragraph_DisplayHelloWorld(); };" +
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}" +
                 "public void paragraph_DoSomethingElse(){System.out.println(\"Something\");System.out.println(\"else!\");}}"

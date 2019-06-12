@@ -56,25 +56,32 @@ class JavaIrToSourceCodeTranslatorImpl(
     }
 
     private fun irFieldToCode(field: Map.Entry<String, Field>): String {
-        val fieldModifier = if (field.value.modifier == null) {
-            ""
-        } else {
-            field.value.modifier
-        }
+        val fieldModifier = field.value.modifier ?: ""
 
         return when (val fieldDecl = field.value.declaration) {
             is VariableDeclaration.DeclarationWithoutInit -> {
                 val fieldname = fieldDecl.lhs.variableName
-                val type: String = fieldDecl.lhs.type
-                        ?: throw IllegalArgumentException("The type annotation must not be null!")
+                val type: String = computeJavaTypeAnnotationString(fieldDecl.lhs.type
+                        ?: throw IllegalArgumentException("The type annotation must not be null!"))
                 "$fieldModifier $type $fieldname;"
             }
             is VariableDeclaration.DeclarationWithInit -> {
                 val fieldname = fieldDecl.lhs.variableName
-                val type: String = fieldDecl.lhs.type
-                        ?: throw IllegalArgumentException("The type annotation must not be null!")
+                val type: String = computeJavaTypeAnnotationString(fieldDecl.lhs.type
+                        ?: throw IllegalArgumentException("The type annotation must not be null!"))
                 val initialization = fieldDecl.rhs
                 "$fieldModifier $type $fieldname = $initialization;"
+            }
+        }
+    }
+
+    private fun computeJavaTypeAnnotationString(type: Type): String {
+        return when (type) {
+            is Type.BasicType -> {
+                type.primitiveType.typeAnnotation
+            }
+            is Type.CustomType -> {
+                type.typeName ?: throw IllegalArgumentException("The type annotation must not be null!")
             }
         }
     }
@@ -112,8 +119,9 @@ class JavaIrToSourceCodeTranslatorImpl(
 
     private fun assignmentToCode(assignment: Assignment): String {
         // TODO: nested expressions!
-        return if (!assignment.lhs.type.isNullOrEmpty()) {
-            "${assignment.lhs.type} ${assignment.lhs.variableName}=${assignment.rhs}"
+        return if (assignment.lhs.type != null) {
+            val typeAnnotation = computeJavaTypeAnnotationString(assignment.lhs.type)
+            "$typeAnnotation ${assignment.lhs.variableName}=${assignment.rhs}"
         } else {
             "${assignment.lhs.variableName}=${assignment.rhs}"
         }

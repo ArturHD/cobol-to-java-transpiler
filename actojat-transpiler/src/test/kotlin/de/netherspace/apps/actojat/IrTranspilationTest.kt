@@ -62,10 +62,9 @@ class IrTranspilationTest {
     @Test
     fun testSimpleAssignmentTranspilation() {
         // a simple assignment (int j=0):
-        val type = "int"
         val variableName = "j"
         val lhs = LeftHandSide(
-                type = type,
+                type = Type.BasicType(PrimitiveType.INT),
                 variableName = variableName
         )
         val rhs = "0"
@@ -153,10 +152,9 @@ class IrTranspilationTest {
         )
 
         // the actual loop construct:
-        val type = "int"
         val variableName = "j"
         val lhs = LeftHandSide(
-                type = type,
+                type = Type.BasicType(PrimitiveType.INT),
                 variableName = variableName
         )
         val rhs = "0"
@@ -204,7 +202,7 @@ class IrTranspilationTest {
     fun testGlobalVariableDeclarationTranspilation() {
         val field1Name1 = "myFirstField"
         val vardecl1 = VariableDeclaration.DeclarationWithoutInit(
-                lhs = LeftHandSide("int", field1Name1),
+                lhs = LeftHandSide(Type.BasicType(PrimitiveType.INT), field1Name1),
                 comment = null
         )
         val field1 = Field(
@@ -215,7 +213,7 @@ class IrTranspilationTest {
 
         val field1Name2 = "mySecondField"
         val vardecl2 = VariableDeclaration.DeclarationWithInit(
-                lhs = LeftHandSide("long", field1Name2),
+                lhs = LeftHandSide(Type.BasicType(PrimitiveType.LONG), field1Name2),
                 rhs = "99",
                 comment = null
         )

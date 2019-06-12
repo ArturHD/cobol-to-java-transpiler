@@ -151,13 +151,14 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
      * Maps a C assignment to a Java assignment.
      */
     private fun assignmentToJavaAssignment(ctx: c_grammarParser.AssignmentContext?): Assignment {
-        val lhs: Pair<String, String> = computeLeftHandSide(ctx?.lhs()
+        val lhs: Pair<Type?, String> = computeLeftHandSide(ctx?.lhs()
                 ?: throw NullPointerException("Got a null value from the AST"))
-        val lhsTypeAnnotation = lhs.first
+
+        val lhsType = lhs.first
         val lhsVariableName = lhs.second
 
         val jlhs = LeftHandSide(
-                type = lhsTypeAnnotation,
+                type = lhsType,
                 variableName = lhsVariableName
         )
 
@@ -173,14 +174,22 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     /**
      * Maps a left-hand side identifier to a Java identifier: type * name.
      */
-    private fun computeLeftHandSide(ctx: c_grammarParser.LhsContext): Pair<String, String> {
+    private fun computeLeftHandSide(ctx: c_grammarParser.LhsContext): Pair<Type?, String> {
         return if (ctx.variabledecl() != null) {
-            val typeAnnotation = ctx.variabledecl().primitivetype().text
+            val typeAnnotation = ctx.variabledecl().primitivetype().text // TODO: compute this properly! (Could be a custom type!)
             val variableName = ctx.variabledecl().ID().text
-            Pair(typeAnnotation, variableName)
+
+            val cTypesToJavaMap = mapOf(
+                    "int" to PrimitiveType.INT
+                    // TODO: ...
+            )
+
+            val basicType = cTypesToJavaMap[typeAnnotation]
+                    ?: throw NoSuchElementException("Couldn't map C type to a Java type!")
+            Pair(Type.BasicType(basicType), variableName)
         } else {
             val variableName = ctx.ID().text
-            Pair("", variableName)
+            Pair(null, variableName)
         }
     }
 
@@ -196,7 +205,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
      */
     private fun forLoopToJavaForLoop(ctx: c_grammarParser.ForloopContext?): Statement {
         val loopVariable = assignmentToJavaAssignment(
-                ctx?.assignment()  ?: throw NullPointerException("Got a null value from the AST")
+                ctx?.assignment() ?: throw NullPointerException("Got a null value from the AST")
         )
 
         val loopCondition: String = ctx.condition().text

@@ -18,8 +18,8 @@ division                : identificationdivision
 
 
 // "IDENTIFICATION DIVISION."
-identificationdivision  : IDENTDIV DOT identstatements*
-                        | IDENTDIV DOT
+identificationdivision  : IDENTIFICATION DIVISION DOT identstatements*
+                        | IDENTIFICATION DIVISION DOT
                         ;
 
 identstatements         : programidstatement
@@ -38,11 +38,11 @@ datewrittenstatement    : DATEWRITTEN DOT ID DOT
 
 
 // "ENVIRONMENT DIVISION."
-environmentdivision     : ENVIRONMENTDIV DOT configurationsection inputoutputsection
-                        | ENVIRONMENTDIV DOT inputoutputsection configurationsection
-                        | ENVIRONMENTDIV DOT configurationsection
-                        | ENVIRONMENTDIV DOT inputoutputsection
-                        | ENVIRONMENTDIV DOT
+environmentdivision     : ENVIRONMENT DIVISION DOT configurationsection inputoutputsection
+                        | ENVIRONMENT DIVISION DOT inputoutputsection configurationsection
+                        | ENVIRONMENT DIVISION DOT configurationsection
+                        | ENVIRONMENT DIVISION DOT inputoutputsection
+                        | ENVIRONMENT DIVISION DOT
                         ;
 
 configurationsection    : SPECIALNAMES specialnamesparagraph
@@ -58,7 +58,7 @@ specialnamesparagraph   : decimalpointspec
 decimalpointspec        : DECIMALPOINT IS ID DOT
                         ;
 
-symboliccharsspec       : SYMBOLICCHARS ID* DOT
+symboliccharsspec       : SYMBOLIC CHARACTERS ID* DOT
                         ;
 
 filecontrolparagraph    : 'SELECT ... TO'
@@ -66,8 +66,8 @@ filecontrolparagraph    : 'SELECT ... TO'
 
 
 // "DATA DIVISION."
-datadivision            : DATADIV DOT (filesection | workingstoragesection | linkagesection | reportsection)+
-                        | DATADIV DOT
+datadivision            : DATA DIVISION DOT (filesection | workingstoragesection | linkagesection | reportsection)+
+                        | DATA DIVISION DOT
                         ; // TODO: the above rule is not the right one!
 
 filesection             : FILE SECTION DOT
@@ -102,13 +102,19 @@ datadeclaration         : datahierarchylevel ID datatype
 datahierarchylevel      : NUMBER
                         ;
 
-datatype                : PIC NUMBER VALUE NUMBER DOT // TODO: fix this rule! (The 'NUMBER's are placeholders only!)
+datatype                : PIC size VALUE initialvalue DOT
+                        | PIC size DOT // TODO: is this valid COBOL?
                         ;
 
+size                    : NUMBER
+                        ;
+
+initialvalue            : NUMBER
+                        ;
 
 // "PROCEDURE DIVISION."
-proceduredivision       : PROCEDUREDIV USING ID DOT (paragraph | section)+
-                        | PROCEDUREDIV DOT (paragraph | section)+
+proceduredivision       : PROCEDURE DIVISION USING ID DOT (paragraph | section)+
+                        | PROCEDURE DIVISION DOT (paragraph | section)+
                         ;
 
 section                 : sectiondecl paragraph+
@@ -185,25 +191,13 @@ operand                 : TIMES
 
 // ################ The set of terminals ################
 
-IDENTDIV                : 'IDENTIFICATION DIVISION'
-                        ;
-
-ENVIRONMENTDIV          : 'ENVIRONMENT DIVISION'
-                        ;
-
-SYMBOLICCHARS           : 'SYMBOLIC CHARACTERS'
-                        ;
-
-PROCEDUREDIV            : 'PROCEDURE DIVISION'
-                        ;
-
 WORKINGSTORAGE          : 'WORKING-STORAGE'
                         ;
 
-STARTSECT               : 'START-SECTION.'
+IDENTIFICATION          : 'IDENTIFICATION'
                         ;
 
-DATADIV                 : 'DATA DIVISION'
+STARTSECT               : 'START-SECTION'
                         ;
 
 DECIMALPOINT            : 'DECIMAL-POINT'
@@ -218,10 +212,25 @@ FILECONTROL             : 'FILE-CONTROL'
 DATEWRITTEN             : 'DATE-WRITTEN'
                         ;
 
+ENVIRONMENT             : 'ENVIRONMENT'
+                        ;
+
 PROGRAMID               : 'PROGRAM-ID'
                         ;
 
+CHARACTERS              : 'CHARACTERS'
+                        ;
+
+PROCEDURE               : 'PROCEDURE'
+                        ;
+
 SUBTRACT                : 'SUBTRACT'
+                        ;
+
+DIVISION                : 'DIVISION'
+                        ;
+
+SYMBOLIC                : 'SYMBOLIC'
                         ;
 
 SECTION                 : 'SECTION'
@@ -264,6 +273,9 @@ TIMES                   : 'TIMES'
                         ;
 
 EXIT                    : 'EXIT'
+                        ;
+
+DATA                    : 'DATA'
                         ;
 
 STOP                    : 'STOP'

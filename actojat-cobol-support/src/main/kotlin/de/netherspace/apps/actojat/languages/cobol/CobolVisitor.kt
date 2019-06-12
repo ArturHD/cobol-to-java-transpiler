@@ -75,9 +75,12 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 ?: throw NullPointerException("Got a null value from the AST")
         // TODO: transform name? (It might not have a valid Java name...)
 
+        val type: PrimitiveType = cobolPicToJavaType(ctx.datatype())
+        val initvalue: String = ctx.datatype().initialvalue().text ?: ""
+
         val vardecl = VariableDeclaration.DeclarationWithInit(
-                lhs = LeftHandSide("long", fieldName), // TODO!
-                rhs = "99", // TODO!
+                lhs = LeftHandSide(Type.BasicType(type), fieldName),
+                rhs = initvalue,
                 comment = null
         )
         val field = Field(
@@ -88,6 +91,30 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
         fields[fieldName] = field
         return field
+    }
+
+    /**
+     * Maps a COBOL ("PIC") type to a proper Java type annotation.
+     */
+    private fun cobolPicToJavaType(pic: cobol_grammarParser.DatatypeContext?): PrimitiveType {
+        val size: String = pic?.size()?.text
+                ?: throw NullPointerException("Got a null value from the AST")
+
+        val cobolTypesToJavaMap = mapOf(
+                "1" to PrimitiveType.SHORT,
+                "2" to PrimitiveType.SHORT,
+                "3" to PrimitiveType.SHORT,
+                "4" to PrimitiveType.SHORT,
+                "5" to PrimitiveType.INT,
+                "6" to PrimitiveType.INT,
+                "7" to PrimitiveType.INT,
+                "8" to PrimitiveType.INT,
+                "9" to PrimitiveType.INT,
+                "10" to PrimitiveType.BIGINT
+                // TODO: ...
+        )
+        return cobolTypesToJavaMap[size]
+                ?: throw NoSuchElementException("Couldn't map COBOL type to a Java type!")
     }
 
     /**
@@ -252,11 +279,10 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * (e.g. a for-loop that represents a "PERFORM ... TIMES" COBOL statement).
      */
     private fun generateNewInternalIntegerVariable(scopeName: String, idCounter: AtomicInteger): LeftHandSide {
-        val type = "int"
         val internalId = generateInternalId(scopeName, idCounter)
 
         return LeftHandSide(
-                type = type,
+                type = Type.BasicType(PrimitiveType.INT),
                 variableName = internalId
         )
     }
