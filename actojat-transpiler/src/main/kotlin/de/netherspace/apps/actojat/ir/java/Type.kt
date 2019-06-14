@@ -1,7 +1,7 @@
 package de.netherspace.apps.actojat.ir.java
 
 /**
- * A sum type for java type annotations: a primitive type | custom type.
+ * A sum type for Java type annotations: a primitive type | custom type.
  */
 sealed class Type {
     class BasicType(val primitiveType: PrimitiveType) : Type()

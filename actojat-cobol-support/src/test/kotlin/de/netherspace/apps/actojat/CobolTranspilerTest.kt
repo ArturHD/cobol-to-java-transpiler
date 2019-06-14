@@ -25,7 +25,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
      * @throws ParserException                     If a parser exception occurs
      * @throws IOException                         If an IO exception occurs
      */
-    @Test(expected = IllegalStateException::class) // TODO: turn into Result.isSucess check once migrated to Kotlin!
+    @Test(expected = IllegalStateException::class)
     fun testCobolSourceNotFound() {
         val sourceFile = "/cobol-sources/test-source-thatdoesntexist.cob"
         testSourceNotFound(sourceFile)
@@ -65,7 +65,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-simpleloop.cob"
         val clazzName = "SimpleLoop"
         val expectedCode = "package cobol.test.pckg;public class SimpleLoop {public void paragraph_MainProgram(){" +
-                "for (int _internalDE7D3EA=1; _internalDE7D3EA<=15; _internalDE7D3EA++) { paragraph_DisplayHelloWorld(); };" +
+                "for (int _internal67B28F0=1; _internal67B28F0<=15; _internal67B28F0++) { paragraph_DisplayHelloWorld(); };" +
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
@@ -87,9 +87,31 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-loopwithid.cob"
         val clazzName = "LoopWithId"
         val expectedCode = "package cobol.test.pckg;public class LoopWithId {public int n = 5;public void paragraph_MainProgram(){" +
-                "for (int _internalDE7D3EA=1; _internalDE7D3EA<=n; _internalDE7D3EA++) { paragraph_DisplayHelloWorld(); };" +
+                "for (int _internal67B28F0=1; _internal67B28F0<=n; _internal67B28F0++) { paragraph_DisplayHelloWorld(); };" +
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}" +
                 "public void paragraph_DoSomethingElse(){System.out.println(\"Something\");System.out.println(\"else!\");}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
+     * Tests, whether the transpiler successfully transpiles a program containing a loop with an "inline" body.
+     *
+     * @throws ParserException                     If a parser exception occurs
+     * @throws SourceGenerationException           If a source code generation exception occurs
+     * @throws IOException                         If an IO exception occurs
+     * @throws IntermediateRepresentationException If an IR generation exception occurs
+     */
+    @Test
+    fun testCobolLoopWithInlineBodyTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-loopwithinlinebody.cob"
+        val clazzName = "LoopWithInlineBody"
+        val expectedCode = "package cobol.test.pckg;public class LoopWithInlineBody {public short MyCounter = 3;" +
+                "public void paragraph_MainProgram(){for (int _internal67B28F0=1; _internal67B28F0<=MyCounter; " +
+                "_internal67B28F0++) { System.out.println(\"Inline!\"); };System.out.println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,

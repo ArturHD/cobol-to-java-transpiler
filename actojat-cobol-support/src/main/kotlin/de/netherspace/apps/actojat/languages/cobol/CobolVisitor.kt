@@ -6,7 +6,6 @@ import de.netherspace.apps.actojat.ir.java.*
 import de.netherspace.apps.actojat.languages.BaseVisitor
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
-import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicInteger
 
 class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
@@ -37,8 +36,8 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
         val statements: List<Statement> = ctx
                 .sentence()
-                .map { sentenceToJavaStatement(it) }
-                .toList()
+                .map { sentenceToJavaStatements(it) }
+                .fold(listOf(), { acc, list -> acc + list })
 
         // TODO: COBOL statements have arguments as well (e.g. "PERFORM blockname counter TIMES")!
         val arguments: List<ArgumentDeclaration> = listOf()
@@ -144,11 +143,28 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     /**
-     * Maps a COBOL sentence to a Java statement.
+     * Maps a COBOL sentence to a list of Java statements.
      */
-    private fun sentenceToJavaStatement(sentence: cobol_grammarParser.SentenceContext): Statement {
-        val cobolStatement = sentence.statement()[0]
-        val statementType: CobolStatementType = when { // TODO: this should be done by the caller!
+    private fun sentenceToJavaStatements(sentence: cobol_grammarParser.SentenceContext): List<Statement> {
+        return cobolStatementsToJavaStatements(sentence.statements())
+    }
+
+    /**
+     * Computes a list of Java statements for a given list of COBOL StatementsContexts.
+     */
+    private fun cobolStatementsToJavaStatements(statements: cobol_grammarParser.StatementsContext): List<Statement> {
+        return statements
+                .statement()
+                .map { Pair(it, computeStatementType(it)) }
+                .map { cobolStatementToJavaStatement(it.first, it.second) }
+                .toList()
+    }
+
+    /**
+     * Figures out which CobolStatementType matches a given COBOL StatementContext.
+     */
+    private fun computeStatementType(cobolStatement: cobol_grammarParser.StatementContext): CobolStatementType {
+        return when {
             cobolStatement.displayvalue() != null -> CobolStatementType.DISPLAY
             cobolStatement.performtimes() != null -> CobolStatementType.PERFORMTIMES
             cobolStatement.performuntil() != null -> CobolStatementType.PERFORMUNTIL
@@ -157,7 +173,13 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             cobolStatement.stopoperation() != null -> CobolStatementType.STOPOPERATION
             else -> throw Exception("Unrecognized COBOL statement type!")
         }
+    }
 
+    /**
+     * Computes a Java statement for a given COBOL statement.
+     */
+    private fun cobolStatementToJavaStatement(cobolStatement: cobol_grammarParser.StatementContext,
+                                              statementType: CobolStatementType): Statement {
         return when (statementType) {
             CobolStatementType.DISPLAY -> {
                 // "DISPLAY ... ":
@@ -177,7 +199,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             CobolStatementType.PERFORMTIMES -> {
                 // "PERFORM ... TIMES":
                 val performtimes = cobolStatement.performtimes()
-                return cobolPerformTimesTojavaLoop(performtimes)
+                cobolPerformTimesTojavaLoop(performtimes)
             }
 
             CobolStatementType.PERFORMUNTIL -> {
@@ -217,19 +239,35 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      */
     private fun cobolPerformTimesTojavaLoop(performtimes: cobol_grammarParser.PerformtimesContext?): Statement {
         val cobolLoopCounter = performtimes?.counter() ?: throw NullPointerException("Got a null value from the AST")
-        val blockname = performtimes.blockname()
 
-        val functionName = blockname.text
-        val parameters = listOf<Expression>()
-        val functionCall = FunctionCall(
-                name = functionName,
-                parameters = parameters,
-                comment = null
+        // "inline" (i.e. with a body) or "outline" (i.e. just a function call) PERFORM...TIMES?
+        val body: Array<Statement> = if (performtimes.statements() != null) {
+            // inline!
+            cobolStatementsToJavaStatements(performtimes.statements())
+                    .toTypedArray()
+
+        } else {
+            // outline!
+            val blockname = performtimes.blockname()
+            val functionName = blockname.text
+            val parameters = listOf<Expression>()
+            val functionCall = FunctionCall(
+                    name = functionName,
+                    parameters = parameters,
+                    comment = null
+            )
+            arrayOf(functionCall)
+        }
+
+        // the rule's index and its parent's index are used to create an unique ID:
+        val leftHandSide = generateNewInternalIntegerVariable(
+                parentRuleIndex = performtimes.parent.ruleIndex,
+                ruleIndex = performtimes.ruleIndex,
+                idCounter = internalIdCounter,
+                knownIDs = knownIDs
         )
-        val body: Array<Statement> = arrayOf(functionCall)
 
-        val scopeName: String = functionName // TODO: this is ID of the function called! better: use the parent block's ID!
-        val leftHandSide = generateNewInternalIntegerVariable(scopeName, internalIdCounter)
+        // the loop variable will always start at one for PERFORM..TIMES loops:
         val rightHandSide = "1" // e.g. "for(int i=1; ...) {...}
         val loopVariable = Assignment(
                 lhs = leftHandSide,
@@ -271,49 +309,6 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         // TODO: ^ this should rather be the transformed variable name!
 
         return "$variableName<=$counter"
-    }
-
-    /**
-     * Generates the LHS of a new (internal) integer variable declaration
-     * (e.g. "int _internal202cb96") which is used for Java IR-internal constructs
-     * (e.g. a for-loop that represents a "PERFORM ... TIMES" COBOL statement).
-     */
-    private fun generateNewInternalIntegerVariable(scopeName: String, idCounter: AtomicInteger): LeftHandSide {
-        val internalId = generateInternalId(scopeName, idCounter)
-
-        return LeftHandSide(
-                type = Type.BasicType(PrimitiveType.INT),
-                variableName = internalId
-        )
-    }
-
-    /**
-     * Generates a unique identifier.
-     */
-    @Synchronized
-    private fun generateInternalId(scopeName: String, idCounter: AtomicInteger): String {
-        val i = idCounter.getAndIncrement()
-        val input = "$scopeName###$i"
-
-        val hash = MessageDigest
-                .getInstance("MD5")
-                .digest(input.toByteArray())
-                .asSequence()
-                .map { "%02x".format(it) }
-                .reduce { acc, s -> acc + s }
-
-
-        val substr = hash
-                .substring(0..6)
-                .toUpperCase()
-        val newInternalId = "_internal$substr"
-
-        return if (knownIDs.contains(newInternalId)) {
-            generateInternalId(scopeName, idCounter)
-        } else {
-            knownIDs.add(newInternalId)
-            newInternalId
-        }
     }
 
     /**

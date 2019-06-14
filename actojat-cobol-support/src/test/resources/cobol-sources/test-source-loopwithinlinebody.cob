@@ -1,0 +1,14 @@
+ IDENTIFICATION DIVISION.
+ PROGRAM-ID. LoopWithInlineBody.
+
+ DATA DIVISION.
+ WORKING-STORAGE SECTION.
+ 01 MyCounter PIC 4 VALUE 3.
+
+ PROCEDURE DIVISION.
+ MainProgram.
+      PERFORM MyCounter TIMES
+        DISPLAY "Inline!"
+      END-PERFORM
+      DISPLAY "Done!"
+      STOP RUN.

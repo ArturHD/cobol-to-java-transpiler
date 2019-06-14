@@ -25,7 +25,7 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
      * @throws ParserException                     If a parser exception occurs
      * @throws IOException                         If an IO exception occurs
      */
-    @Test(expected = IllegalStateException::class) // TODO: turn into Result.isSucess check once migrated to Kotlin!
+    @Test(expected = IllegalStateException::class)
     fun testCSourceNotFound() {
         val sourceFile = "/c-sources/test-source-thatdoesntexist.c"
         testSourceNotFound(sourceFile)

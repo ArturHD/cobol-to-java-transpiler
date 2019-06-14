@@ -123,7 +123,10 @@ section                 : sectiondecl paragraph+
 paragraph               : ID DOT sentence+
                         ;
 
-sentence                : statement+ DOT
+statements              : statement+
+                        ;
+
+sentence                : statements DOT
                         ;
 
 sectionend              : SECTIONNAME DOT EXIT PROGRAM DOT
@@ -131,10 +134,6 @@ sectionend              : SECTIONNAME DOT EXIT PROGRAM DOT
                         ;
 
 sectiondecl             : SECTIONNAME SECTION
-                        ;
-
-block                   : STARTSECT DOT
-//                      | STARTSECT statements DOT
                         ;
 
 statement               : performtimes
@@ -146,7 +145,8 @@ statement               : performtimes
                         //: operation operand+
                         ;
 
-performtimes            : PERFORM blockname counter TIMES // ID = FunctionName
+performtimes            : PERFORM counter TIMES statements ENDPERFORM
+                        | PERFORM blockname counter TIMES
                         ;
 
 blockname               : ID
@@ -213,6 +213,9 @@ DATEWRITTEN             : 'DATE-WRITTEN'
                         ;
 
 ENVIRONMENT             : 'ENVIRONMENT'
+                        ;
+
+ENDPERFORM              : 'END-PERFORM'
                         ;
 
 PROGRAMID               : 'PROGRAM-ID'
