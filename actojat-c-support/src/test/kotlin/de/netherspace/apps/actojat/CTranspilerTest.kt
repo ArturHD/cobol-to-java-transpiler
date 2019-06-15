@@ -98,6 +98,28 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles a simple if-then statement.
+     *
+     * @throws ParserException                     If a parser exception occurs
+     * @throws SourceGenerationException           If a source code generation exception occurs
+     * @throws IOException                         If an IO exception occurs
+     * @throws IntermediateRepresentationException If an IR generation exception occurs
+     */
+    @Test
+    @Ignore
+    fun testCSimpleIfThenTranspilation() {
+        val sourceFile = "/c-sources/test-source-simpleifthen.c"
+        val clazzName = "SimpleIfThen"
+        val expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;" +
+                "public class SimpleIfThen {public void main(){int x=0;x=5;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles an (empty) C function.
      *
      * @throws ParserException                     If a parser exception occurs

@@ -91,12 +91,16 @@ class JavaIrToSourceCodeTranslatorImpl(
         val body = if (method.statements.isEmpty()) {
             ""
         } else {
-            method.statements
-                    .map { statement -> statementToCode(statement) }
-                    .fold("", { accumulatedBody, stmnt -> accumulatedBody + stmnt })
+            statementsToCode(method.statements)
         }
 
         return "$signature{$body}"
+    }
+
+    private fun statementsToCode(statements: List<Statement>): String {
+        return statements
+                .map { statement -> statementToCode(statement) }
+                .fold("", { accumulatedBody, stmnt -> accumulatedBody + stmnt })
     }
 
     private fun statementToCode(statement: Statement): String? {
@@ -108,8 +112,13 @@ class JavaIrToSourceCodeTranslatorImpl(
                 val jassignment = assignmentToCode(statement)
                 "$jassignment;"
             }
+
             is ForLoop -> forLoopToCode(statement)
+
             is FunctionCall -> functionCallToCode(statement)
+
+            is ConditionalExpr -> ifThenElseToCode(statement)
+
             else -> {
                 log.error("Couldn't match statement!")
                 null // TODO: return a Result.failure() instead!
@@ -135,7 +144,7 @@ class JavaIrToSourceCodeTranslatorImpl(
                 .map { statement -> statementToCode(statement) }
                 .fold("", { accumulatedBody, stmnt -> accumulatedBody + stmnt })
 
-        return "$loopHeader { $loopBody };"
+        return "$loopHeader { $loopBody }"
     }
 
     private fun functionCallToCode(functionCall: FunctionCall): String {
@@ -179,6 +188,13 @@ class JavaIrToSourceCodeTranslatorImpl(
         val fc = "$functionName($parameters);"
         log.trace("The transpiled function call is: 'fc'")
         return fc
+    }
+
+    private fun ifThenElseToCode(conditionalExpr: ConditionalExpr): String {
+        val condition = conditionalExpr.condition
+        val thenBody = statementsToCode(conditionalExpr.thenStatements)
+        // TODO: else branch!
+        return "if($condition){$thenBody}"
     }
 
 }

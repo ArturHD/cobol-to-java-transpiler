@@ -142,6 +142,7 @@ statement               : performtimes
                         | performsinglefunction
                         | displayvalue
                         | stopoperation
+                        | ifthenelse
                         //: operation operand+
                         ;
 
@@ -155,7 +156,9 @@ blockname               : ID
 counter                 : (NUMBER | ID)
                         ;
 
-performuntil            : PERFORM ID UNTIL condition // ID = FunctionName
+performuntil            : PERFORM ID WITH TEST BEFORE UNTIL condition
+                        | PERFORM ID WITH TEST AFTER UNTIL condition
+                        //| PERFORM ID UNTIL condition
                         ;
 
 performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM // ID = FunctionName
@@ -164,13 +167,17 @@ performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM // ID = Function
 performsinglefunction   : PERFORM ID // ID = FunctionName
                         ;
 
-condition               : PLACEHOLDER // TODO!
+condition               : ID '<' NUMBER // TODO: this is just a placeholder!
                         ;
 
 displayvalue            : DISPLAY STRINGVALUE+
                         ;
 
 stopoperation           : STOP RUN
+                        ;
+
+ifthenelse              : IF condition THEN (statements | sentence) ELSE (statements | sentence) ENDIF
+                        | IF condition THEN (statements | sentence) ENDIF
                         ;
 
 operation               : SUBTRACT
@@ -257,7 +264,13 @@ COMPUTE                 : 'COMPUTE'
 VARYING                 : 'VARYING'
                         ;
 
+ENDIF                   : 'END-IF'
+                        ;
+
 AUTHOR                  : 'AUTHOR'
+                        ;
+
+BEFORE                  : 'BEFORE'
                         ;
 
 REPORT                  : 'REPORT'
@@ -275,7 +288,13 @@ VALUE                   : 'VALUE'
 TIMES                   : 'TIMES'
                         ;
 
+AFTER                   : 'AFTER'
+                        ;
+
 EXIT                    : 'EXIT'
+                        ;
+
+WITH                    : 'WITH'
                         ;
 
 DATA                    : 'DATA'
@@ -284,7 +303,16 @@ DATA                    : 'DATA'
 STOP                    : 'STOP'
                         ;
 
+ELSE                    : 'ELSE'
+                        ;
+
 FILE                    : 'FILE'
+                        ;
+
+TEST                    : 'TEST'
+                        ;
+
+THEN                    : 'THEN'
                         ;
 
 FROM                    : 'FROM'
@@ -298,6 +326,9 @@ RUN                     : 'RUN'
 
 COPY                    : 'copy '
                         | 'COPY '
+                        ;
+
+IF                      : 'IF'
                         ;
 
 IS                      : 'IS'

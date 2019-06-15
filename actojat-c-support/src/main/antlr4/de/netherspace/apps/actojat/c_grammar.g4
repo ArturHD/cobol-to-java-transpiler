@@ -25,7 +25,7 @@ functiondeclr       : primitivetype ID OPENINGPARENTHESIS parameterlist CLOSINGP
 //                  | NDIMTYPE ID OPENINGPARENTHESIS parameterlist CLOSINGPARENTHESIS block
                     ;
 
-primitivetype       : (INT | VOID)
+primitivetype       : (INT | VOID) // TODO: add the others!
                     ;
 
 parameterlist       : (primitivetype ID)*
@@ -41,6 +41,7 @@ expressionlist      : expression*
 expression          : assignment SEMICOLON
                     | functioncall SEMICOLON
                     | returnstatement SEMICOLON
+                    | ifthenelse
                     | forloop
                     ;
 
@@ -54,6 +55,11 @@ functioncall        : ID OPENINGPARENTHESIS argumentlist CLOSINGPARENTHESIS
 returnstatement     : RETURN rhs
                     | RETURN
                     ;
+
+ifthenelse          : IF OPENINGPARENTHESIS condition CLOSINGPARENTHESIS block ELSE block
+                    | IF OPENINGPARENTHESIS condition CLOSINGPARENTHESIS block
+                    ;
+
 
 forloop             : FOR OPENINGPARENTHESIS assignment SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
                     | FOR OPENINGPARENTHESIS rhs SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
@@ -105,6 +111,9 @@ INCLUDEKWRD         : '#include'
 RETURN              : 'return'
                     ;
 
+ELSE                : 'ELSE'
+                    ;
+
 VOID                : 'void'
                     ;
 
@@ -113,6 +122,10 @@ INT                 : 'int'
 
 FOR                 : 'for'
                     ;
+
+IF                  : 'if'
+                    ;
+
 
 EQUALS              : '=='
                     ;

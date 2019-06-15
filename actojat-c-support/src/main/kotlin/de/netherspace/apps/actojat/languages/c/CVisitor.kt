@@ -130,6 +130,11 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
             return forLoopToJavaForLoop(ex.forloop())
         }
 
+        // it's an if-then-else conditional expr.:
+        if (ex.ifthenelse() != null) {
+            return ifthenelseToJavaConditionalExpr(ex.ifthenelse())
+        }
+
         throw Exception("couldn't determine statement type:" + ex.text)
     }
 
@@ -227,6 +232,10 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                 body = body,
                 comment = null
         )
+    }
+
+    private fun ifthenelseToJavaConditionalExpr(ctx: c_grammarParser.IfthenelseContext?): Statement {
+        TODO("not implemented")
     }
 
     /**

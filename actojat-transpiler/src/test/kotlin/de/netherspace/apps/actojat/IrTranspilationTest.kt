@@ -191,7 +191,7 @@ class IrTranspilationTest {
         )
 
         val expectedCode = "package actojat.ir.test.pckg;public class ForLoooop {public void crazyLooping()" +
-                "{for (int j=0; j<10; j++) { System.out.print(\"ImStillLooping\"); };}}"
+                "{for (int j=0; j<10; j++) { System.out.print(\"ImStillLooping\"); }}}"
         doTranspilationTest(program, "ForLoooop", expectedCode)
     }
 
@@ -237,6 +237,63 @@ class IrTranspilationTest {
         val expectedCode = "package actojat.ir.test.pckg;public class MemberDecl {" +
                 "public int myFirstField;private long mySecondField = 99;}"
         doTranspilationTest(program, "MemberDecl", expectedCode)
+    }
+
+    /**
+     * Tests the transpilation of a simple conditional expression.
+     */
+    @Test
+    fun testSimpleConditionalExpressionTranspilation() {
+        // this statement appears inside of the "then" branch:
+        val expr1 = Expression(
+                parts = arrayOf("\"The condition was true!\""),
+                comment = null
+        )
+        val statement1 = FunctionCall(
+                name = "Print",
+                parameters = listOf(expr1),
+                comment = null
+        )
+
+        // the variable declaration and the if-then statement itself:
+        val variableName = "a"
+        val lhs = LeftHandSide(
+                type = Type.BasicType(PrimitiveType.INT),
+                variableName = variableName
+        )
+        val rhs = "1"
+        val assignment1 = Assignment(
+                lhs = lhs,
+                rhs = rhs,
+                comment = null
+        )
+        val if1 = ConditionalExpr(
+                condition = "a < 6", // TODO: this should be a type of its own!
+                thenStatements = listOf(statement1),
+                comment = null
+        )
+
+        // a test method:
+        val methodName = "aTestMethod"
+        val body = listOf(assignment1, if1)
+        val testMethod = Method(
+                name = methodName,
+                statements = body,
+                arguments = listOf(),
+                comment = null
+        )
+
+        // the program that glues everything together:
+        val program = Program(
+                methods = mapOf(methodName to testMethod),
+                imports = listOf(),
+                fields = mapOf(),
+                comment = null
+        )
+
+        val expectedCode = "package actojat.ir.test.pckg;public class SimpleIfThen {public void aTestMethod(){" +
+                "int a=1;if(a < 6){System.out.print(\"The condition was true!\");}}}"
+        doTranspilationTest(program, "SimpleIfThen", expectedCode)
     }
 
     /**

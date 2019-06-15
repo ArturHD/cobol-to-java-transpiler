@@ -171,6 +171,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             cobolStatement.performvarying() != null -> CobolStatementType.PERFORMVARYING
             cobolStatement.performsinglefunction() != null -> CobolStatementType.PERFORMFUNCTION
             cobolStatement.stopoperation() != null -> CobolStatementType.STOPOPERATION
+            cobolStatement.ifthenelse() != null -> CobolStatementType.IFTHENELSE
             else -> throw Exception("Unrecognized COBOL statement type!")
         }
     }
@@ -223,13 +224,16 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
             CobolStatementType.STOPOPERATION -> {
                 // "STOP ...":
-                val functionName = "STOP"
-                val parameters = listOf<Expression>()
                 FunctionCall(
-                        name = functionName,
-                        parameters = parameters,
+                        name = "STOP",
+                        parameters = listOf(),
                         comment = null
                 )
+            }
+
+            CobolStatementType.IFTHENELSE -> {
+                // "IF..THEN..ELSE":
+                TODO("not implemented")
             }
         }
     }
@@ -320,6 +324,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         PERFORMUNTIL,
         PERFORMVARYING,
         PERFORMFUNCTION,
-        STOPOPERATION
+        STOPOPERATION,
+        IFTHENELSE
     }
 }
