@@ -120,7 +120,7 @@ proceduredivision       : PROCEDURE DIVISION USING ID DOT (paragraph | section)+
 section                 : sectiondecl paragraph+
                         ;
 
-paragraph               : ID DOT sentence+
+paragraph               : ID DOT sentence+  // TODO: can both statements and sentences appear in one block?
                         ;
 
 statements              : statement+
@@ -143,10 +143,10 @@ statement               : performtimes
                         | displayvalue
                         | stopoperation
                         | ifthenelse
-                        //: operation operand+
+                        //: operation operand+ // TODO: erase? not needed?
                         ;
 
-performtimes            : PERFORM counter TIMES statements ENDPERFORM
+performtimes            : PERFORM counter TIMES statementsorsentences ENDPERFORM
                         | PERFORM blockname counter TIMES
                         ;
 
@@ -158,16 +158,23 @@ counter                 : (NUMBER | ID)
 
 performuntil            : PERFORM ID WITH TEST BEFORE UNTIL condition
                         | PERFORM ID WITH TEST AFTER UNTIL condition
-                        //| PERFORM ID UNTIL condition
+                        | PERFORM ID UNTIL condition
                         ;
 
-performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM // ID = FunctionName
+performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM
                         ;
 
-performsinglefunction   : PERFORM ID // ID = FunctionName
+performsinglefunction   : PERFORM ID
                         ;
 
-condition               : ID '<' NUMBER // TODO: this is just a placeholder!
+condition               : ID comparisonoperator NUMBER // TODO: fix this! it's just a placeholder!
+                        ;
+
+comparisonoperator      : LESSEROREQUAL
+                        | GREATEROREQUAL
+                        | EQUAL
+                        | LESSER
+                        | GREATER
                         ;
 
 displayvalue            : DISPLAY STRINGVALUE+
@@ -176,10 +183,20 @@ displayvalue            : DISPLAY STRINGVALUE+
 stopoperation           : STOP RUN
                         ;
 
-ifthenelse              : IF condition THEN (statements | sentence) ELSE (statements | sentence) ENDIF
-                        | IF condition THEN (statements | sentence) ENDIF
+ifthenelse              : IF condition thenblock elseblock ENDIF
+                        | IF condition thenblock ENDIF
                         ;
 
+thenblock               : THEN statementsorsentences
+                        ;
+
+elseblock               : ELSE statementsorsentences
+                        ;
+
+statementsorsentences   : (statements | sentence+) // TODO: can both statements and sentences appear in one block?
+                        ;
+
+// TODO: is the generic "operation operand+" rule (see above!) unnecessary?
 operation               : SUBTRACT
                         | DISPLAY
                         | PERFORM
@@ -324,7 +341,7 @@ PIC                     : 'PIC'
 RUN                     : 'RUN'
                         ;
 
-COPY                    : 'copy '
+COPY                    : 'copy ' // TODO: set this (lowercase == uppercase) in the parser implementation itself!
                         | 'COPY '
                         ;
 
@@ -340,12 +357,26 @@ MOVE                    : 'MV'
 STRINGVALUE             : QUOTATIONMARK ALLCHARS+ QUOTATIONMARK
                         ;
 
+EQUAL                   : '=='
+                        ;
+
+LESSEROREQUAL           : '<='
+                        ;
+
+GREATEROREQUAL          : '=>'
+                        ;
+
 DOT                     : '.'
                         ;
 
 QUOTATIONMARK           : '"'
                         ;
 
+LESSER                  : '<'
+                        ;
+
+GREATER                 : '>'
+                        ;
 
 // identifiers are matched last:
 SECTIONNAME             : DIGIT+ ('-' (CHARACTER+))+
@@ -361,7 +392,7 @@ ID                      : ALLCHARS+
                         ;
 
 // auxiliary terminals:
-PLACEHOLDER             : CHARACTER* ; // TODO: loeschen!!!!
+PLACEHOLDER             : CHARACTER* ; // TODO: erase!!!
 
 WHITESPACE              : [ \t]+ -> channel(HIDDEN)
                         ;

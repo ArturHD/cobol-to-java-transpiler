@@ -34,10 +34,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 ?: throw NullPointerException("Got a null value from the AST")
         val methodName: String = computeMethodName(ctx)
 
-        val statements: List<Statement> = ctx
-                .sentence()
-                .map { sentenceToJavaStatements(it) }
-                .fold(listOf(), { acc, list -> acc + list })
+        val statements: List<Statement> = sentencesToJavaStatements(ctx.sentence())
 
         // TODO: COBOL statements have arguments as well (e.g. "PERFORM blockname counter TIMES")!
         val arguments: List<ArgumentDeclaration> = listOf()
@@ -143,6 +140,15 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     /**
+     * Computes a list of Java statements for a given list of COBOL sentences.
+     */
+    private fun sentencesToJavaStatements(sentences: List<cobol_grammarParser.SentenceContext>): List<Statement> {
+        return sentences
+                .map { sentenceToJavaStatements(it) }
+                .fold(listOf(), { acc, list -> acc + list })
+    }
+
+    /**
      * Maps a COBOL sentence to a list of Java statements.
      */
     private fun sentenceToJavaStatements(sentence: cobol_grammarParser.SentenceContext): List<Statement> {
@@ -233,7 +239,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
             CobolStatementType.IFTHENELSE -> {
                 // "IF..THEN..ELSE":
-                TODO("not implemented")
+                cobolIfthenelseToJavaConditionalExpr(cobolStatement.ifthenelse())
             }
         }
     }
@@ -242,12 +248,14 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Maps a COBOL "PERFORM ... TIMES" loop statement to a Java (for-)loop.
      */
     private fun cobolPerformTimesTojavaLoop(performtimes: cobol_grammarParser.PerformtimesContext?): Statement {
-        val cobolLoopCounter = performtimes?.counter() ?: throw NullPointerException("Got a null value from the AST")
+        val cobolLoopCounter = performtimes?.counter()
+                ?: throw NullPointerException("Got a null value from the AST")
 
         // "inline" (i.e. with a body) or "outline" (i.e. just a function call) PERFORM...TIMES?
-        val body: Array<Statement> = if (performtimes.statements() != null) {
+        val body: Array<Statement> = if (performtimes.statementsorsentences() != null) {
             // inline!
-            cobolStatementsToJavaStatements(performtimes.statements())
+            statementsOrSentencesToJavaStatements(
+                    performtimes.statementsorsentences())
                     .toTypedArray()
 
         } else {
@@ -313,6 +321,46 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         // TODO: ^ this should rather be the transformed variable name!
 
         return "$variableName<=$counter"
+    }
+
+    /**
+     * Maps a COBOL if-then-else statement to a Java conditional expression.
+     */
+    private fun cobolIfthenelseToJavaConditionalExpr(ifthenelse: cobol_grammarParser.IfthenelseContext?): Statement {
+        val condition: String = ifthenelse?.condition()?.text // TODO: parse properly!
+                ?: throw NullPointerException("Got a null value from the AST")
+
+        val statements = statementsOrSentencesToJavaStatements(
+                ifthenelse.thenblock()
+                        .statementsorsentences()
+        )
+
+        // TODO: else branch!
+
+        return ConditionalExpr(
+                condition = condition,
+                thenStatements = statements,
+                comment = null
+        )
+    }
+
+    /**
+     * Distinguishes between a block of statements and a block of sentences. Returns the
+     * corresponding Java statements.
+     */
+    private fun statementsOrSentencesToJavaStatements(ctx: cobol_grammarParser.StatementsorsentencesContext): List<Statement> {
+        return when {
+            (ctx.sentence() != null && ctx.sentence().isNotEmpty()) -> {
+                sentencesToJavaStatements(ctx.sentence())
+            }
+            (ctx.statements() != null
+                    && ctx.statements().statement() != null
+                    && ctx.statements().statement().isNotEmpty()) -> {
+                cobolStatementsToJavaStatements(ctx.statements())
+            }
+
+            else -> throw IllegalArgumentException("Couldn't find any sentences or statements!")
+        }
     }
 
     /**

@@ -56,10 +56,12 @@ returnstatement     : RETURN rhs
                     | RETURN
                     ;
 
-ifthenelse          : IF OPENINGPARENTHESIS condition CLOSINGPARENTHESIS block ELSE block
+ifthenelse          : IF OPENINGPARENTHESIS condition CLOSINGPARENTHESIS block elseblock
                     | IF OPENINGPARENTHESIS condition CLOSINGPARENTHESIS block
                     ;
 
+elseblock           : ELSE block
+                    ;
 
 forloop             : FOR OPENINGPARENTHESIS assignment SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
                     | FOR OPENINGPARENTHESIS rhs SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
@@ -97,9 +99,11 @@ operand             : PLUSSIGN
                     | SLASH
                     ;
 
-comparisonoperator  : LESSER
+comparisonoperator  : LESSEROREQUAL
+                    | GREATEROREQUAL
+                    | EQUAL
+                    | LESSER
                     | GREATER
-                    | EQUALS
                     ;
 
 
@@ -127,7 +131,13 @@ IF                  : 'if'
                     ;
 
 
-EQUALS              : '=='
+EQUAL               : '=='
+                    ;
+
+LESSEROREQUAL       : '<='
+                    ;
+
+GREATEROREQUAL      : '=>'
                     ;
 
 DOT                 : '.'

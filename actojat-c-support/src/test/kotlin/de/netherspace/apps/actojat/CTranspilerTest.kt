@@ -43,9 +43,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
     fun testCHelloWorldTranspilation() {
         val sourceFile = "/c-sources/test-source-helloworld.c"
         val clazzName = "HelloC"
-        val expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;public" +
-                " class HelloC {public void main(){System.out.print(\"Hello\");" +
-                "System.out.print(\"World\");return;}}"
+        val expectedCode = "package c.test.pckg;public class HelloC {public void main(){" +
+                "System.out.print(\"Hello\");System.out.print(\"World\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
@@ -66,9 +65,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
     fun testCSimpleLoopTranspilation() {
         val sourceFile = "/c-sources/test-source-forloop.c"
         val clazzName = "ForLoop"
-        val expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;public class ForLoop {" +
-                "public void main(){for (int i=0, i<5, i++) { " +
-                "System.out.print(\"Uh\");System.out.print(\"yeah\"); };return;}}"
+        val expectedCode = "package c.test.pckg;public class ForLoop {public void main(){for (" +
+                "int i=0, i<5, i++) { System.out.print(\"Uh\");System.out.print(\"yeah\"); };return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
@@ -88,8 +86,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
     fun testCSimpleAssignmentTranspilation() {
         val sourceFile = "/c-sources/test-source-simpleassignment.c"
         val clazzName = "SimpleAssignment"
-        val expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;" +
-                "public class SimpleAssignment {public void main(){int x=0;x=5;}}"
+        val expectedCode = "package c.test.pckg;public class SimpleAssignment {" +
+                "public void main(){int x=0;x=5;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
@@ -106,12 +104,11 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
-    @Ignore
     fun testCSimpleIfThenTranspilation() {
         val sourceFile = "/c-sources/test-source-simpleifthen.c"
         val clazzName = "SimpleIfThen"
-        val expectedCode = "package c.test.pckg;import c.test.pckg.stdio_h;" +
-                "public class SimpleIfThen {public void main(){int x=0;x=5;}}"
+        val expectedCode = "package c.test.pckg;public class SimpleIfThen {public void main(){" +
+                "int x=0;if(x<199){System.out.print(\"Oohhra\");}}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
@@ -132,8 +129,7 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
     fun testEmptyCFunctionTranspilation() {
         val sourceFile = "/c-sources/test-source-1.c"
         val clazzName = "CTest1"
-        val expectedCode = "package c.test.pckg;public class CTest1" +
-                " {public void main(){}public void bla(){}}"
+        val expectedCode = "package c.test.pckg;public class CTest1 {public void main(){}public void bla(){}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,

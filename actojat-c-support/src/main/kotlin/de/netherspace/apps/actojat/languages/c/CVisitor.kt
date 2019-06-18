@@ -38,12 +38,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         */
         val arguments: List<ArgumentDeclaration> = listOf()// TODO: fix the above code!
 
-        val statements: List<Statement> = ctx
-                .block()
-                .expressionlist()
-                .expression()
-                .map { expressionToJavaStatement(it) }
-                .toList()
+        val statements: List<Statement> = expressionListToJavaStatements(ctx.block().expressionlist())
 
         val javaMethod = Method(
                 name = methodName,
@@ -55,16 +50,22 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         return javaMethod // TODO: return a Pair<SourceName, JavaMethod> instead and collect them in a Stream!
     }
 
-    override fun visitImportheader(ctx: c_grammarParser.ImportheaderContext?): JavaLanguageConstruct {
-        val importName: String = computeImportName(
-                ctx ?: throw NullPointerException("Got a null value from the AST")
-        )
-        val jimport = Import(
-                name = importName,
-                comment = null
-        )
-        imports.add(jimport) // TODO: the AST parent node should collect all imports from this function!
-        return jimport
+    override fun visitImportheader(ctx: c_grammarParser.ImportheaderContext?): JavaLanguageConstruct? {
+        // blacklist standard libs (e.g. "<stdio.h>"):
+        val importBlacklist = listOf("stdio.h")
+        val rawImportName: String = ctx?.FILEID()?.text
+                ?: throw NullPointerException("Got a null value from the AST")
+        return if (!importBlacklist.contains(rawImportName)) {
+            val importName: String = computeImportName(ctx)
+            val jimport = Import(
+                    name = importName,
+                    comment = null
+            )
+            imports.add(jimport) // TODO: the AST parent node should collect all imports from this function!
+            return jimport
+        } else {
+            null
+        }
     }
 
     /**
@@ -216,13 +217,9 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         val loopCondition: String = ctx.condition().text
         val loopIncrement: String = ctx.incrementstatement().text
 
-        val body: Array<Statement> = ctx
+        val body: Array<Statement> = expressionListToJavaStatements(ctx
                 .block()
-                .expressionlist()
-                .expression()
-                .asSequence()
-                .map { expressionToJavaStatement(it) }
-                .toList()
+                .expressionlist())
                 .toTypedArray()
 
         return ForLoop(
@@ -234,15 +231,40 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         )
     }
 
-    private fun ifthenelseToJavaConditionalExpr(ctx: c_grammarParser.IfthenelseContext?): Statement {
-        TODO("not implemented")
+    /**
+     * Maps a list of C expressions to a list of Java statements.
+     */
+    private fun expressionListToJavaStatements(expressionlist: c_grammarParser.ExpressionlistContext): List<Statement> {
+        return expressionlist
+                .expression()
+                .asSequence()
+                .map { expressionToJavaStatement(it) }
+                .toList()
+    }
+
+    /**
+     * Maps a C if-then-else statement to a Java conditional expression.
+     */
+    private fun ifthenelseToJavaConditionalExpr(ctx: c_grammarParser.IfthenelseContext): Statement {
+        val condition = ctx.condition().text // TODO: parse this properly!
+        val body: List<Statement> = expressionListToJavaStatements(ctx.block().expressionlist())
+
+        // TODO:
+//        if (ctx.elseblock() != null) {
+//            val elseBody: List<Statement> = expressionListToJavaStatements(ctx.elseblock().block().expressionlist())
+//        }
+
+        return ConditionalExpr(
+                condition = condition,
+                thenStatements = body,
+                comment = null
+        )
     }
 
     /**
      * Maps a C include to a Java's import file name.
      */
     private fun computeImportName(ctx: c_grammarParser.ImportheaderContext): String {
-        // TODO: blacklist standard libs (e.g. "<stdio.h>")!
         return ctx
                 .FILEID()
                 .text
