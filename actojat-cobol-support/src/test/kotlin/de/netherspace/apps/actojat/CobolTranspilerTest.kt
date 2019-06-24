@@ -164,6 +164,28 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles different statements.
+     *
+     * @throws ParserException                     If a parser exception occurs
+     * @throws SourceGenerationException           If a source code generation exception occurs
+     * @throws IOException                         If an IO exception occurs
+     * @throws IntermediateRepresentationException If an IR generation exception occurs
+     */
+    @Test
+    @Ignore
+    fun testCobolConditionsTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-conditions.cob"
+        val clazzName = "VariousConditions"
+        val expectedCode = "package cobol.test.pckg;public class VariousConditions {public int n = 5;public void " +
+                "paragraph_MainProgram(){if(n<10){System.out.println(\"Yeah\");}return;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles an (empty) Cobol section.
      *
      * @throws ParserException                     If a parser exception occurs

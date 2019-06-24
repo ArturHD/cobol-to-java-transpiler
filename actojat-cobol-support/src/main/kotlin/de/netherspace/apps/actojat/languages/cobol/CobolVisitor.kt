@@ -327,8 +327,8 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Maps a COBOL if-then-else statement to a Java conditional expression.
      */
     private fun cobolIfthenelseToJavaConditionalExpr(ifthenelse: cobol_grammarParser.IfthenelseContext?): Statement {
-        val condition: String = ifthenelse?.condition()?.text // TODO: parse properly!
-                ?: throw NullPointerException("Got a null value from the AST")
+        val condition: String = computeCondition(ifthenelse?.condition()
+                ?: throw NullPointerException("Got a null value from the AST"))
 
         val statements = statementsOrSentencesToJavaStatements(
                 ifthenelse.thenblock()
@@ -342,6 +342,10 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 thenStatements = statements,
                 comment = null
         )
+    }
+
+    private fun computeCondition(condition: cobol_grammarParser.ConditionContext): String {
+        TODO("not implemented")
     }
 
     /**

@@ -170,11 +170,15 @@ performsinglefunction   : PERFORM ID
 condition               : ID comparisonoperator NUMBER // TODO: fix this! it's just a placeholder!
                         ;
 
-comparisonoperator      : LESSEROREQUAL
+comparisonoperator      : NOT LESS THAN
+                        | NOT GREATER THAN
+                        | LESS THAN
+                        | GREATER THAN
+                        | LESSEROREQUAL
                         | GREATEROREQUAL
                         | EQUAL
-                        | LESSER
-                        | GREATER
+                        | LESSERSIGN
+                        | GREATERSIGN
                         ;
 
 displayvalue            : DISPLAY STRINGVALUE+
@@ -269,6 +273,9 @@ LINKAGE                 : 'LINKAGE'
 PROGRAM                 : 'PROGRAM'
                         ;
 
+GREATER                 : 'GREATER'
+                        ;
+
 DISPLAY                 : 'DISPLAY'
                         ;
 
@@ -308,6 +315,12 @@ TIMES                   : 'TIMES'
 AFTER                   : 'AFTER'
                         ;
 
+LESS                    : 'LESS'
+                        ;
+
+THAN                    : 'THAN'
+                        ;
+
 EXIT                    : 'EXIT'
                         ;
 
@@ -336,6 +349,9 @@ FROM                    : 'FROM'
                         ;
 
 PIC                     : 'PIC'
+                        ;
+
+NOT                     : 'NOT'
                         ;
 
 RUN                     : 'RUN'
@@ -372,10 +388,10 @@ DOT                     : '.'
 QUOTATIONMARK           : '"'
                         ;
 
-LESSER                  : '<'
+LESSERSIGN              : '<'
                         ;
 
-GREATER                 : '>'
+GREATERSIGN             : '>'
                         ;
 
 // identifiers are matched last:

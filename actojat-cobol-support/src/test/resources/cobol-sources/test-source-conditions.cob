@@ -1,0 +1,22 @@
+ IDENTIFICATION DIVISION.
+ PROGRAM-ID. SimpleIfThen.
+
+ DATA DIVISION.
+ WORKING-STORAGE SECTION.
+ 01 n PIC 9 VALUE 5.
+
+ PROCEDURE DIVISION.
+ MainProgram.
+      IF n GREATER THAN 10 THEN
+        DISPLAY "oops"
+      END-IF
+      IF n NOT GREATER THAN 10 THEN
+        DISPLAY "correct"
+      END-IF
+      IF n LESS THAN 10 THEN
+        DISPLAY "yeah"
+      END-IF
+      IF n NOT LESS THAN 10 THEN
+        DISPLAY "damn"
+      END-IF
+      STOP RUN.
