@@ -117,7 +117,7 @@ class JavaIrToSourceCodeTranslatorImpl(
 
             is FunctionCall -> functionCallToCode(statement)
 
-            is ConditionalExpr -> ifThenElseToCode(statement)
+            is IfThenElse -> ifThenElseToCode(statement)
 
             else -> {
                 log.error("Couldn't match statement!")
@@ -149,11 +149,8 @@ class JavaIrToSourceCodeTranslatorImpl(
 
     private fun functionCallToCode(functionCall: FunctionCall): String {
         log.trace("There are ${functionCall.parameters.size} parameters...")
-        val parameters = functionCall
-                .parameters
-                .map { param -> param.parts } // TODO: correct mapping...
-                .flatMap { it.toList() }
-                .fold("", { accumulatedBody, stmnt -> accumulatedBody + stmnt })
+
+        val parameters = expressionsToCode(functionCall.parameters)
         log.trace("The function's parameters are: '$parameters'")
 
         // check, whether this source statement maps canonically to a
@@ -190,11 +187,33 @@ class JavaIrToSourceCodeTranslatorImpl(
         return fc
     }
 
-    private fun ifThenElseToCode(conditionalExpr: ConditionalExpr): String {
-        val condition = conditionalExpr.condition
+    private fun expressionsToCode(expressions: List<Expression>): String {
+        return expressions
+                .map { exprToCode(it) }
+                .flatMap { it.toList() }
+                .fold("", { accumulatedBody, stmnt -> accumulatedBody + stmnt })
+    }
+
+    private fun ifThenElseToCode(conditionalExpr: IfThenElse): String {
+        val condition = expressionsToCode(listOf(conditionalExpr.condition))
         val thenBody = statementsToCode(conditionalExpr.thenStatements)
         // TODO: else branch!
         return "if($condition){$thenBody}"
+    }
+
+    private fun exprToCode(expr: Expression): List<String> {
+        return when (expr) {
+            is Expression.Condition -> {
+                val lhs = expr.lhs
+                val rhs = expr.rhs
+                val cop = expr.conditionalOperator.literal
+                listOf("$lhs $cop $rhs") // TODO: can there be more than just one (simple) conditional expression?
+            }
+
+            is Expression.GenericExpression -> {
+                expr.parts.toList()
+            }
+        }
     }
 
 }

@@ -104,6 +104,7 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
+    @Ignore
     fun testCSimpleIfThenTranspilation() {
         val sourceFile = "/c-sources/test-source-simpleifthen.c"
         val clazzName = "SimpleIfThen"

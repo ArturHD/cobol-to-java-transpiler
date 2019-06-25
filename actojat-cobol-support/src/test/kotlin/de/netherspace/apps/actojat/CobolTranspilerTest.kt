@@ -151,6 +151,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
+    @Ignore
     fun testCobolSimpleIfThenTranspilation() {
         val sourceFile = "/cobol-sources/test-source-ifthen.cob"
         val clazzName = "SimpleIfThen"

@@ -304,7 +304,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      */
     private fun <N : TerminalNode> stringvalueToJavaExpression(stringvalue: N): Expression {
         val parts = arrayOf(stringvalue.text)
-        return Expression(
+        return Expression.GenericExpression(
                 parts = parts,
                 comment = null
         )
@@ -327,7 +327,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Maps a COBOL if-then-else statement to a Java conditional expression.
      */
     private fun cobolIfthenelseToJavaConditionalExpr(ifthenelse: cobol_grammarParser.IfthenelseContext?): Statement {
-        val condition: String = computeCondition(ifthenelse?.condition()
+        val condition = computeCondition(ifthenelse?.condition()
                 ?: throw NullPointerException("Got a null value from the AST"))
 
         val statements = statementsOrSentencesToJavaStatements(
@@ -337,14 +337,14 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
         // TODO: else branch!
 
-        return ConditionalExpr(
+        return IfThenElse(
                 condition = condition,
                 thenStatements = statements,
                 comment = null
         )
     }
 
-    private fun computeCondition(condition: cobol_grammarParser.ConditionContext): String {
+    private fun computeCondition(condition: cobol_grammarParser.ConditionContext): Expression.Condition {
         TODO("not implemented")
     }
 

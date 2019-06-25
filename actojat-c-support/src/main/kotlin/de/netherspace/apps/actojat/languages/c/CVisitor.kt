@@ -147,7 +147,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     private fun parameterToJavaExpression(param: c_grammarParser.ArgumentContext?): Expression {
         val parts = arrayOf(param?.text ?: throw NullPointerException("Got a null value from the AST"))
         // TODO: parameters might have to be transformed!
-        return Expression(
+        return Expression.GenericExpression(
                 parts = parts,
                 comment = null
         )
@@ -245,20 +245,25 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     /**
      * Maps a C if-then-else statement to a Java conditional expression.
      */
-    private fun ifthenelseToJavaConditionalExpr(ctx: c_grammarParser.IfthenelseContext): Statement {
-        val condition = ctx.condition().text // TODO: parse this properly!
-        val body: List<Statement> = expressionListToJavaStatements(ctx.block().expressionlist())
+    private fun ifthenelseToJavaConditionalExpr(ifthenelse: c_grammarParser.IfthenelseContext?): Statement {
+        val condition = computeCondition(ifthenelse?.condition()
+                ?: throw NullPointerException("Got a null value from the AST"))
+        val body: List<Statement> = expressionListToJavaStatements(ifthenelse.block().expressionlist())
 
         // TODO:
 //        if (ctx.elseblock() != null) {
 //            val elseBody: List<Statement> = expressionListToJavaStatements(ctx.elseblock().block().expressionlist())
 //        }
 
-        return ConditionalExpr(
+        return IfThenElse(
                 condition = condition,
                 thenStatements = body,
                 comment = null
         )
+    }
+
+    private fun computeCondition(condition: c_grammarParser.ConditionContext): Expression.Condition {
+        TODO("not implemented")
     }
 
     /**

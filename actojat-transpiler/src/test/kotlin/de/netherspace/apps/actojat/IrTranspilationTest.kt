@@ -102,7 +102,7 @@ class IrTranspilationTest {
     @Test
     fun testHelloWorldTranspilation() {
         // this statement appears inside of "helloWorld" and prints "HelloWorld":
-        val expr1 = Expression(
+        val expr1 = Expression.GenericExpression(
                 parts = arrayOf("\"HelloWorld\""),
                 comment = null
         )
@@ -141,7 +141,7 @@ class IrTranspilationTest {
     @Test
     fun testForLoopTranspilation() {
         // this statement appears inside of the loop body:
-        val expr1 = Expression(
+        val expr1 = Expression.GenericExpression(
                 parts = arrayOf("\"ImStillLooping\""),
                 comment = null
         )
@@ -245,7 +245,7 @@ class IrTranspilationTest {
     @Test
     fun testSimpleConditionalExpressionTranspilation() {
         // this statement appears inside of the "then" branch:
-        val expr1 = Expression(
+        val expr1 = Expression.GenericExpression(
                 parts = arrayOf("\"The condition was true!\""),
                 comment = null
         )
@@ -255,20 +255,27 @@ class IrTranspilationTest {
                 comment = null
         )
 
-        // the variable declaration and the if-then statement itself:
+        // the variable declaration:
         val variableName = "a"
         val lhs = LeftHandSide(
                 type = Type.BasicType(PrimitiveType.INT),
                 variableName = variableName
         )
-        val rhs = "1"
         val assignment1 = Assignment(
                 lhs = lhs,
-                rhs = rhs,
+                rhs = "1",
                 comment = null
         )
-        val if1 = ConditionalExpr(
-                condition = "a < 6", // TODO: this should be a type of its own!
+
+        // ...and the if-then statement itself:
+        val condition = Expression.Condition(
+                lhs = "a",
+                rhs = "6",
+                conditionalOperator = Expression.Condition.ConditionalOperator.LESSER,
+                comment = null
+        )
+        val if1 = IfThenElse(
+                condition = condition,
                 thenStatements = listOf(statement1),
                 comment = null
         )
