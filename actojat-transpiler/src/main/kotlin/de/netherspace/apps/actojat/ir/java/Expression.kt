@@ -1,5 +1,8 @@
 package de.netherspace.apps.actojat.ir.java
 
+/**
+ * A sum type for all Java expressions: condition | ... | ... .
+ */
 sealed class Expression(comment: String?) : Statement(comment) {
 
     class Condition(

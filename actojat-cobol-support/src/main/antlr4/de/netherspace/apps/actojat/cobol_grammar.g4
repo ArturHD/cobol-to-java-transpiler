@@ -167,7 +167,12 @@ performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM
 performsinglefunction   : PERFORM ID
                         ;
 
-condition               : ID comparisonoperator NUMBER // TODO: fix this! it's just a placeholder!
+condition               : compval IS* comparisonoperator compval
+                        ;
+
+compval                 : ID
+                        | NUMBER
+                        // TODO: this could also be an "arithmetic expression" or "class" (i.e. Numeric vs. AlphaNum. etc.)
                         ;
 
 comparisonoperator      : NOT LESS THAN
@@ -373,7 +378,7 @@ MOVE                    : 'MV'
 STRINGVALUE             : QUOTATIONMARK ALLCHARS+ QUOTATIONMARK
                         ;
 
-EQUAL                   : '=='
+EQUAL                   : '='
                         ;
 
 LESSEROREQUAL           : '<='

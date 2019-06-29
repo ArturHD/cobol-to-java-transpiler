@@ -345,7 +345,36 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     private fun computeCondition(condition: cobol_grammarParser.ConditionContext): Expression.Condition {
-        TODO("not implemented")
+        val lhs = computeExpr(condition.compval(0))
+        val rhs = computeExpr(condition.compval(1))
+        val cop = computeConditionalOperator(condition)
+        return Expression.Condition(
+                lhs = lhs,
+                rhs = rhs,
+                conditionalOperator = cop,
+                comment = null
+        )
+    }
+
+    private fun computeExpr(compval: cobol_grammarParser.CompvalContext): String {
+        return when {
+            compval.ID() != null -> compval.ID().text
+            compval.NUMBER() != null -> compval.NUMBER().text
+            // TODO: ...
+            else -> throw Exception("Unrecognized value type!")
+        }
+    }
+
+    private fun computeConditionalOperator(condition: cobol_grammarParser.ConditionContext): Expression.Condition.ConditionalOperator {
+        return when {
+            condition.comparisonoperator().EQUAL() != null -> Expression.Condition.ConditionalOperator.EQUALS
+            condition.comparisonoperator().GREATER() != null -> Expression.Condition.ConditionalOperator.GREATER
+            condition.comparisonoperator().GREATERSIGN() != null -> Expression.Condition.ConditionalOperator.GREATER
+            condition.comparisonoperator().LESS() != null -> Expression.Condition.ConditionalOperator.LESSER
+            condition.comparisonoperator().LESSERSIGN() != null -> Expression.Condition.ConditionalOperator.LESSER
+            // TODO: ...
+            else -> throw Exception("Unrecognized conditional operator!")
+        }
     }
 
     /**

@@ -207,7 +207,7 @@ class JavaIrToSourceCodeTranslatorImpl(
                 val lhs = expr.lhs
                 val rhs = expr.rhs
                 val cop = expr.conditionalOperator.literal
-                listOf("$lhs $cop $rhs") // TODO: can there be more than just one (simple) conditional expression?
+                listOf("$lhs$cop$rhs") // TODO: can there be more than just one (simple) conditional expression?
             }
 
             is Expression.GenericExpression -> {

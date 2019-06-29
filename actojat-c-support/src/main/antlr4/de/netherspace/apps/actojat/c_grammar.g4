@@ -32,17 +32,21 @@ parameterlist       : (primitivetype ID)*
                     | VOID
                     ;
 
-block               : OPENINGCURLYBRACKET expressionlist CLOSINGCURLYBRACKET
+block               : OPENINGCURLYBRACKET statementlist CLOSINGCURLYBRACKET
                     ;
 
-expressionlist      : expression*
+statementlist       : statement*
                     ;
 
-expression          : assignment SEMICOLON
+statement           : assignment SEMICOLON
                     | functioncall SEMICOLON
                     | returnstatement SEMICOLON
                     | ifthenelse
                     | forloop
+                    ;
+
+expression          : (NUMBER | ID) //TODO: composite expressions, function calls, etc.!
+                    |
                     ;
 
 assignment          : lhs ASSIGNMENTOP rhs
@@ -67,7 +71,7 @@ forloop             : FOR OPENINGPARENTHESIS assignment SEMICOLON condition SEMI
                     | FOR OPENINGPARENTHESIS rhs SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
                     ;
 
-condition           : (NUMBER | ID) comparisonoperator (NUMBER | ID) // TODO: could be any kind of value, not only a number!
+condition           : expression comparisonoperator expression //TODO: multiple/composite and nested expressions!
                     ;
 
 incrementstatement  : ID '++'
@@ -86,8 +90,8 @@ lhs                 : variabledecl
                     | ID
                     ;
 
-rhs                 : (NUMBER | ID) operand (NUMBER | ID) //TODO: composite expressions!
-                    | (NUMBER | ID)
+rhs                 : expression operand expression //TODO: multiple/composite and nested expressions!
+                    | expression
                     ;
 
 variabledecl        : primitivetype ID // TODO: allow all possible types...

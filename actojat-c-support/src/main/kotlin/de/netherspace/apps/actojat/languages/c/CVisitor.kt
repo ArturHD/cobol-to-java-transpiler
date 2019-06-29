@@ -38,7 +38,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         */
         val arguments: List<ArgumentDeclaration> = listOf()// TODO: fix the above code!
 
-        val statements: List<Statement> = expressionListToJavaStatements(ctx.block().expressionlist())
+        val statements: List<Statement> = expressionListToJavaStatements(ctx.block().statementlist())
 
         val javaMethod = Method(
                 name = methodName,
@@ -78,7 +78,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     /**
      * Maps a C expression to a Java statement.
      */
-    private fun expressionToJavaStatement(ex: c_grammarParser.ExpressionContext?): Statement {
+    private fun expressionToJavaStatement(ex: c_grammarParser.StatementContext?): Statement {
         if (ex == null) {
             throw NullPointerException("Got a null value from the AST")
         }
@@ -219,7 +219,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
 
         val body: Array<Statement> = expressionListToJavaStatements(ctx
                 .block()
-                .expressionlist())
+                .statementlist())
                 .toTypedArray()
 
         return ForLoop(
@@ -234,9 +234,9 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     /**
      * Maps a list of C expressions to a list of Java statements.
      */
-    private fun expressionListToJavaStatements(expressionlist: c_grammarParser.ExpressionlistContext): List<Statement> {
+    private fun expressionListToJavaStatements(expressionlist: c_grammarParser.StatementlistContext): List<Statement> {
         return expressionlist
-                .expression()
+                .statement()
                 .asSequence()
                 .map { expressionToJavaStatement(it) }
                 .toList()
@@ -248,7 +248,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     private fun ifthenelseToJavaConditionalExpr(ifthenelse: c_grammarParser.IfthenelseContext?): Statement {
         val condition = computeCondition(ifthenelse?.condition()
                 ?: throw NullPointerException("Got a null value from the AST"))
-        val body: List<Statement> = expressionListToJavaStatements(ifthenelse.block().expressionlist())
+        val body: List<Statement> = expressionListToJavaStatements(ifthenelse.block().statementlist())
 
         // TODO:
 //        if (ctx.elseblock() != null) {
@@ -263,7 +263,38 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     }
 
     private fun computeCondition(condition: c_grammarParser.ConditionContext): Expression.Condition {
-        TODO("not implemented")
+        val lhs = computeExpr(condition.expression(0))
+        val rhs = computeExpr(condition.expression(1))
+        val cop = computeConditionalOperator(condition)
+        return Expression.Condition(
+                lhs = lhs,
+                rhs = rhs,
+                conditionalOperator = cop,
+                comment = null
+        )
+    }
+
+    private fun computeExpr(expression: c_grammarParser.ExpressionContext): String {
+        // TODO: This method should rather return a JavaLanguageConstruct and be way more generic!
+        // TODO: It should be able to recognize IDs as well as function calls etc.!
+        // TODO: There is no "ID" type yet -> create one!
+
+        return when {
+            expression.ID() != null -> expression.ID().text
+            expression.NUMBER() != null -> expression.NUMBER().text
+            // TODO: ...
+            else -> throw Exception("Unrecognized expression type!")
+        }
+    }
+
+    private fun computeConditionalOperator(condition: c_grammarParser.ConditionContext): Expression.Condition.ConditionalOperator {
+        return when {
+            condition.comparisonoperator().EQUAL() != null -> Expression.Condition.ConditionalOperator.EQUALS
+            condition.comparisonoperator().LESSER() != null -> Expression.Condition.ConditionalOperator.LESSER
+            condition.comparisonoperator().GREATER() != null -> Expression.Condition.ConditionalOperator.GREATER
+            // TODO: ...
+            else -> throw Exception("Unrecognized conditional operator!")
+        }
     }
 
     /**
@@ -277,4 +308,5 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                 .replace("/", "_")
                 .replace("-", "_")
     }
+
 }
