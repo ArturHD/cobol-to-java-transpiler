@@ -9,12 +9,15 @@ sealed class Expression(comment: String?) : Statement(comment) {
             val lhs: String, // TODO: this could be a nested expression!
             val rhs: String, // TODO: this could be a nested expression!
             val conditionalOperator: ConditionalOperator,
+            val negated: Boolean,
             comment: String?
     ) : Expression(comment) {
         enum class ConditionalOperator(val literal: String) {
             GREATER(">"),
             LESSER("<"),
-            EQUALS("==")
+            EQUALS("=="),
+            GREATEROREQUALS(">="),
+            LESSEROREQUALS("<")
             // TODO: ...
         }
     }

@@ -270,6 +270,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                 lhs = lhs,
                 rhs = rhs,
                 conditionalOperator = cop,
+                negated = false, // TODO: this should be computed as part of a Pair analogous to COBOL!
                 comment = null
         )
     }

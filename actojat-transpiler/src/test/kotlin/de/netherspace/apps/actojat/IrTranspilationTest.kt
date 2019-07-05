@@ -272,6 +272,7 @@ class IrTranspilationTest {
                 lhs = "a",
                 rhs = "6",
                 conditionalOperator = Expression.Condition.ConditionalOperator.LESSER,
+                negated = true,
                 comment = null
         )
         val if1 = IfThenElse(
@@ -299,7 +300,7 @@ class IrTranspilationTest {
         )
 
         val expectedCode = "package actojat.ir.test.pckg;public class SimpleIfThen {public void aTestMethod(){" +
-                "int a=1;if(a<6){System.out.print(\"The condition was true!\");}}}"
+                "int a=1;if(!(a<6)){System.out.print(\"The condition was true!\");}}}"
         doTranspilationTest(program, "SimpleIfThen", expectedCode)
     }
 

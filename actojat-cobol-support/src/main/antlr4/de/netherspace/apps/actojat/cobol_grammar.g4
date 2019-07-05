@@ -167,6 +167,12 @@ performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM
 performsinglefunction   : PERFORM ID
                         ;
 
+stopoperation           : STOP RUN
+                        ;
+
+displayvalue            : DISPLAY STRINGVALUE+
+                        ;
+
 condition               : compval IS* comparisonoperator compval
                         ;
 
@@ -175,21 +181,56 @@ compval                 : ID
                         // TODO: this could also be an "arithmetic expression" or "class" (i.e. Numeric vs. AlphaNum. etc.)
                         ;
 
-comparisonoperator      : NOT LESS THAN
-                        | NOT GREATER THAN
-                        | LESS THAN
-                        | GREATER THAN
-                        | LESSEROREQUAL
-                        | GREATEROREQUAL
-                        | EQUAL
+// there's only a finite set of possible combinations of conditional keywords and literals:
+comparisonoperator      : greaterthanorequalto
+                        | lessthanorequalto
+                        | notgreaterthan
+                        | notlessthan
+                        | notequalto
+                        | greaterthan
+                        | lessthan
+                        | equalto
+                        | notlessersign
+                        | notgreatersign
+                        | notequalsign
+                        | LESSEROREQUALSIGN
+                        | GREATEROREQUALSIGN
                         | LESSERSIGN
                         | GREATERSIGN
+                        | EQUALSIGN
                         ;
 
-displayvalue            : DISPLAY STRINGVALUE+
+greaterthanorequalto    : GREATER THAN OR EQUAL TO
                         ;
 
-stopoperation           : STOP RUN
+lessthanorequalto       : LESS THAN OR EQUAL TO
+                        ;
+
+notgreaterthan          : NOT GREATER THAN
+                        ;
+
+notlessthan             : NOT LESS THAN
+                        ;
+
+notequalto              : NOT EQUAL TO
+                        ;
+
+greaterthan             : GREATER THAN
+                        ;
+
+lessthan                : LESS THAN
+                        ;
+
+equalto                 : EQUAL TO
+                        ;
+
+notlessersign           : NOT LESSERSIGN
+                        ;
+
+notgreatersign          : NOT GREATERSIGN
+                        ;
+
+notequalsign            : NOT EQUALSIGN
                         ;
 
 ifthenelse              : IF condition thenblock elseblock ENDIF
@@ -320,6 +361,9 @@ TIMES                   : 'TIMES'
 AFTER                   : 'AFTER'
                         ;
 
+EQUAL                   : 'EQUAL'
+                        ;
+
 LESS                    : 'LESS'
                         ;
 
@@ -375,16 +419,22 @@ IS                      : 'IS'
 MOVE                    : 'MV'
                         ;
 
+OR                      : 'OR'
+                        ;
+
+TO                      : 'TO'
+                        ;
+
 STRINGVALUE             : QUOTATIONMARK ALLCHARS+ QUOTATIONMARK
                         ;
 
-EQUAL                   : '='
+LESSEROREQUALSIGN       : '<='
                         ;
 
-LESSEROREQUAL           : '<='
+GREATEROREQUALSIGN      : '=>'
                         ;
 
-GREATEROREQUAL          : '=>'
+EQUALSIGN               : '='
                         ;
 
 DOT                     : '.'
