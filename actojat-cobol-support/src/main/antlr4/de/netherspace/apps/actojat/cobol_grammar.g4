@@ -173,7 +173,25 @@ stopoperation           : STOP RUN
 displayvalue            : DISPLAY STRINGVALUE+
                         ;
 
-condition               : compval IS* comparisonoperator compval
+ifthenelse              : IF condition thenblock elseblock ENDIF
+                        | IF condition thenblock ENDIF
+                        ;
+
+thenblock               : THEN statementsorsentences
+                        ;
+
+elseblock               : ELSE statementsorsentences
+                        ;
+
+statementsorsentences   : (statements | sentence+) // TODO: can both statements and sentences appear in one block?
+                        ;
+
+condition               : relationcondition
+                        // TODO: | classcondition
+                        // TODO: | signcondition
+                        ;
+
+relationcondition       : compval IS* comparisonoperator compval
                         ;
 
 compval                 : ID
@@ -231,19 +249,6 @@ notgreatersign          : NOT GREATERSIGN
                         ;
 
 notequalsign            : NOT EQUALSIGN
-                        ;
-
-ifthenelse              : IF condition thenblock elseblock ENDIF
-                        | IF condition thenblock ENDIF
-                        ;
-
-thenblock               : THEN statementsorsentences
-                        ;
-
-elseblock               : ELSE statementsorsentences
-                        ;
-
-statementsorsentences   : (statements | sentence+) // TODO: can both statements and sentences appear in one block?
                         ;
 
 // TODO: is the generic "operation operand+" rule (see above!) unnecessary?
@@ -425,13 +430,13 @@ OR                      : 'OR'
 TO                      : 'TO'
                         ;
 
-STRINGVALUE             : QUOTATIONMARK ALLCHARS+ QUOTATIONMARK
+STRINGVALUE             : QUOTATIONMARK (ALLCHARS | DIGIT)+ QUOTATIONMARK
                         ;
 
 LESSEROREQUALSIGN       : '<='
                         ;
 
-GREATEROREQUALSIGN      : '=>'
+GREATEROREQUALSIGN      : '>='
                         ;
 
 EQUALSIGN               : '='

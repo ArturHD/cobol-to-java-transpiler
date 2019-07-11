@@ -348,6 +348,13 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Computes a Java Condition from a COBOL Condition.
      */
     private fun computeCondition(condition: cobol_grammarParser.ConditionContext): Expression.Condition {
+        return when {
+            condition.relationcondition() != null -> computeRelationCondition(condition.relationcondition())
+            else -> throw Exception("Unrecognized condition!")
+        }
+    }
+
+    private fun computeRelationCondition(condition: cobol_grammarParser.RelationconditionContext): Expression.Condition {
         val lhs = computeExpr(condition.compval(0))
         val rhs = computeExpr(condition.compval(1))
         val copAndNeg = computeConditionalOperator(condition)
@@ -369,7 +376,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         }
     }
 
-    private fun computeConditionalOperator(condition: cobol_grammarParser.ConditionContext): Pair<Expression.Condition.ConditionalOperator, Boolean> {
+    private fun computeConditionalOperator(condition: cobol_grammarParser.RelationconditionContext): Pair<Expression.Condition.ConditionalOperator, Boolean> {
         return when {
             condition.comparisonoperator().equalto() != null -> Pair(Expression.Condition.ConditionalOperator.EQUALS, false)
             condition.comparisonoperator().EQUALSIGN() != null -> Pair(Expression.Condition.ConditionalOperator.EQUALS, false)
@@ -382,7 +389,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             condition.comparisonoperator().LESSEROREQUALSIGN() != null -> Pair(Expression.Condition.ConditionalOperator.LESSEROREQUALS, false)
             condition.comparisonoperator().lessthanorequalto() != null -> Pair(Expression.Condition.ConditionalOperator.LESSEROREQUALS, false)
             condition.comparisonoperator().notgreaterthan() != null -> Pair(Expression.Condition.ConditionalOperator.GREATER, true)
-            condition.comparisonoperator().notgreaterthan() != null -> Pair(Expression.Condition.ConditionalOperator.GREATER, true)
+            condition.comparisonoperator().notgreatersign() != null -> Pair(Expression.Condition.ConditionalOperator.GREATER, true)
             condition.comparisonoperator().notlessthan() != null -> Pair(Expression.Condition.ConditionalOperator.LESSER, true)
             condition.comparisonoperator().notlessersign() != null -> Pair(Expression.Condition.ConditionalOperator.LESSER, true)
             condition.comparisonoperator().notequalto() != null -> Pair(Expression.Condition.ConditionalOperator.EQUALS, true)

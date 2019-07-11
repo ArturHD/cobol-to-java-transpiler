@@ -172,12 +172,40 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
-    @Ignore
     fun testCobolConditionsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-conditions.cob"
         val clazzName = "VariousConditions"
         val expectedCode = "package cobol.test.pckg;public class VariousConditions {public int n = 5;public void " +
-                "paragraph_MainProgram(){if(n<10){System.out.println(\"Yeah\");}return;}}"
+                "paragraph_MainProgram(){if(n>10){System.out.println(\"oops\");}if(!(n>20)){System.out." +
+                "println(\"correct\");}if(n<10){System.out.println(\"yeah\");}if(!(n<10)){System.out." +
+                "println(\"damn\");}if(n>100){System.out.println(\"oops2\");}if(!(n>200)){System.out." +
+                "println(\"correct2\");}if(n<110){System.out.println(\"yeah2\");}if(!(n<110)){System.out." +
+                "println(\"damn2\");}if(n==5){System.out.println(\"eqqqq\");}if(!(n==5)){System.out." +
+                "println(\"noteqqqq\");}if(n==445){System.out.println(\"eqqqq2\");}if(!(n==775)){System.out." +
+                "println(\"noteqqqq2\");}if(n>=123){System.out.println(\"goe11111\");}if(n>=1550){System.out." +
+                "println(\"gtoet2323\");}if(n<=33){System.out.println(\"lteq33\");}if(n<=77112){System.out." +
+                "println(\"ltort774444444\");}return;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
+     * Tests, whether the transpiler successfully transpiles complex conditions.
+     *
+     * @throws ParserException                     If a parser exception occurs
+     * @throws SourceGenerationException           If a source code generation exception occurs
+     * @throws IOException                         If an IO exception occurs
+     * @throws IntermediateRepresentationException If an IR generation exception occurs
+     */
+    @Test
+    @Ignore
+    fun testComplexCobolConditionsTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-complex-conditions.cob"
+        val clazzName = "ComplexConditions"
+        val expectedCode = "package cobol.tes(n<10)){Systemn;}}" // TODO: add the actual exp. string!
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,

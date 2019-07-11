@@ -17,8 +17,7 @@ sealed class Expression(comment: String?) : Statement(comment) {
             LESSER("<"),
             EQUALS("=="),
             GREATEROREQUALS(">="),
-            LESSEROREQUALS("<")
-            // TODO: ...
+            LESSEROREQUALS("<=")
         }
     }
 
