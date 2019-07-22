@@ -12,6 +12,10 @@
       IF a GREATER THAN b THEN
         DISPLAY "great0r"
       END-IF
+      IF a < (c / 33) THEN
+        DISPLAY "oneAE"
+      END-IF
       IF a < (b + (c / 2)) THEN
         DISPLAY "correct"
       END-IF
+      STOP RUN.

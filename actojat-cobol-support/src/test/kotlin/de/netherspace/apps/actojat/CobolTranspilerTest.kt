@@ -201,7 +201,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
-    @Ignore
     fun testComplexCobolConditionsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-complex-conditions.cob"
         val clazzName = "ComplexConditions"

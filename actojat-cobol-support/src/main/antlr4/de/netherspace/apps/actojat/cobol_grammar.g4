@@ -194,9 +194,28 @@ condition               : relationcondition
 relationcondition       : compval IS* comparisonoperator compval
                         ;
 
-compval                 : ID
+compval                 : arithmeticexpression
                         | NUMBER
-                        // TODO: this could also be an "arithmetic expression" or "class" (i.e. Numeric vs. AlphaNum. etc.)
+                        | ID
+                        ;
+
+arithmeticexpression    : OPENINGPARENTHESIS (NUMBER | ID) arithmeticoperator compval CLOSINGPARENTHESIS
+                        | (NUMBER | ID) arithmeticoperator compval
+                        // TODO: this rules is not corecct:
+                        // TODO: a) right now, no expressions (apart from mere numbers and IDs) are allowed
+                        // TODO:    on the left hand side. This is due to a left-recursion problem and will
+                        // TODO:    probably require some non-trivial tweeking of the grammer (i.e. the
+                        // TODO:    condition rules specificly)
+                        // TODO: b) the way paranthesis are handled is faulty: right now, one can only place
+                        // TODO:    exactly one opening- and closing paranthesis or none at all. But paranthesis
+                        // TODO:    should be handled more (((felxibble))) !
+                        ;
+
+arithmeticoperator      : <assoc=right>POWERSYMBOL // 2^3^4=2^81
+                        | MULTIPLYSYMBOL
+                        | DIVIDESYMBOL
+                        | ADDSYMBOL
+                        | SUBTRACTSYMBOL
                         ;
 
 // there's only a finite set of possible combinations of conditional keywords and literals:
@@ -439,6 +458,15 @@ LESSEROREQUALSIGN       : '<='
 GREATEROREQUALSIGN      : '>='
                         ;
 
+POWERSYMBOL             : '**'
+                        ;
+
+OPENINGPARENTHESIS      : '('
+                        ;
+
+CLOSINGPARENTHESIS      : ')'
+                        ;
+
 EQUALSIGN               : '='
                         ;
 
@@ -452,6 +480,18 @@ LESSERSIGN              : '<'
                         ;
 
 GREATERSIGN             : '>'
+                        ;
+
+MULTIPLYSYMBOL          : '*'
+                        ;
+
+DIVIDESYMBOL            : '/'
+                        ;
+
+ADDSYMBOL               : '+'
+                        ;
+
+SUBTRACTSYMBOL          : '-'
                         ;
 
 // identifiers are matched last:

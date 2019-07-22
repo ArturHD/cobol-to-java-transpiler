@@ -369,8 +369,9 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
     private fun computeExpr(compval: cobol_grammarParser.CompvalContext): String {
         return when {
-            compval.ID() != null -> compval.ID().text
+            compval.ID() != null -> compval.ID().text // TODO: IDs should not simply be copied 1:1!
             compval.NUMBER() != null -> compval.NUMBER().text
+            compval.arithmeticexpression() != null -> computeArithmeticExpr(compval.arithmeticexpression())
             // TODO: ...
             else -> throw Exception("Unrecognized value type!")
         }
@@ -396,6 +397,10 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             condition.comparisonoperator().notequalsign() != null -> Pair(Expression.Condition.ConditionalOperator.EQUALS, true)
             else -> throw Exception("Unrecognized conditional operator!")
         }
+    }
+
+    private fun computeArithmeticExpr(expr: cobol_grammarParser.ArithmeticexpressionContext): String {
+        TODO("not implemented")
     }
 
     /**
