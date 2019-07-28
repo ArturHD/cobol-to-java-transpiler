@@ -67,7 +67,10 @@ class IrTranspilationTest {
                 type = Type.BasicType(PrimitiveType.INT),
                 variableName = variableName
         )
-        val rhs = "0"
+        val rhs = Expression.SimpleValue(
+                value = "0",
+                comment = null
+        )
         val assignment1 = Assignment(
                 lhs = lhs,
                 rhs = rhs,
@@ -157,7 +160,10 @@ class IrTranspilationTest {
                 type = Type.BasicType(PrimitiveType.INT),
                 variableName = variableName
         )
-        val rhs = "0"
+        val rhs = Expression.SimpleValue(
+                value = "0",
+                comment = null
+        )
         val loopVariable = Assignment(
                 lhs = lhs,
                 rhs = rhs,
@@ -256,21 +262,31 @@ class IrTranspilationTest {
         )
 
         // the variable declaration:
-        val variableName = "a"
         val lhs = LeftHandSide(
                 type = Type.BasicType(PrimitiveType.INT),
-                variableName = variableName
+                variableName = "a"
         )
         val assignment1 = Assignment(
                 lhs = lhs,
-                rhs = "1",
+                rhs = Expression.SimpleValue(
+                        value = "1",
+                        comment = null
+                ),
                 comment = null
         )
 
         // ...and the if-then statement itself:
+        val lhsA = Expression.SimpleValue(
+                value = "a",
+                comment = null
+        )
+        val rhs6 = Expression.SimpleValue(
+                value = "6",
+                comment = null
+        )
         val condition = Expression.Condition(
-                lhs = "a",
-                rhs = "6",
+                lhs = lhsA,
+                rhs = rhs6,
                 conditionalOperator = Expression.Condition.ConditionalOperator.LESSER,
                 negated = true,
                 comment = null
@@ -304,12 +320,124 @@ class IrTranspilationTest {
         doTranspilationTest(program, "SimpleIfThen", expectedCode)
     }
 
+    // TODO: test nested conditional expressions!
+
+    /**
+     * Tests the transpilation of a simple arithmetic expression.
+     */
+    @Test
+    fun testArithmeticExpressionTranspilation() {
+        // an Integer variable:
+        val lhs = LeftHandSide(
+                type = Type.BasicType(PrimitiveType.INT),
+                variableName = "x"
+        )
+
+        // an expression "1+2":
+        val rhs1 = Expression.SimpleValue(
+                value = "2",
+                comment = null
+        )
+        val arithmExpr = Expression.ArithmeticExpression(
+                lhs = "1", // TODO: should not be a String but a proper type!
+                rhs = rhs1,
+                arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION,
+                comment = null
+        )
+        val assignment1 = Assignment(
+                lhs = lhs,
+                rhs = arithmExpr,
+                comment = null
+        )
+
+        // a test method:
+        val methodName = "m4th"
+        val body = listOf(assignment1)
+        val testMethod = Method(
+                name = methodName,
+                statements = body,
+                arguments = listOf(),
+                comment = null
+        )
+
+        // the program that glues everything together:
+        val program = Program(
+                methods = mapOf(methodName to testMethod),
+                imports = listOf(),
+                fields = mapOf(),
+                comment = null
+        )
+
+        val expectedCode = "package actojat.ir.test.pckg;public class Arithmetic3xpression {" +
+                "public void m4th(){int x=(1+2);}}"
+        doTranspilationTest(program, "Arithmetic3xpression", expectedCode)
+    }
+
+    /**
+     * Tests the transpilation of a nested arithmetic expression.
+     */
+    @Test
+    fun testNestedArithmeticExpressionTranspilation() {
+        // the inner expression:
+        val rhs1 = Expression.SimpleValue(
+                value = "5",
+                comment = null
+        )
+        val arithmExpr2 = Expression.ArithmeticExpression(
+                lhs = "100", // TODO: should not be a String but a proper type!
+                rhs = rhs1,
+                arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.DIVISION,
+                comment = null
+        )
+
+        // an Integer variable:
+        val lhs = LeftHandSide(
+                type = Type.BasicType(PrimitiveType.INT),
+                variableName = "x"
+        )
+
+        // the outer expression:
+        val arithmExpr = Expression.ArithmeticExpression(
+                lhs = "77",
+                rhs = arithmExpr2,
+                arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION,
+                comment = null
+        )
+        val assignment1 = Assignment(
+                lhs = lhs,
+                rhs = arithmExpr,
+                comment = null
+        )
+
+        // a test method:
+        val methodName = "m4th2"
+        val body = listOf(assignment1)
+        val testMethod = Method(
+                name = methodName,
+                statements = body,
+                arguments = listOf(),
+                comment = null
+        )
+
+        // the program that glues everything together:
+        val program = Program(
+                methods = mapOf(methodName to testMethod),
+                imports = listOf(),
+                fields = mapOf(),
+                comment = null
+        )
+
+        val expectedCode = "package actojat.ir.test.pckg;public class NestedArithmetic3xpression {" +
+                "public void m4th2(){int x=(77+(100/5));}}"
+        doTranspilationTest(program, "NestedArithmetic3xpression", expectedCode)
+    }
+
     /**
      * Some (arbitrary) "system functions".
      *
      * @return a map containing the functions and their IR enum value.
      */
-    fun systemFunctions(): Map<String, Pair<BasicConstruct, JavaConstructType>> {
+    private fun systemFunctions(): Map<String, Pair<BasicConstruct, JavaConstructType>> {
         return mapOf(
                 "Print" to Pair(BasicConstruct.PRINT, JavaConstructType.FUNCTION),
                 "Return" to Pair(BasicConstruct.RETURN, JavaConstructType.KEYWORD)
@@ -324,7 +452,7 @@ class IrTranspilationTest {
      * @param expectedCode The expected source code after transpilation
      * @throws SourceGenerationException If a source code generation exception occurs
      */
-    fun doTranspilationTest(program: Program, clazzName: String, expectedCode: String) {
+    private fun doTranspilationTest(program: Program, clazzName: String, expectedCode: String) {
         val sysFunctions = systemFunctions()
         val codeResult = generateCode(program, clazzName, testBasePackage, sysFunctions)
         assertThat(codeResult.isSuccess, Is(true))
@@ -343,8 +471,8 @@ class IrTranspilationTest {
      * @return A single piece of source code
      * @throws SourceGenerationException If a source code generation exception occurs
      */
-    fun generateCode(program: Program, clazzName: String, basePackage: String,
-                     systemFunctions: Map<String, Pair<BasicConstruct, JavaConstructType>>): Result<String> {
+    private fun generateCode(program: Program, clazzName: String, basePackage: String,
+                             systemFunctions: Map<String, Pair<BasicConstruct, JavaConstructType>>): Result<String> {
         val irTranslator = JavaIrToSourceCodeTranslatorImpl(systemFunctions)
         return irTranslator.generateCodeFromIr(program, clazzName, basePackage)
     }

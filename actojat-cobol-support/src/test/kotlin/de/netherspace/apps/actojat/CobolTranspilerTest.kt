@@ -204,7 +204,10 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     fun testComplexCobolConditionsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-complex-conditions.cob"
         val clazzName = "ComplexConditions"
-        val expectedCode = "package cobol.tes(n<10)){Systemn;}}" // TODO: add the actual exp. string!
+        val expectedCode = "package cobol.test.pckg;public class ComplexConditions {public int a = 25;public int " +
+                "b = 15;public int c = 100;public void paragraph_MainProgram(){if(a>b){System.out." +
+                "println(\"great0r\");}if(a<(c/33)){System.out.println(\"oneAE\");}if(a<(b+(c/2))){System.out." +
+                "println(\"correct\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,

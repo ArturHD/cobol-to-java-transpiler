@@ -280,7 +280,10 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         )
 
         // the loop variable will always start at one for PERFORM..TIMES loops:
-        val rightHandSide = "1" // e.g. "for(int i=1; ...) {...}
+        val rightHandSide = Expression.SimpleValue(
+                value = "1", // e.g. "for(int i=1; ...) {...}
+                comment = null
+        )
         val loopVariable = Assignment(
                 lhs = leftHandSide,
                 rhs = rightHandSide,
@@ -367,10 +370,18 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         )
     }
 
-    private fun computeExpr(compval: cobol_grammarParser.CompvalContext): String {
+    private fun computeExpr(compval: cobol_grammarParser.CompvalContext): Expression {
         return when {
-            compval.ID() != null -> compval.ID().text // TODO: IDs should not simply be copied 1:1!
-            compval.NUMBER() != null -> compval.NUMBER().text
+            compval.ID() != null -> Expression.SimpleValue(
+                    value = compval.ID().text, // TODO: IDs should not simply be copied 1:1!
+                    comment = null
+            )
+
+            compval.NUMBER() != null -> Expression.SimpleValue(
+                    value = compval.NUMBER().text,
+                    comment = null
+            )
+
             compval.arithmeticexpression() != null -> computeArithmeticExpr(compval.arithmeticexpression())
             // TODO: ...
             else -> throw Exception("Unrecognized value type!")
@@ -399,8 +410,35 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         }
     }
 
-    private fun computeArithmeticExpr(expr: cobol_grammarParser.ArithmeticexpressionContext): String {
-        TODO("not implemented")
+    /**
+     * Computes a Java expression from a Cobol arithmetic expr. (e.g. "(c / 2)").
+     */
+    private fun computeArithmeticExpr(expr: cobol_grammarParser.ArithmeticexpressionContext): Expression.ArithmeticExpression {
+        val lhs: String = when {
+            expr.ID() != null -> expr.ID().text // TODO: IDs should not simply be copied 1:1!
+            expr.NUMBER() != null -> expr.NUMBER().text
+            else -> throw Exception("Unrecognized value type!")
+        }
+        val rhs = computeExpr(expr.compval())
+        val op: Expression.ArithmeticExpression.ArithmeticOperator = computeArithmeticOperator(expr.arithmeticoperator())
+
+        return Expression.ArithmeticExpression(
+                lhs = lhs,
+                rhs = rhs,
+                arithmeticOperator = op,
+                comment = null
+        )
+    }
+
+    private fun computeArithmeticOperator(op: cobol_grammarParser.ArithmeticoperatorContext): Expression.ArithmeticExpression.ArithmeticOperator {
+        return when {
+            op.ADDSYMBOL() != null -> Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
+            op.SUBTRACTSYMBOL() != null -> Expression.ArithmeticExpression.ArithmeticOperator.SUBTRACTION
+            op.DIVIDESYMBOL() != null -> Expression.ArithmeticExpression.ArithmeticOperator.DIVISION
+            op.MULTIPLYSYMBOL() != null -> Expression.ArithmeticExpression.ArithmeticOperator.MULTIPLICATION
+            op.POWERSYMBOL() != null -> throw Exception("The power operator is not (yet) supported!") // TODO: Math.pow()!
+            else -> throw Exception("Unrecognized arithmetic operator!")
+        }
     }
 
     /**

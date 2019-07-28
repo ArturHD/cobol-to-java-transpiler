@@ -126,16 +126,23 @@ class JavaIrToSourceCodeTranslatorImpl(
         }
     }
 
+    /**
+     * Generates the code for a (single) assignment.
+     */
     private fun assignmentToCode(assignment: Assignment): String {
-        // TODO: nested expressions!
+        val rhsCode = expressionsToCode(listOf(assignment.rhs))
         return if (assignment.lhs.type != null) {
             val typeAnnotation = computeJavaTypeAnnotationString(assignment.lhs.type)
-            "$typeAnnotation ${assignment.lhs.variableName}=${assignment.rhs}"
+
+            "$typeAnnotation ${assignment.lhs.variableName}=$rhsCode"
         } else {
-            "${assignment.lhs.variableName}=${assignment.rhs}"
+            "${assignment.lhs.variableName}=$rhsCode"
         }
     }
 
+    /**
+     * Generates the code for a (single) For-Loop.
+     */
     private fun forLoopToCode(forLoop: ForLoop): String {
         val loopVariable = assignmentToCode(forLoop.loopVariable)
         val loopHeader = "for ($loopVariable; ${forLoop.loopCondition}; ${forLoop.loopIncrement})"
@@ -203,9 +210,13 @@ class JavaIrToSourceCodeTranslatorImpl(
 
     private fun exprToCode(expr: Expression): List<String> {
         return when (expr) {
+            is Expression.SimpleValue -> {
+                listOf(expr.value)
+            }
+
             is Expression.Condition -> {
-                val lhs = expr.lhs
-                val rhs = expr.rhs
+                val lhs = expressionsToCode(listOf(expr.lhs))
+                val rhs = expressionsToCode(listOf(expr.rhs))
                 val cop = expr.conditionalOperator.literal
 
                 // TODO: can there be more than just one (simple) conditional expression?
@@ -218,6 +229,13 @@ class JavaIrToSourceCodeTranslatorImpl(
 
             is Expression.GenericExpression -> {
                 expr.parts.toList()
+            }
+
+            is Expression.ArithmeticExpression -> {
+                val lhs = expr.lhs
+                val rhs = expressionsToCode(listOf(expr.rhs))
+                val op = expr.arithmeticOperator.literal
+                listOf("($lhs$op$rhs)")
             }
         }
     }

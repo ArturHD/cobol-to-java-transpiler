@@ -168,7 +168,10 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                 variableName = lhsVariableName
         )
 
-        val jrhs: String = computeRightHandSide(ctx.rhs())
+        val jrhs = Expression.SimpleValue(
+                value = computeRightHandSide(ctx.rhs()),
+                comment = null
+        )
 
         return Assignment(
                 lhs = jlhs,
@@ -275,14 +278,17 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         )
     }
 
-    private fun computeExpr(expression: c_grammarParser.ExpressionContext): String {
-        // TODO: This method should rather return a JavaLanguageConstruct and be way more generic!
-        // TODO: It should be able to recognize IDs as well as function calls etc.!
-        // TODO: There is no "ID" type yet -> create one!
-
+    private fun computeExpr(expression: c_grammarParser.ExpressionContext): Expression {
         return when {
-            expression.ID() != null -> expression.ID().text
-            expression.NUMBER() != null -> expression.NUMBER().text
+            expression.ID() != null -> Expression.SimpleValue(
+                    value = expression.ID().text,
+                    comment = null
+            )
+
+            expression.NUMBER() != null -> Expression.SimpleValue(
+                    value = expression.NUMBER().text,
+                    comment = null
+            )
             // TODO: ...
             else -> throw Exception("Unrecognized expression type!")
         }
