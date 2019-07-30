@@ -3,15 +3,14 @@ package de.netherspace.apps.actojat.ir.java
 /**
  * A sum type for all Java expressions: condition | ... | ... .
  */
-sealed class Expression(comment: String?) : Statement(comment) { // TODO: this ain't no Statement - is it??
+sealed class Expression {
 
     /**
-     * A simple value (e.g. the LHS in "x = 4;").
+     * A simple value (e.g. the RHS in "x = 4;").
      */
     class SimpleValue(
-            val value: String,
-            comment: String?
-    ) : Expression(comment)
+            val value: String
+    ) : Expression()
 
     /**
      * An arithmetic expression (e.g. "4 * 55").
@@ -19,9 +18,8 @@ sealed class Expression(comment: String?) : Statement(comment) { // TODO: this a
     class ArithmeticExpression(
             val lhs: String, // TODO: this could be a nested expression!
             val rhs: Expression, // TODO: this shouldn't be an arbitrary expression - but ACTOJAT does not enforce a type system right now...
-            val arithmeticOperator: ArithmeticOperator,
-            comment: String?
-    ) : Expression(comment) {
+            val arithmeticOperator: ArithmeticOperator
+    ) : Expression() {
         enum class ArithmeticOperator(val literal: String) {
             ADDITION("+"),
             SUBTRACTION("-"),
@@ -38,9 +36,8 @@ sealed class Expression(comment: String?) : Statement(comment) { // TODO: this a
             val lhs: Expression, // TODO: this shouldn't be an arbitrary expression - but ACTOJAT does not enforce a type system right now...
             val rhs: Expression, // TODO: this shouldn't be an arbitrary expression - but ACTOJAT does not enforce a type system right now...
             val conditionalOperator: ConditionalOperator,
-            val negated: Boolean,
-            comment: String?
-    ) : Expression(comment) {
+            val negated: Boolean
+    ) : Expression() {
         enum class ConditionalOperator(val literal: String) {
             GREATER(">"),
             LESSER("<"),
@@ -51,7 +48,7 @@ sealed class Expression(comment: String?) : Statement(comment) { // TODO: this a
     }
 
     class GenericExpression( // TODO: this class acts as a placeholder!
-            val parts: Array<String>,
-            comment: String?
-    ) : Expression(comment)
+            val parts: Array<String>
+    ) : Expression()
+
 }

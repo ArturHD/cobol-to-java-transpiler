@@ -281,8 +281,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
         // the loop variable will always start at one for PERFORM..TIMES loops:
         val rightHandSide = Expression.SimpleValue(
-                value = "1", // e.g. "for(int i=1; ...) {...}
-                comment = null
+                value = "1" // e.g. "for(int i=1; ...) {...}
         )
         val loopVariable = Assignment(
                 lhs = leftHandSide,
@@ -308,8 +307,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     private fun <N : TerminalNode> stringvalueToJavaExpression(stringvalue: N): Expression {
         val parts = arrayOf(stringvalue.text)
         return Expression.GenericExpression(
-                parts = parts,
-                comment = null
+                parts = parts
         )
     }
 
@@ -365,21 +363,18 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 lhs = lhs,
                 rhs = rhs,
                 conditionalOperator = copAndNeg.first,
-                negated = copAndNeg.second,
-                comment = null
+                negated = copAndNeg.second
         )
     }
 
     private fun computeExpr(compval: cobol_grammarParser.CompvalContext): Expression {
         return when {
             compval.ID() != null -> Expression.SimpleValue(
-                    value = compval.ID().text, // TODO: IDs should not simply be copied 1:1!
-                    comment = null
+                    value = compval.ID().text // TODO: IDs should not simply be copied 1:1!
             )
 
             compval.NUMBER() != null -> Expression.SimpleValue(
-                    value = compval.NUMBER().text,
-                    comment = null
+                    value = compval.NUMBER().text
             )
 
             compval.arithmeticexpression() != null -> computeArithmeticExpr(compval.arithmeticexpression())
@@ -425,8 +420,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         return Expression.ArithmeticExpression(
                 lhs = lhs,
                 rhs = rhs,
-                arithmeticOperator = op,
-                comment = null
+                arithmeticOperator = op
         )
     }
 

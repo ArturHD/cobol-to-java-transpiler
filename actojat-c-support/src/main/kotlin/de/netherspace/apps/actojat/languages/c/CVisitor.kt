@@ -148,8 +148,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         val parts = arrayOf(param?.text ?: throw NullPointerException("Got a null value from the AST"))
         // TODO: parameters might have to be transformed!
         return Expression.GenericExpression(
-                parts = parts,
-                comment = null
+                parts = parts
         )
     }
 
@@ -169,10 +168,8 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         )
 
         val jrhs = Expression.SimpleValue(
-                value = computeRightHandSide(ctx.rhs()),
-                comment = null
+                value = computeRightHandSide(ctx.rhs())
         )
-
         return Assignment(
                 lhs = jlhs,
                 rhs = jrhs,
@@ -273,21 +270,18 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                 lhs = lhs,
                 rhs = rhs,
                 conditionalOperator = cop,
-                negated = false, // TODO: this should be computed as part of a Pair analogous to COBOL!
-                comment = null
+                negated = false // TODO: this should be computed as part of a Pair analogous to COBOL!
         )
     }
 
     private fun computeExpr(expression: c_grammarParser.ExpressionContext): Expression {
         return when {
             expression.ID() != null -> Expression.SimpleValue(
-                    value = expression.ID().text,
-                    comment = null
+                    value = expression.ID().text
             )
 
             expression.NUMBER() != null -> Expression.SimpleValue(
-                    value = expression.NUMBER().text,
-                    comment = null
+                    value = expression.NUMBER().text
             )
             // TODO: ...
             else -> throw Exception("Unrecognized expression type!")
