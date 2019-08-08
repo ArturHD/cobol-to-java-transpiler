@@ -1,4 +1,6 @@
 # actojat
+[![Build Status](https://travis-ci.org/patrickp89/actojat.svg?branch=master)](https://travis-ci.org/patrickp89/actojat)
+
 A Cobol to Java transpiler for automated code base transpilation.
 
 
