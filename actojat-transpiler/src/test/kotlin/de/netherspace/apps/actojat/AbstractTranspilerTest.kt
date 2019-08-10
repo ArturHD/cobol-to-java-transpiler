@@ -2,6 +2,8 @@ package de.netherspace.apps.actojat
 
 import de.netherspace.apps.actojat.ir.java.Program
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.not
+import org.hamcrest.Matchers.nullValue
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import org.hamcrest.Matchers.`is` as Is
@@ -52,6 +54,9 @@ abstract class AbstractTranspilerTest<T>(
         val code = codeResult.getOrThrow()
         log.debug(code)
         assertThat(code, Is(expectedCode))
+
+        val enrichedCode = transpiler.enrichSourceCode(code)
+        assertThat(enrichedCode, Is(not(nullValue())))
     }
 
     /**

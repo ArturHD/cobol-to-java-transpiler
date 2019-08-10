@@ -19,7 +19,7 @@ interface SourceTranspiler {
      * @throws ParserException If a parser exception occurs
      */
     fun parseInputStream(inputStream: InputStream): Result<ParseTree>
-//  ParseTree parseInputStream(InputStream inputStream) throws IOException, ParserException;
+
 
     /**
      * Walks a given parse tree and from this creates an intermediate representation
@@ -30,8 +30,6 @@ interface SourceTranspiler {
      * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     fun generateIntermediateJavaRepresentation(parseTree: ParseTree): Result<JavaLanguageConstruct>
-//  JavaLanguageConstruct generateIntermediateJavaRepresentation(ParseTree parseTree)
-//      throws IntermediateRepresentationException;
 
 
     /**
@@ -45,8 +43,6 @@ interface SourceTranspiler {
      * @throws SourceGenerationException If a source code generation exception occurs
      */
     fun generateSourceCode(program: JavaLanguageConstruct, name: String, basePackage: String): Result<String>
-//  String generateSourceCode(JavaLanguageConstruct program, String name, String basePackage)
-//      throws SourceGenerationException;
 
 
     /**
@@ -55,8 +51,17 @@ interface SourceTranspiler {
      * @param code The (usually generated) code to enrich
      * @return The full fledged Java code
      */
-    fun enrichSourceCode(code: String): List<File>
-//  List<File> enrichSourceCode(String code);
+    fun enrichSourceCode(code: String): String
+
+
+    /**
+     * Writes a single piece of source code to disc.
+     *
+     * @param code The code to write
+     * @param dir The output folder
+     * @param The new file's filename
+     */
+    fun writeSingleSourceToFile(code: String, dir: String, filename: String): File
 
 
     /**
@@ -65,6 +70,5 @@ interface SourceTranspiler {
      * @return The rule names
      */
     fun getRuleNames(): List<String>
-//  List<String> getRuleNames();
 
 }

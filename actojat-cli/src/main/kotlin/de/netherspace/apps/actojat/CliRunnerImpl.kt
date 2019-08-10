@@ -10,33 +10,43 @@ import java.io.File
 import javax.swing.JFrame
 import javax.swing.JPanel
 
+/**
+ * Default CliRunner implementation: Transpiles a given source file
+ * (or all source files within a folder) and allows to display their
+ * parse trees in a GUI.
+ */
 class CliRunnerImpl : CliRunner {
 
     private val log = LoggerFactory.getLogger(CliRunnerImpl::class.java)
 
-    override fun run(sourceFile: File, clazzName: String, basePackage: String, language: App.Language, showGuiTree: Boolean) {
+    override fun run(sourceFile: File, clazzName: String, basePackage: String,
+                     language: App.Language, showGuiTree: Boolean, outputDir: String) {
         log.debug("The source file is: ${sourceFile.absolutePath}")
         val sourceFilesToClassNames = mapOf(
                 sourceFile to clazzName
         )
-        transpileFilesAndShowParseTree(sourceFilesToClassNames, clazzName, basePackage, language, showGuiTree)
+        transpileFilesAndShowParseTree(
+                sourceFilesToClassNames = sourceFilesToClassNames,
+                basePackage = basePackage,
+                language = language,
+                showGuiTree = showGuiTree,
+                outputDir = outputDir
+        )
     }
 
-    override fun run(dir: File, basePackage: String, language: App.Language, showGuiTree: Boolean) {
+    override fun run(dir: File, basePackage: String, language: App.Language,
+                     showGuiTree: Boolean, outputDir: String) {
+        log.debug("The folder containing the source files is: ${dir.absolutePath}")
         dir.walk()
+                // TODO:
 //                .filter { d -> d.isFile }
 //                .filter { d -> d.extension == language.name }
                 .forEach { println("f: $it") }
-        // TODO: ...
     }
 
-    private fun transpileFilesAndShowParseTree(
-            sourceFilesToClassNames: Map<File, String>,
-            clazzName: String,
-            basePackage: String,
-            language: App.Language,
-            showGuiTree: Boolean
-    ) {
+    private fun transpileFilesAndShowParseTree(sourceFilesToClassNames: Map<File, String>,
+                                               basePackage: String, language: App.Language,
+                                               showGuiTree: Boolean, outputDir: String) {
         val transpiler: SourceTranspiler = when (language) {
             App.Language.COBOL -> CobolSourceTranspilerImpl()
             App.Language.C -> CSourceTranspilerImpl()
@@ -45,7 +55,8 @@ class CliRunnerImpl : CliRunner {
         val result = TranspilerFacade().transpileFiles(
                 sourceFilesToClassNames = sourceFilesToClassNames,
                 basePackage = basePackage,
-                transpiler = transpiler
+                transpiler = transpiler,
+                outputDir = outputDir
         )
 
         val parseTrees = result.first

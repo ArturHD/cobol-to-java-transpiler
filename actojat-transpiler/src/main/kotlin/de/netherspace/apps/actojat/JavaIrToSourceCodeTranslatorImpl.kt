@@ -23,8 +23,8 @@ class JavaIrToSourceCodeTranslatorImpl(
 
         append("package $basePackage;")
 
-        // TODO: the IR should rather be organized as a tree!
-        // TODO: walk this tree with pattern matching/a visitor!
+        // TODO: the IR should rather be organized as a _proper_ tree!
+        // TODO: => walk this tree with pattern matching!
 
         program.imports
                 .map { import -> irImportToCode(import, basePackage) }

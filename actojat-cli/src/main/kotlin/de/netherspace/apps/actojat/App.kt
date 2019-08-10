@@ -13,7 +13,7 @@ class App {
     )
 
     fun main(args: Array<String>) {
-        if (args.size < 5) {
+        if (args.size < 6) {
             log.error("Not enough arguments!")
             return
         }
@@ -23,6 +23,7 @@ class App {
         val basePackage = args[2]
         val languageString = args[3]
         val showGuiTree: Boolean = args[4].toBoolean()
+        val outputDir = args[5]
 
         val language = languageStringToLanguage[languageString.toLowerCase()]
                 ?: throw Exception("The language $languageString is not supported!")
@@ -35,7 +36,8 @@ class App {
                     dir = f,
                     basePackage = basePackage,
                     language = language,
-                    showGuiTree = showGuiTree
+                    showGuiTree = showGuiTree,
+                    outputDir = outputDir
             )
         } else {
             cliRunner.run(
@@ -43,7 +45,8 @@ class App {
                     clazzName = clazzName,
                     basePackage = basePackage,
                     language = language,
-                    showGuiTree = showGuiTree
+                    showGuiTree = showGuiTree,
+                    outputDir = outputDir
             )
         }
     }

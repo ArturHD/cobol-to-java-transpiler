@@ -93,21 +93,29 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
 
         val irTranslator: JavaIrToSourceCodeTranslator = JavaIrToSourceCodeTranslatorImpl(systemFunctionsSupplier.get())
 
-        return irTranslator.generateCodeFromIr(program = program,
+        return irTranslator.generateCodeFromIr(
+                program = program,
                 basePackage = basePackage,
-                className = name)
+                className = name
+        )
     }
 
-    override fun enrichSourceCode(code: String): List<File> {
+    override fun enrichSourceCode(code: String): String {
         log.debug(code)
-        // TODO: do autoformatting of the generated source: org.eclipse.jdt.core.formatter
-        // TODO: create Maven project
         // TODO:...
+        return CodeFormatter().formatCode(code)
+        // TODO: add a new function that creates a Maven project!
+    }
 
-        TODO("not implemented")
+    override fun writeSingleSourceToFile(code: String, dir: String, filename: String): File {
+        val f = File(dir, filename)
+        log.debug("Writing source to file $f ...")
+        f.writeText(code)
+        return f
     }
 
     override fun getRuleNames(): List<String> {
         return ruleNames
     }
+
 }

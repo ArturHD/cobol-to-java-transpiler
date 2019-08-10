@@ -15,8 +15,10 @@ interface CliRunner {
      * @param basePackage The desired base package
      * @param language    The chosen language
      * @param showGuiTree If the parse tree should be displayed graphically
+     * @param outputDir The folder where the newly generated Java files should be placed
      */
-    fun run(sourceFile: File, clazzName: String, basePackage: String, language: App.Language, showGuiTree: Boolean)
+    fun run(sourceFile: File, clazzName: String, basePackage: String,
+            language: App.Language, showGuiTree: Boolean, outputDir: String)
 
 
     /**
@@ -28,7 +30,9 @@ interface CliRunner {
      * @param basePackage The desired base package
      * @param language    The chosen language
      * @param showGuiTree If the parse tree should be displayed graphically
+     * @param outputDir The folder where the newly generated Java files should be placed
      */
-    fun run(dir: File, basePackage: String, language: App.Language, showGuiTree: Boolean)
+    fun run(dir: File, basePackage: String, language: App.Language,
+            showGuiTree: Boolean, outputDir: String)
 
 }
