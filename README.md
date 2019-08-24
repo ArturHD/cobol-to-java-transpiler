@@ -21,6 +21,12 @@ as [Apache Maven](https://maven.apache.org/). Clone or download this repository,
 $ mvn package
 ```
 
+## How to run it
+To transpile a single file of COBOL code run:
+```bash
+$ java -jar actojat-cli/target/actojat.jar /path/to/test-source-helloworld.cob TestName2 my.base.pckg COBOL /tmp/ false
+```
+
 
 ## Using actojat as a framework
 If you want to use actojat to transpile from a language of your choice to Java, here is

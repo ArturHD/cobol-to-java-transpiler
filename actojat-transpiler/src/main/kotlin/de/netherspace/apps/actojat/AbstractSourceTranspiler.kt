@@ -110,6 +110,11 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
     override fun writeSingleSourceToFile(code: String, dir: String, filename: String): File {
         val f = File(dir, filename)
         log.debug("Writing source to file $f ...")
+        val d = File(dir)
+        if (!f.parentFile.exists()) {
+            f.parentFile.mkdirs()
+        }
+        f.createNewFile()
         f.writeText(code)
         return f
     }

@@ -149,31 +149,31 @@
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <version>${kotlin.version}</version>
                 </plugin>
-
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler-plugin.version}</version>
                 </plugin>
-
                 <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.1.0</version>
                 </plugin>
-
                 <plugin>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven.assembly-plugin.version}</version>
                 </plugin>
-
                 <plugin>
                     <groupId>org.antlr</groupId>
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${antlr.version}</version>
                 </plugin>
-
                 <plugin>
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>3.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.4</version>
                 </plugin>
             </plugins>
         </pluginManagement>

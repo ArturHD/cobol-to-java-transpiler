@@ -7,7 +7,7 @@ import org.junit.Test
  * This test class contains all IR tests regarding the transpilation
  * of control flow statements (if-then-else, switch, loops).
  */
-class ControlFlowStatementsIrTranspilationTest : IrTranspilationTest() {
+class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
 
     /**
      * Tests the transpilation of a simple If-Then-Else statement.

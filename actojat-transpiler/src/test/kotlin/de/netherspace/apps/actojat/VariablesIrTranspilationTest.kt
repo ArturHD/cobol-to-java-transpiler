@@ -7,7 +7,7 @@ import org.junit.Test
  * This test class contains all IR tests regarding the transpilation
  * of variable declarations.
  */
-class VariablesIrTranspilationTest: IrTranspilationTest() {
+class VariablesIrTranspilationTest: AbstractIrTranspilationTest() {
 
     /**
      * Tests the transpilation of global variable declarations.

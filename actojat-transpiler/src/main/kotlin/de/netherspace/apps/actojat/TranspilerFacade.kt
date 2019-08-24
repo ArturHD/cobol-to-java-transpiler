@@ -15,16 +15,17 @@ class TranspilerFacade {
 
     /**
      * Transpiles all given files. Returns a list of parse trees and
-     * a list of the enerated source code pieces.
+     * a list of the generated source files.
      *
      * @param sourceFilesToClassNames source files and their corresponding class names
      * @param basePackage The desired base package
      * @param transpiler The transpiler implementation (COBOL, C, ...)
      * @param outputDir The folder where the newly generated Java files should be placed
+     * @return parse trees and generated source files
      */
     fun transpileFiles(sourceFilesToClassNames: Map<File, String>,
                        basePackage: String, transpiler: SourceTranspiler,
-                       outputDir: String): Pair<List<ParseTree>, List<String>> {
+                       outputDir: File): Pair<List<ParseTree>, List<File>> {
         val parseTreesToClassNames = sourceFilesToClassNames
                 .asSequence()
                 // InputFile x ClassName -> InputStream x ClassName:
@@ -63,7 +64,7 @@ class TranspilerFacade {
                 .map { code2fn ->
                     Pair(
                             code2fn.first,
-                            transpiler.writeSingleSourceToFile(code2fn.first, computePackageDir(outputDir), code2fn.second)
+                            transpiler.writeSingleSourceToFile(code2fn.first, computePackageDir(outputDir, basePackage), code2fn.second)
                     )
                 }
                 .toList()
@@ -72,23 +73,27 @@ class TranspilerFacade {
                 .map { it.first }
                 .toList()
 
-        val formattedJavaClasses = formattedCodeToWrittenFiles
-                .map { it.first }
+        val generatedJavaFiles = formattedCodeToWrittenFiles
+                .map { it.second }
                 .toList()
 
-        return Pair(parseTrees, formattedJavaClasses)
+        return Pair(parseTrees, generatedJavaFiles)
         // TODO: the 2 lists inside the Pair to not correlate!
-        // TODO: do we really want to return a list of Strings?
     }
 
     private fun computeFileName(source: String): String {
         return "$source.java"
     }
 
-    private fun computePackageDir(outputDir: String): String {
+    private fun computePackageDir(outputDir: File, basePackage: String): String {
+        val packagePart = basePackage.replace(
+                oldChar = '.',
+                newChar = '/',
+                ignoreCase = true
+        )
         // TODO: create a wrapper class around the generated source code that also holds the package!
         // TODO: create the directories under "outputDir" according to the package information!
-        TODO("not implemented")
+        return "$outputDir/$packagePart"
     }
 
 }

@@ -20,12 +20,12 @@ class CliRunnerImpl : CliRunner {
     private val log = LoggerFactory.getLogger(CliRunnerImpl::class.java)
 
     override fun run(sourceFile: File, clazzName: String, basePackage: String,
-                     language: App.Language, showGuiTree: Boolean, outputDir: String) {
+                     language: App.Language, showGuiTree: Boolean, outputDir: File): List<File> {
         log.debug("The source file is: ${sourceFile.absolutePath}")
         val sourceFilesToClassNames = mapOf(
                 sourceFile to clazzName
         )
-        transpileFilesAndShowParseTree(
+        return transpileFilesAndShowParseTree(
                 sourceFilesToClassNames = sourceFilesToClassNames,
                 basePackage = basePackage,
                 language = language,
@@ -35,18 +35,20 @@ class CliRunnerImpl : CliRunner {
     }
 
     override fun run(dir: File, basePackage: String, language: App.Language,
-                     showGuiTree: Boolean, outputDir: String) {
+                     showGuiTree: Boolean, outputDir: File): List<File> {
         log.debug("The folder containing the source files is: ${dir.absolutePath}")
         dir.walk()
                 // TODO:
 //                .filter { d -> d.isFile }
 //                .filter { d -> d.extension == language.name }
                 .forEach { println("f: $it") }
+
+        return emptyList() // TODO: transpileFilesAndShowParseTree(...)
     }
 
     private fun transpileFilesAndShowParseTree(sourceFilesToClassNames: Map<File, String>,
                                                basePackage: String, language: App.Language,
-                                               showGuiTree: Boolean, outputDir: String) {
+                                               showGuiTree: Boolean, outputDir: File): List<File> {
         val transpiler: SourceTranspiler = when (language) {
             App.Language.COBOL -> CobolSourceTranspilerImpl()
             App.Language.C -> CSourceTranspilerImpl()
@@ -60,11 +62,12 @@ class CliRunnerImpl : CliRunner {
         )
 
         val parseTrees = result.first
-
         if (showGuiTree) {
             val parseTree = parseTrees.first() // TODO: extract to a new/different interface method!
             showSourceCode(transpiler, showGuiTree, parseTree)
         }
+
+        return result.second
     }
 
     private fun showSourceCode(transpiler: SourceTranspiler, showGuiTree: Boolean, parseTree: ParseTree) {

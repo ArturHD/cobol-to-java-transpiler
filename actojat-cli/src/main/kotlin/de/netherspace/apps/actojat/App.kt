@@ -5,49 +5,53 @@ import java.io.File
 
 class App {
 
-    private val log = LoggerFactory.getLogger(App::class.java)
+    companion object {
+        private val log = LoggerFactory.getLogger(App::class.java)
 
-    private val languageStringToLanguage = mapOf(
-            "cobol" to Language.COBOL,
-            "c" to Language.C
-    )
+        private val languageStringToLanguage = mapOf(
+                "cobol" to Language.COBOL,
+                "c" to Language.C
+        )
 
-    fun main(args: Array<String>) {
-        if (args.size < 6) {
-            log.error("Not enough arguments!")
-            return
-        }
+        @JvmStatic
+        fun main(args: Array<String>) {
+            if (args.size < 6) {
+                log.error("Not enough arguments!")
+                return
+            }
 
-        val sourceFileOrDir = args[0]
-        val clazzName = args[1]
-        val basePackage = args[2]
-        val languageString = args[3]
-        val showGuiTree: Boolean = args[4].toBoolean()
-        val outputDir = args[5]
+            val sourceFileOrDir = args[0]
+            val clazzName = args[1]
+            val basePackage = args[2]
+            val languageString = args[3]
+            val outputDirPath = args[4]
+            val showGuiTree: Boolean = args[5].toBoolean()
 
-        val language = languageStringToLanguage[languageString.toLowerCase()]
-                ?: throw Exception("The language $languageString is not supported!")
+            val language = languageStringToLanguage[languageString.toLowerCase()]
+                    ?: throw Exception("The language $languageString is not supported!")
 
-        val f = File(sourceFileOrDir)
-        val cliRunner: CliRunner = CliRunnerImpl()
+            val f = File(sourceFileOrDir)
+            val outputDir = File(outputDirPath)
+            val cliRunner: CliRunner = CliRunnerImpl()
 
-        if (f.isDirectory) {
-            cliRunner.run(
-                    dir = f,
-                    basePackage = basePackage,
-                    language = language,
-                    showGuiTree = showGuiTree,
-                    outputDir = outputDir
-            )
-        } else {
-            cliRunner.run(
-                    sourceFile = f,
-                    clazzName = clazzName,
-                    basePackage = basePackage,
-                    language = language,
-                    showGuiTree = showGuiTree,
-                    outputDir = outputDir
-            )
+            if (f.isDirectory) {
+                cliRunner.run(
+                        dir = f,
+                        basePackage = basePackage,
+                        language = language,
+                        showGuiTree = showGuiTree,
+                        outputDir = outputDir
+                )
+            } else {
+                cliRunner.run(
+                        sourceFile = f,
+                        clazzName = clazzName,
+                        basePackage = basePackage,
+                        language = language,
+                        showGuiTree = showGuiTree,
+                        outputDir = outputDir
+                )
+            }
         }
     }
 

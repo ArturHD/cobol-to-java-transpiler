@@ -10,7 +10,7 @@ import org.junit.Test
  * This test class contains all IR tests regarding the transpilation
  * of Java classes and methods.
  */
-class ClassesAndMethodsIrTranspilationTest : IrTranspilationTest() {
+class ClassesAndMethodsIrTranspilationTest : AbstractIrTranspilationTest() {
 
     /**
      * Tests the transpilation of a trivial function call.

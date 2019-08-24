@@ -7,7 +7,7 @@ import org.junit.Test
  * This test class contains all IR tests regarding the transpilation
  * of operators and assignments.
  */
-class OperatorsAndAssignmentsIrTranspilationTest : IrTranspilationTest() {
+class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest() {
 
     /**
      * Tests the transpilation of a simple assignment (int j=0).

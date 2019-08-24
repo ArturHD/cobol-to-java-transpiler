@@ -19,9 +19,9 @@ import org.hamcrest.Matchers.`is` as Is
  * - Control Flow Statements                -> ControlFlowStatementsIrTranspilationTest
  * - Methods/Functions                      -> ClassesAndMethodsIrTranspilationTest
  */
-abstract class IrTranspilationTest {
+abstract class AbstractIrTranspilationTest {
 
-    private val log = LoggerFactory.getLogger(IrTranspilationTest::class.java)
+    private val log = LoggerFactory.getLogger(AbstractIrTranspilationTest::class.java)
     private val testBasePackage = "actojat.ir.test.pckg"
 
     /**

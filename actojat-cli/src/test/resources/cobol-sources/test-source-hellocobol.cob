@@ -1,0 +1,5 @@
+ IDENTIFICATION DIVISION.
+ PROGRAM-ID. HelloCobol.
+ PROCEDURE DIVISION.
+ DisplayHelloWorld.
+      DISPLAY "Hello!".
