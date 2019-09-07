@@ -24,10 +24,6 @@ abstract class AbstractTranspilerTest<T>(
      * @param source       The source which will be transpiled
      * @param clazzName    The desired class name
      * @param expectedCode The expected source code after transpilation
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     fun doTranspilationTest(source: InputStream, clazzName: String, expectedCode: String) {
         val transpiler = constructorExpr.get()
@@ -64,8 +60,6 @@ abstract class AbstractTranspilerTest<T>(
      * abstract transpiler implementation properly handles missing source files.
      *
      * @param sourceFile The source file which should be transpiled
-     * @throws ParserException If a parser exception occurs
-     * @throws IOException     If an IO exception occurs
      */
     fun testSourceNotFound(sourceFile: String) {
         val transpiler = constructorExpr.get()

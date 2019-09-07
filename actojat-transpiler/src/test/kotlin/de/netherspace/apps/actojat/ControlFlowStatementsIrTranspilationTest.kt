@@ -1,6 +1,7 @@
 package de.netherspace.apps.actojat
 
 import de.netherspace.apps.actojat.ir.java.*
+import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -138,6 +139,67 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         val expectedCode = "package actojat.ir.test.pckg;public class ForLoooop {public void crazyLooping()" +
                 "{for (int j=0; j<10; j++) { System.out.print(\"ImStillLooping\"); }}}"
         doTranspilationTest(program, "ForLoooop", expectedCode)
+    }
+
+    /**
+     * Tests the transpilation of a simple while-loop.
+     */
+    @Test
+    @Ignore
+    fun testWhileLoopTranspilation() {
+        // a variable declaration:
+        val lhs = LeftHandSide(
+                type = Type.BasicType(PrimitiveType.INT),
+                variableName = "varrr"
+        )
+        val assignment1 = Assignment(
+                lhs = lhs,
+                rhs = Expression.SimpleValue(
+                        value = "2"
+                ),
+                comment = null
+        )
+
+        // the condition for our while-loop:
+        val lhsA = Expression.SimpleValue(
+                value = "a"
+        )
+        val rhs6 = Expression.SimpleValue(
+                value = "6"
+        )
+        val condition = Expression.Condition(
+                lhs = lhsA,
+                rhs = rhs6,
+                conditionalOperator = Expression.Condition.ConditionalOperator.LESSER,
+                negated = true
+        )
+
+        // the while loop itself:
+        val whileLoop = WhileLoop(
+                loopCondition = condition,
+                evalConditionAtLoopBottom = false,
+                body = arrayOf(),
+                comment = null
+        )
+
+        // a method containing our loop:
+        val methodName = "testWhileLoop"
+        val testMethod = Method(
+                name = methodName,
+                statements = listOf(whileLoop),
+                arguments = listOf(),
+                comment = null
+        )
+        // the program that glues everything together:
+        val program = Program(
+                methods = mapOf(methodName to testMethod),
+                imports = listOf(),
+                fields = mapOf(),
+                comment = null
+        )
+
+        val expectedCode = "package actojat.ir.test.pckg;public class AmazingWhileLoop {...}" // TODO: fix expectation!
+        doTranspilationTest(program, "AmazingWhileLoop", expectedCode)
     }
 
 }

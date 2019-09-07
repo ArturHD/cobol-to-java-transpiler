@@ -27,6 +27,15 @@ To transpile a single file of COBOL code run:
 $ java -jar actojat-cli/target/actojat.jar /path/to/test-source-helloworld.cob TestName2 my.base.pckg COBOL /tmp/ false
 ```
 
+## Which language features are supported?
+Actojat is still work in progress. The following table provides you with an overview, which language features of the
+COBOL85 language standard are already supported:
+
+| Feature (Keyword) | Description          | Implemented? | Test |
+| ----------------- | -------------------- | ------------ | ---- |
+| Sections          | Section declarations | yes          | ...  |
+| performvarying    | For-loops            | yes          | ...  |
+
 
 ## Using actojat as a framework
 If you want to use actojat to transpile from a language of your choice to Java, here is

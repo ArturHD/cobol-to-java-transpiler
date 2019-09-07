@@ -114,9 +114,8 @@ class JavaIrToSourceCodeTranslatorImpl(
             }
 
             is ForLoop -> forLoopToCode(statement)
-
+            is WhileLoop -> whileLoopToCode(statement)
             is FunctionCall -> functionCallToCode(statement)
-
             is IfThenElse -> ifThenElseToCode(statement)
 
             else -> {
@@ -141,7 +140,7 @@ class JavaIrToSourceCodeTranslatorImpl(
     }
 
     /**
-     * Generates the code for a (single) For-Loop.
+     * Generates the Java code for a For-Loop.
      */
     private fun forLoopToCode(forLoop: ForLoop): String {
         val loopVariable = assignmentToCode(forLoop.loopVariable)
@@ -154,6 +153,16 @@ class JavaIrToSourceCodeTranslatorImpl(
         return "$loopHeader { $loopBody }"
     }
 
+    /**
+     * Generates the Java code for a While-Loop.
+     */
+    private fun whileLoopToCode(statement: WhileLoop): String {
+        TODO("not implemented")
+    }
+
+    /**
+     * Generates the Java code for a function call.
+     */
     private fun functionCallToCode(functionCall: FunctionCall): String {
         log.trace("There are ${functionCall.parameters.size} parameters...")
 

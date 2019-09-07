@@ -211,7 +211,8 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
             CobolStatementType.PERFORMUNTIL -> {
                 // "PERFORM ... UNTIL":
-                TODO("not implemented")
+                val performuntil = cobolStatement.performuntil()
+                cobolPerformUntilToJavaLoop(performuntil)
             }
 
             CobolStatementType.PERFORMVARYING -> {
@@ -242,6 +243,17 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 cobolIfthenelseToJavaConditionalExpr(cobolStatement.ifthenelse())
             }
         }
+    }
+
+    /**
+     * Maps a COBOL "PERFORM ... UNTIL" loop statement to a Java (while-)loop.
+     */
+    private fun cobolPerformUntilToJavaLoop(performuntil: cobol_grammarParser.PerformuntilContext?): Statement {
+        val functionToCall = performuntil?.ID()
+                ?: throw NullPointerException("Got a null value from the AST")
+        val condition = performuntil.condition()
+        // TODO: create a while loop!
+        TODO("not implemented")
     }
 
     /**

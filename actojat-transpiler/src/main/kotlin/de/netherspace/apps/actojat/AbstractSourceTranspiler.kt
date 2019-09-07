@@ -22,11 +22,11 @@ import java.io.InputStream
  * @param <V> A visitor implementation
  */
 abstract class AbstractSourceTranspiler<L, P, C, V>(
-        private val lexerFactoryExpr: java.util.function.Function<CharStream, L>,
-        private val parserFactoryExpr: java.util.function.Function<CommonTokenStream, P>,
-        private val startsymbolExpr: java.util.function.Function<P, C>,
-        private val visitorFactoryExpr: java.util.function.Supplier<V>,
-        private val systemFunctionsSupplier: java.util.function.Supplier<Map<String, Pair<BasicConstruct, JavaConstructType>>>,
+        private val lexerFactoryExpr: (CharStream) -> L,
+        private val parserFactoryExpr: (CommonTokenStream) -> P,
+        private val startsymbolExpr: (P) -> C,
+        private val visitorFactoryExpr: () -> V,
+        private val systemFunctionsSupplier: () -> Map<String, Pair<BasicConstruct, JavaConstructType>>,
         private val log: Logger
 ) : SourceTranspiler where L : Lexer, P : Parser, C : ParserRuleContext, V : AbstractParseTreeVisitor<JavaLanguageConstruct> {
 
@@ -37,14 +37,14 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         val inputCharStream = UnbufferedCharStream(inputStream)
 
         // create lexer and token stream:
-        val lexer: L = lexerFactoryExpr.apply(inputCharStream)
+        val lexer: L = lexerFactoryExpr(inputCharStream)
         lexer.tokenFactory = CommonTokenFactory(true) // circumvents a bug in ANTLR v4.7!
         val lexerErrorListener = SourceErrorListener()
         lexer.addErrorListener(lexerErrorListener)
         val tokenStream: CommonTokenStream = CommonTokenStream(lexer)
 
         // create parser:
-        val parser = parserFactoryExpr.apply(tokenStream)
+        val parser = parserFactoryExpr(tokenStream)
         val errorHandler = SourceErrorHandler()
         parser.errorHandler = errorHandler
         val errorListener = SourceErrorListener()
@@ -52,7 +52,7 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         ruleNames = parser.ruleNames.toList()
 
         // create the parse tree by calling the start symbol:
-        val parseTree = startsymbolExpr.apply(parser)
+        val parseTree = startsymbolExpr(parser)
         log.debug("\n ${parseTree.toStringTree(parser)}\n")
 
         //did an error occur during parsing?
@@ -73,7 +73,7 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
 
     override fun generateIntermediateJavaRepresentation(parseTree: ParseTree): Result<JavaLanguageConstruct> {
         //walk the tree via the provided visitor implementation:
-        val visitor: V = visitorFactoryExpr.get()
+        val visitor: V = visitorFactoryExpr()
         val program = visitor.visit(parseTree)
         return if (program == null) {
             val m = "I couldn't walk the whole parse tree!"
@@ -91,7 +91,7 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
             return Result.failure(SourceGenerationException(m))
         }
 
-        val irTranslator: JavaIrToSourceCodeTranslator = JavaIrToSourceCodeTranslatorImpl(systemFunctionsSupplier.get())
+        val irTranslator: JavaIrToSourceCodeTranslator = JavaIrToSourceCodeTranslatorImpl(systemFunctionsSupplier())
 
         return irTranslator.generateCodeFromIr(
                 program = program,
