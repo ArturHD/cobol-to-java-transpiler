@@ -156,8 +156,18 @@ class JavaIrToSourceCodeTranslatorImpl(
     /**
      * Generates the Java code for a While-Loop.
      */
-    private fun whileLoopToCode(statement: WhileLoop): String {
-        TODO("not implemented")
+    private fun whileLoopToCode(whileLoop: WhileLoop): String {
+        val condition = expressionsToCode(listOf(whileLoop.loopCondition))
+        val loopBody = whileLoop
+                .body
+                .map { statement -> statementToCode(statement) }
+                .fold("", { accumulatedBody, stmnt -> accumulatedBody + stmnt })
+
+        return if (whileLoop.evalConditionAtLoopBottom) {
+            "do { $loopBody } while ($condition);"
+        } else {
+            "while ($condition) { $loopBody }"
+        }
     }
 
     /**

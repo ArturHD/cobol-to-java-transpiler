@@ -31,10 +31,14 @@ $ java -jar actojat-cli/target/actojat.jar /path/to/test-source-helloworld.cob T
 Actojat is still work in progress. The following table provides you with an overview, which language features of the
 COBOL85 language standard are already supported:
 
-| Feature (Keyword) | Description          | Implemented? | Test |
-| ----------------- | -------------------- | ------------ | ---- |
-| Sections          | Section declarations | yes          | ...  |
-| performvarying    | For-loops            | yes          | ...  |
+| Feature (Keyword)   | Description          | Implemented?    | Sample COBOL code  | Generated Java Code |
+| ------------------- | -------------------- | --------------- | ------------------ | ------------------- |
+| Sections            | Section declarations | yes             | ...                | ...                 |
+| PERFORM ... TIMES   | For-loops            | yes             | [performtimes.cob](actojat-cli/src/test/resources/cobol-sources/performtimes.cob)   | [PerformTimes.java](actojat-cli/src/test/resources/expected-java-sources/PerformTimes.java)   |
+| PERFORM ... UNTIL   | While-loops          | yes (partially) | ...                | ...                 |
+| PERFORM ... VARYING | For-loops            | no              | ...                | ...                 |
+
+...
 
 
 ## Using actojat as a framework

@@ -1,7 +1,6 @@
 package de.netherspace.apps.actojat
 
 import de.netherspace.apps.actojat.ir.java.*
-import org.junit.Ignore
 import org.junit.Test
 
 /**
@@ -40,7 +39,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
 
         // ...and the if-then statement itself:
         val lhsA = Expression.SimpleValue(
-                value = "a"
+                value = assignment1.lhs.variableName
         )
         val rhs6 = Expression.SimpleValue(
                 value = "6"
@@ -86,12 +85,11 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
     @Test
     fun testForLoopTranspilation() {
         // this statement appears inside of the loop body:
-        val expr1 = Expression.SimpleValue(
-                value = "\"ImStillLooping\""
-        )
-        val printStatement1: Statement = FunctionCall(
+        val printStatement1 = FunctionCall(
                 name = "Print",
-                parameters = listOf(expr1),
+                parameters = listOf(Expression.SimpleValue(
+                        value = "\"ImStillLooping\""
+                )),
                 comment = null
         )
 
@@ -111,12 +109,11 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         )
         val loopCondition = "j<10" // TODO: this should not be a simple String but rather a type of its own!
         val loopIncrement = "j++" // TODO: this should not be a simple String but rather a type of its own!
-        val body = arrayOf(printStatement1)
         val forLoop1 = ForLoop(
                 loopVariable = loopVariable,
                 loopCondition = loopCondition,
                 loopIncrement = loopIncrement,
-                body = body,
+                body = arrayOf(printStatement1),
                 comment = null
         )
 
@@ -145,7 +142,6 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
      * Tests the transpilation of a simple while-loop.
      */
     @Test
-    @Ignore
     fun testWhileLoopTranspilation() {
         // a variable declaration:
         val lhs = LeftHandSide(
@@ -161,24 +157,33 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         )
 
         // the condition for our while-loop:
-        val lhsA = Expression.SimpleValue(
-                value = "a"
+        val lhsVarrr = Expression.SimpleValue(
+                value = assignment1.lhs.variableName
         )
         val rhs6 = Expression.SimpleValue(
                 value = "6"
         )
         val condition = Expression.Condition(
-                lhs = lhsA,
+                lhs = lhsVarrr,
                 rhs = rhs6,
                 conditionalOperator = Expression.Condition.ConditionalOperator.LESSER,
                 negated = true
         )
 
-        // the while loop itself:
+        // this statement appears inside of the loop body:
+        val printStatement1 = FunctionCall(
+                name = "Print",
+                parameters = listOf(Expression.SimpleValue(
+                        value = "\"Whiiiiiile\""
+                )),
+                comment = null
+        )
+
+        // the actual while loop:
         val whileLoop = WhileLoop(
                 loopCondition = condition,
                 evalConditionAtLoopBottom = false,
-                body = arrayOf(),
+                body = arrayOf(printStatement1),
                 comment = null
         )
 
@@ -186,7 +191,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         val methodName = "testWhileLoop"
         val testMethod = Method(
                 name = methodName,
-                statements = listOf(whileLoop),
+                statements = listOf(assignment1, whileLoop),
                 arguments = listOf(),
                 comment = null
         )
@@ -198,8 +203,80 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
                 comment = null
         )
 
-        val expectedCode = "package actojat.ir.test.pckg;public class AmazingWhileLoop {...}" // TODO: fix expectation!
+        val expectedCode = "package actojat.ir.test.pckg;public class AmazingWhileLoop {public void " +
+                "testWhileLoop(){int varrr=2;while (!(varrr<6)) { System.out.print(\"Whiiiiiile\"); }}}"
         doTranspilationTest(program, "AmazingWhileLoop", expectedCode)
+    }
+
+    /**
+     * Tests the transpilation of a do-while-loop.
+     */
+    @Test
+    fun testDoWhileLoopTranspilation() {
+        // a variable declaration:
+        val lhs = LeftHandSide(
+                type = Type.BasicType(PrimitiveType.INT),
+                variableName = "var2"
+        )
+        val assignment1 = Assignment(
+                lhs = lhs,
+                rhs = Expression.SimpleValue(
+                        value = "34"
+                ),
+                comment = null
+        )
+
+        // the condition for our while-loop:
+        val lhsVar2 = Expression.SimpleValue(
+                value = assignment1.lhs.variableName
+        )
+        val rhs0 = Expression.SimpleValue(
+                value = "0"
+        )
+        val condition = Expression.Condition(
+                lhs = lhsVar2,
+                rhs = rhs0,
+                conditionalOperator = Expression.Condition.ConditionalOperator.GREATEROREQUALS,
+                negated = false
+        )
+
+        // this statement appears inside of the loop body:
+        val printStatement1 = FunctionCall(
+                name = "Print",
+                parameters = listOf(Expression.SimpleValue(
+                        value = "\"My condition is evaluated at the bottom!\""
+                )),
+                comment = null
+        )
+
+        // the do-while loop:
+        val doWhileLoop = WhileLoop(
+                loopCondition = condition,
+                evalConditionAtLoopBottom = true,
+                body = arrayOf(printStatement1),
+                comment = null
+        )
+
+        // a method containing our loop:
+        val methodName = "testDoWhileLoop"
+        val testMethod = Method(
+                name = methodName,
+                statements = listOf(assignment1, doWhileLoop),
+                arguments = listOf(),
+                comment = null
+        )
+        // the program that glues everything together:
+        val program = Program(
+                methods = mapOf(methodName to testMethod),
+                imports = listOf(),
+                fields = mapOf(),
+                comment = null
+        )
+
+        val expectedCode = "package actojat.ir.test.pckg;public class DoWhileLoooop {public void " +
+                "testDoWhileLoop(){int var2=34;do { System.out.print(\"My condition is evaluated " +
+                "at the bottom!\"); } while (var2>=0);}}"
+        doTranspilationTest(program, "DoWhileLoooop", expectedCode)
     }
 
 }
