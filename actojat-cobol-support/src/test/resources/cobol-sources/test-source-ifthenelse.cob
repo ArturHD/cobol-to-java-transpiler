@@ -1,0 +1,15 @@
+ IDENTIFICATION DIVISION.
+ PROGRAM-ID. IfThenElse.
+
+ DATA DIVISION.
+ WORKING-STORAGE SECTION.
+ 01 myVar PIC 9 VALUE 5.
+
+ PROCEDURE DIVISION.
+ MainProgram.
+      IF myVar <= 10 THEN
+        DISPLAY "Yeah"
+      ELSE
+        DISPLAY "Elzze"
+      END-IF
+      STOP RUN.

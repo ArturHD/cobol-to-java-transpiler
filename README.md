@@ -31,25 +31,25 @@ $ java -jar actojat-cli/target/actojat.jar /path/to/test-source-helloworld.cob T
 Actojat is still work in progress. The following table provides you with an overview, which language features of the
 COBOL85 language standard are already supported:
 
-| Feature (Keyword)   | Description          | Implemented?    | Sample COBOL code  | Generated Java Code |
-| ------------------- | -------------------- | --------------- | ------------------ | ------------------- |
-| Sections            | Section declarations | yes             | ...                | ...                 |
-| PERFORM ... TIMES   | For-loops            | yes             | [performtimes.cob](actojat-cli/src/test/resources/cobol-sources/performtimes.cob)   | [PerformTimes.java](actojat-cli/src/test/resources/expected-java-sources/PerformTimes.java)   |
-| PERFORM ... UNTIL   | While-loops          | yes (partially) | ...                | ...                 |
-| PERFORM ... VARYING | For-loops            | no              | ...                | ...                 |
+| Feature (Keyword)     | Description          | Implemented?    | Sample COBOL code  | Generated Java Code |
+| --------------------- | -------------------- | --------------- | ------------------ | ------------------- |
+| Sections              | Section declarations | yes             | ...                | ...                 |
+| Conditional operators | Greater, lesser, ... | yes             | ...                | ...                 |
+| IF .. THEN ... ELSE   | Common branching     | yes             | ...                | ...                 |
+| PERFORM ... TIMES     | For-loops            | yes             | [performtimes.cob](actojat-cli/src/test/resources/cobol-sources/performtimes.cob)   | [PerformTimes.java](actojat-cli/src/test/resources/expected-java-sources/PerformTimes.java)   |
+| PERFORM ... UNTIL     | While-loops          | yes (partially) | ...                | ...                 |
+| PERFORM ... VARYING   | For-loops            | no              | ...                | ...                 |
 
 ...
 
 
 ## Using actojat as a framework
-If you want to use actojat to transpile from a language of your choice to Java, here is
-how it can be done:
+If you want to use actojat to transpile from a language of your choice to Java, here is how it can be done:
 * At the transpiler's heart lies a [grammar file](actojat-cobol-support/src/main/antlr4/de/netherspace/apps/actojat/cobol_grammar.g4)
-that describes the source language in an ANTLR-specific dialect of common BNF. Create a
-grammar file of your own that accepts your chosen source language,
+that describes the source language in an ANTLR-specific dialect of common BNF. Create a grammar file of your own that
+accepts your chosen source language,
 
-* use [ANTLR's Maven plugin](https://www.antlr.org/api/maven-plugin/latest/) to generate
-your parser and tokenizer classes, and
+* use [ANTLR's Maven plugin](https://www.antlr.org/api/maven-plugin/latest/) to generate your parser and tokenizer classes, and
 
 * utilize actojat's [Abstract Source Transpiler class](actojat-transpiler/src/main/kotlin/de/netherspace/apps/actojat/AbstractSourceTranspiler.kt)
 as well as its [Java Intermediate Representation](actojat-transpiler/src/main/kotlin/de/netherspace/apps/actojat/JavaIrToSourceCodeTranslator.kt)

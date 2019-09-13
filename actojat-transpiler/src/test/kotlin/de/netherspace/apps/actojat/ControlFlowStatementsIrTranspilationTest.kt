@@ -53,6 +53,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         val if1 = IfThenElse(
                 condition = condition,
                 thenStatements = listOf(statement1),
+                elseStatements = null,
                 comment = null
         )
 

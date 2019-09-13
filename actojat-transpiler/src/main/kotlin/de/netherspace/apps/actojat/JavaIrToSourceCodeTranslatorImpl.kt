@@ -223,8 +223,13 @@ class JavaIrToSourceCodeTranslatorImpl(
     private fun ifThenElseToCode(conditionalExpr: IfThenElse): String {
         val condition = expressionsToCode(listOf(conditionalExpr.condition))
         val thenBody = statementsToCode(conditionalExpr.thenStatements)
-        // TODO: else branch!
-        return "if($condition){$thenBody}"
+
+        return if (conditionalExpr.elseStatements.isNullOrEmpty()) {
+            "if($condition){$thenBody}"
+        } else {
+            val elseBody = statementsToCode(conditionalExpr.elseStatements)
+            "if($condition){$thenBody} else {$elseBody}"
+        }
     }
 
     private fun exprToCode(expr: Expression): List<String> {

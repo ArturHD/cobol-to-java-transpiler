@@ -1,5 +1,6 @@
 package de.netherspace.apps.actojat.languages
 
+import de.netherspace.apps.actojat.ir.java.Expression
 import de.netherspace.apps.actojat.ir.java.LeftHandSide
 import de.netherspace.apps.actojat.ir.java.PrimitiveType
 import de.netherspace.apps.actojat.ir.java.Type
@@ -67,6 +68,18 @@ interface BaseVisitor {
             knownIDs.add(newInternalId)
             newInternalId
         }
+    }
+
+    /**
+     * Clones a given conditional expression IR in such a way, that it negates the original expression.
+     */
+    fun computeNegatedCondition(condition: Expression.Condition): Expression.Condition {
+        return Expression.Condition(
+                lhs = condition.lhs,
+                rhs = condition.rhs,
+                conditionalOperator = condition.conditionalOperator,
+                negated = !condition.negated
+        )
     }
 
 }

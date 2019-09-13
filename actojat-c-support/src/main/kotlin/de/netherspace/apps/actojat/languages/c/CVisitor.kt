@@ -258,6 +258,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         return IfThenElse(
                 condition = condition,
                 thenStatements = body,
+                elseStatements = null,
                 comment = null
         )
     }

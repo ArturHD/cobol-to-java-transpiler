@@ -156,9 +156,9 @@ blockname               : ID
 counter                 : (NUMBER | ID)
                         ;
 
-performuntil            : PERFORM ID WITH TEST BEFORE UNTIL condition
-                        | PERFORM ID WITH TEST AFTER UNTIL condition
-                        | PERFORM ID UNTIL condition
+performuntil            : PERFORM blockname WITH TEST BEFORE UNTIL condition
+                        | PERFORM blockname WITH TEST AFTER UNTIL condition
+                        | PERFORM blockname UNTIL condition
                         ;
 
 performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM

@@ -1,12 +1,8 @@
 package de.netherspace.apps.actojat
 
 import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl
-import de.netherspace.apps.actojat.util.IntermediateRepresentationException
-import de.netherspace.apps.actojat.util.ParserException
-import de.netherspace.apps.actojat.util.SourceGenerationException
 import org.junit.Ignore
 import org.junit.Test
-import java.io.IOException
 import java.io.InputStream
 import java.util.function.Supplier
 
@@ -21,9 +17,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler gracefully aborts when a source file is not found.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws IOException                         If an IO exception occurs
      */
     @Test(expected = IllegalStateException::class)
     fun testCobolSourceNotFound() {
@@ -33,11 +26,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles a simple Hello-World Cobol program.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     fun testCobolHelloWorldTranspilation() {
@@ -54,11 +42,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles a program containing a simple loop.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     fun testCobolSimpleLoopTranspilation() {
@@ -76,11 +59,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles a program containing a loop with a (global) variable.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     fun testCobolLoopWithIdTranspilation() {
@@ -99,11 +77,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles a program containing a loop with an "inline" body.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     fun testCobolLoopWithInlineBodyTranspilation() {
@@ -121,20 +94,15 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles a program containing a PERFORM..UNTIL (i.e. while) loop.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
-    @Ignore
     fun testCobolPerformUntilLoopTranspilation() {
         val sourceFile = "/cobol-sources/test-source-performuntil.cob"
         val clazzName = "PerformUntilOne"
-        val expectedCode = "package cobol.test.pckg;public class PerformUntilOne {public short MyCounter = 3;" +
-                "public void paragraph_MainProgram(){for (int _internal67B28F0=1; _internal67B28F0<=MyCounter; " +
-                "_internal67B28F0++) { System.out.println(\"Inline!\"); }System.out.println(\"Done!\");return;}}"
+        val expectedCode = "package cobol.test.pckg;public class PerformUntilOne {public int VeryVariable = 1;" +
+                "public void paragraph_MainProgram(){while (!(VeryVariable==8)) { paragraph_DisplayHelloWorld(); }" +
+                "System.out.println(\"ImDone!\");return;}public void paragraph_DisplayHelloWorld(){System.out." +
+                "println(\"Rock\");System.out.println(\"on!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
@@ -144,11 +112,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles a program containing a simple if-then statement.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     fun testCobolSimpleIfThenTranspilation() {
@@ -164,12 +127,24 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles a program containing an if-then-else statement.
+     */
+    @Test
+    fun testCobolIfThenElseTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-ifthenelse.cob"
+        val clazzName = "IfThenElse"
+        val expectedCode = "package cobol.test.pckg;public class IfThenElse {public int myVar = 5;public void " +
+                "paragraph_MainProgram(){if(myVar<=10){System.out.println(\"Yeah\");} else {System.out" +
+                ".println(\"Elzze\");}return;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles different statements.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     fun testCobolConditionsTranspilation() {
@@ -194,11 +169,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles complex conditions.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     fun testComplexCobolConditionsTranspilation() {
@@ -217,11 +187,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles an (empty) Cobol section.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     @Ignore
@@ -240,11 +205,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 
     /**
      * Tests, whether the transpiler successfully transpiles a Cobol import section.
-     *
-     * @throws ParserException                     If a parser exception occurs
-     * @throws SourceGenerationException           If a source code generation exception occurs
-     * @throws IOException                         If an IO exception occurs
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
      */
     @Test
     @Ignore

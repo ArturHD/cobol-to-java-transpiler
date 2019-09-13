@@ -249,11 +249,21 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Maps a COBOL "PERFORM ... UNTIL" loop statement to a Java (while-)loop.
      */
     private fun cobolPerformUntilToJavaLoop(performuntil: cobol_grammarParser.PerformuntilContext?): Statement {
-        val functionToCall = performuntil?.ID()
-                ?: throw NullPointerException("Got a null value from the AST")
-        val condition = performuntil.condition()
-        // TODO: create a while loop!
-        TODO("not implemented")
+        val functionToCall = cobolBlocknameToFunctionCall(performuntil?.blockname()
+                ?: throw NullPointerException("Got a null value from the AST"))
+
+        // as COBOL continues to loop UNTIL the condition is met and Java loops WHILE the
+        // given condition holds, we have to negate the computed condition:
+        val condition = computeNegatedCondition(
+                computeCondition(performuntil.condition())
+        )
+
+        return WhileLoop(
+                loopCondition = condition,
+                evalConditionAtLoopBottom = false,
+                body = arrayOf(functionToCall),
+                comment = null
+        )
     }
 
     /**
@@ -272,15 +282,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
         } else {
             // outline!
-            val blockname = performtimes.blockname()
-            val functionName = blockname.text
-            val parameters = listOf<Expression>()
-            val functionCall = FunctionCall(
-                    name = functionName,
-                    parameters = parameters,
-                    comment = null
-            )
-            arrayOf(functionCall)
+            arrayOf(cobolBlocknameToFunctionCall(performtimes.blockname()))
         }
 
         // the rule's index and its parent's index are used to create an unique ID:
@@ -309,6 +311,19 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 loopCondition = loopCondition,
                 loopIncrement = loopIncrement,
                 body = body,
+                comment = null
+        )
+    }
+
+    /**
+     * Creates a Java function call IR for a given COBOL blockname context.
+     */
+    private fun cobolBlocknameToFunctionCall(blockname: cobol_grammarParser.BlocknameContext): Statement {
+        val functionName = blockname.text
+        val parameters = listOf<Expression>()
+        return FunctionCall(
+                name = functionName,
+                parameters = parameters,
                 comment = null
         )
     }
@@ -344,15 +359,25 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 ?: throw NullPointerException("Got a null value from the AST"))
 
         val statements = statementsOrSentencesToJavaStatements(
-                ifthenelse.thenblock()
+                ifthenelse
+                        .thenblock()
                         .statementsorsentences()
         )
 
-        // TODO: else branch!
+        val elseStatements = if (ifthenelse.elseblock() != null) {
+            statementsOrSentencesToJavaStatements(
+                    ifthenelse
+                            .elseblock()
+                            .statementsorsentences()
+            )
+        } else {
+            null
+        }
 
         return IfThenElse(
                 condition = condition,
                 thenStatements = statements,
+                elseStatements = elseStatements,
                 comment = null
         )
     }

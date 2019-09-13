@@ -41,23 +41,43 @@ class AppTest {
 
     @Test
     fun testTranspilePerformTimes() {
-        val sourceFilePath = "/cobol-sources/performtimes.cob"
+        assertThatTranspiledCodeMatches(
+                sourceFilePath = "/cobol-sources/performtimes.cob",
+                expectedSourceFilePath = "/expected-java-sources/PerformTimes.java",
+                clazzname = "PerformTimesTest"
+        )
+    }
+
+    @Test
+    @Ignore
+    fun testTranspilePerformUntil() {
+        assertThatTranspiledCodeMatches(
+                sourceFilePath = "/cobol-sources/abc.cob", // TODO: create proper source code...
+                expectedSourceFilePath = "/expected-java-sources/xyz.java", // TODO: create proper source code...
+                clazzname = "PerformUntilTest"
+        )
+    }
+
+    private fun assertThatTranspiledCodeMatches(sourceFilePath: String,
+                                                expectedSourceFilePath: String, clazzname: String) {
+        val basePackage = "my.base.pckg"
+        val language = App.Language.COBOL
+
         val sourceFileResource: String = AppTest::class.java.getResource(sourceFilePath).file
         val sourceFile = File(sourceFileResource)
         val outputDir = temporaryFolder.newFolder("cobol-outputdir")
 
         val generatedSourceFiles = CliRunnerImpl().run(
                 sourceFile = sourceFile,
-                clazzName = "PerformTimesTest",
-                basePackage = "my.base.pckg",
-                language = App.Language.COBOL,
+                clazzName = clazzname,
+                basePackage = basePackage,
+                language = language,
                 showGuiTree = false,
                 outputDir = outputDir
         )
         assertThat(generatedSourceFiles.isEmpty(), Is(false))
 
         // get the expectation:
-        val expectedSourceFilePath = "/expected-java-sources/PerformTimes.java"
         val expectedSourceFileResource: String = AppTest::class.java.getResource(expectedSourceFilePath).file
         val expectedSourceFile = File(expectedSourceFileResource)
         val expectedLines = expectedSourceFile.readLines()
