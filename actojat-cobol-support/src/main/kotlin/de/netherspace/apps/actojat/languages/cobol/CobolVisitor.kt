@@ -252,15 +252,24 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         val functionToCall = cobolBlocknameToFunctionCall(performuntil?.blockname()
                 ?: throw NullPointerException("Got a null value from the AST"))
 
+        // TODO: could be an inline block instead!
+        // TODO: could also be multiple (!) blocknames/function calls! (see grammar file...)
+
         // as COBOL continues to loop UNTIL the condition is met and Java loops WHILE the
         // given condition holds, we have to negate the computed condition:
         val condition = computeNegatedCondition(
                 computeCondition(performuntil.condition())
         )
 
+        val doWhileLoop = when {
+            performuntil.AFTER() != null -> true
+            performuntil.BEFORE() != null -> false
+            else -> false
+        }
+
         return WhileLoop(
                 loopCondition = condition,
-                evalConditionAtLoopBottom = false,
+                evalConditionAtLoopBottom = doWhileLoop,
                 body = arrayOf(functionToCall),
                 comment = null
         )

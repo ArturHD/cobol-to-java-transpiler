@@ -111,6 +111,27 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles a program containing a PERFORM..UNTIL loop with
+     * an explicit BEFORE or AFTER parameter.
+     */
+    @Test
+    fun testCobolPerformUntilLoopWithExplicitBeforeAfterTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-performuntil-withtestx.cob"
+        val clazzName = "PerformUntilWithTestBeforeAfter"
+        val expectedCode = "package cobol.test.pckg;public class PerformUntilWithTestBeforeAfter {public int " +
+                "VeryVeryVariable = 1;public void paragraph_MainProgram(){while (!(VeryVeryVariable==2)) { " +
+                "paragraph_DisplayImAWhileLoop(); }do { paragraph_DisplayImADoWhileLoop(); } while " +
+                "(!(VeryVeryVariable==2));System.out.println(\"Done!\");return;}public void paragraph_DisplayImAWhileLoop(){" +
+                "System.out.println(\"whileLoop\");}public void paragraph_DisplayImADoWhileLoop(){System.out." +
+                "println(\"doWhileLoop\");}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles a program containing a simple if-then statement.
      */
     @Test

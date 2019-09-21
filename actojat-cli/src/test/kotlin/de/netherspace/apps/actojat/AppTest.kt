@@ -58,6 +58,15 @@ class AppTest {
         )
     }
 
+    @Test
+    fun testTranspileIfThenElseAndConditions() {
+        assertThatTranspiledCodeMatches(
+                sourceFilePath = "/cobol-sources/conditional.cob",
+                expectedSourceFilePath = "/expected-java-sources/IfThenElseAndConditions.java",
+                clazzname = "IfThenElseAndConditions"
+        )
+    }
+
     private fun assertThatTranspiledCodeMatches(sourceFilePath: String,
                                                 expectedSourceFilePath: String, clazzname: String) {
         val basePackage = "my.base.pckg"

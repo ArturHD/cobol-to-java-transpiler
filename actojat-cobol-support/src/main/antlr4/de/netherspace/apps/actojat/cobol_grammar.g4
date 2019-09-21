@@ -156,9 +156,20 @@ blockname               : ID
 counter                 : (NUMBER | ID)
                         ;
 
-performuntil            : PERFORM blockname WITH TEST BEFORE UNTIL condition
+performuntil            // TODO: multiple blockname calls, but not as inline body:
+                        //: PERFORM throughblocknamelist WITH TEST BEFORE UNTIL condition
+                        //| PERFORM throughblocknamelist WITH TEST AFTER UNTIL condition
+                        //| PERFORM throughblocknamelist UNTIL condition
+                        : PERFORM blockname WITH TEST BEFORE UNTIL condition // TODO: -: +| !
                         | PERFORM blockname WITH TEST AFTER UNTIL condition
                         | PERFORM blockname UNTIL condition
+                        // TODO: no blockname given, but an inline body instead:
+                        //| PERFORM WITH TEST BEFORE UNTIL condition statementsorsentences ENDPERFORM
+                        //| PERFORM WITH TEST AFTER UNTIL condition statementsorsentences ENDPERFORM
+                        //| PERFORM UNTIL condition statementsorsentences ENDPERFORM
+                        ;
+
+throughblocknamelist    : ((THRU | THROUGH) blockname)+
                         ;
 
 performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM
@@ -358,6 +369,9 @@ COMPUTE                 : 'COMPUTE'
 VARYING                 : 'VARYING'
                         ;
 
+THROUGH                 : 'THROUGH'
+                        ;
+
 ENDIF                   : 'END-IF'
                         ;
 
@@ -389,6 +403,9 @@ EQUAL                   : 'EQUAL'
                         ;
 
 LESS                    : 'LESS'
+                        ;
+
+THRU                    : 'THRU'
                         ;
 
 THAN                    : 'THAN'
