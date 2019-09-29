@@ -3,19 +3,12 @@ grammar cobol_grammar;
 
 
 // The grammar's start symbol:
-program                 : division+
+program                 : identificationdivision environmentdivision? datadivision? proceduredivision?
                         ;
 
 
 
 // ################ The set of variables ################
-
-division                : identificationdivision
-                        | environmentdivision
-                        | datadivision
-                        | proceduredivision
-                        ;
-
 
 // "IDENTIFICATION DIVISION."
 identificationdivision  : IDENTIFICATION DIVISION DOT identstatements*
@@ -102,11 +95,21 @@ datadeclaration         : datahierarchylevel ID datatype
 datahierarchylevel      : NUMBER
                         ;
 
-datatype                : PIC size VALUE initialvalue DOT
-                        | PIC size DOT // TODO: is this valid COBOL?
+// the type is given either explicitly (e.g. "PIC 999") or implicitly (e.g. "PIC 9(3)"):
+datatype                : (PIC | PICTURE) picturetype size? VALUE initialvalue DOT
+                        | (PIC | PICTURE) picturetype size? DOT
                         ;
 
-size                    : NUMBER
+picturetype             : '9'+
+                        // TODO: | '1'+
+                        // TODO: | 'A'+
+                        // TODO: | 'N'+
+                        // TODO: | 'Z'+
+                        | 'X'+
+                        // TODO: | '*'+
+                        ;
+
+size                    : OPENINGPARENTHESIS NUMBER CLOSINGPARENTHESIS
                         ;
 
 initialvalue            : NUMBER
@@ -367,6 +370,9 @@ COMPUTE                 : 'COMPUTE'
                         ;
 
 VARYING                 : 'VARYING'
+                        ;
+
+PICTURE                 : 'PICTURE'
                         ;
 
 THROUGH                 : 'THROUGH'

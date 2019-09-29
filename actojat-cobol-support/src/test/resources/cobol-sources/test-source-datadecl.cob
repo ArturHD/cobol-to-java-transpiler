@@ -1,13 +1,14 @@
  IDENTIFICATION DIVISION.
- PROGRAM-ID. SimpleIfThen.
+ PROGRAM-ID. DataDeclarationz.
 
  DATA DIVISION.
  WORKING-STORAGE SECTION.
- 01 n PIC 9(5) VALUE 5.
+ 01 n PIC 9 VALUE 5.
+ 01 m PICTURE 9(4) VALUE 1234.
 
  PROCEDURE DIVISION.
  MainProgram.
-      IF n < 10 THEN
+      IF (n + m) < 10 THEN
         DISPLAY "Yeah"
       END-IF
       STOP RUN.

@@ -64,7 +64,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     fun testCobolLoopWithIdTranspilation() {
         val sourceFile = "/cobol-sources/test-source-loopwithid.cob"
         val clazzName = "LoopWithId"
-        val expectedCode = "package cobol.test.pckg;public class LoopWithId {public int n = 5;public void paragraph_MainProgram(){" +
+        val expectedCode = "package cobol.test.pckg;public class LoopWithId {public short n = 5;public void paragraph_MainProgram(){" +
                 "for (int _internal67B28F0=1; _internal67B28F0<=n; _internal67B28F0++) { paragraph_DisplayHelloWorld(); }" +
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}" +
                 "public void paragraph_DoSomethingElse(){System.out.println(\"Something\");System.out.println(\"else!\");}}"
@@ -116,9 +116,9 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
      */
     @Test
     fun testCobolPerformUntilLoopWithExplicitBeforeAfterTranspilation() {
-        val sourceFile = "/cobol-sources/test-source-performuntil-withtestx.cob"
+        val sourceFile = "/cobol-sources/test-source-prfrmntl-testx.cob"
         val clazzName = "PerformUntilWithTestBeforeAfter"
-        val expectedCode = "package cobol.test.pckg;public class PerformUntilWithTestBeforeAfter {public int " +
+        val expectedCode = "package cobol.test.pckg;public class PerformUntilWithTestBeforeAfter {public short " +
                 "VeryVeryVariable = 1;public void paragraph_MainProgram(){while (!(VeryVeryVariable==2)) { " +
                 "paragraph_DisplayImAWhileLoop(); }do { paragraph_DisplayImADoWhileLoop(); } while " +
                 "(!(VeryVeryVariable==2));System.out.println(\"Done!\");return;}public void paragraph_DisplayImAWhileLoop(){" +
@@ -148,13 +148,29 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles different data declarations.
+     */
+    @Test
+    fun testCobolDataDeclarationTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-datadecl.cob"
+        val clazzName = "DataDeclarationz"
+        val expectedCode = "package cobol.test.pckg;public class DataDeclarationz {public short n = 5;public short m =" +
+                " 1234;public void paragraph_MainProgram(){if((n+m)<10){System.out.println(\"Yeah\");}return;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles a program containing an if-then-else statement.
      */
     @Test
     fun testCobolIfThenElseTranspilation() {
         val sourceFile = "/cobol-sources/test-source-ifthenelse.cob"
         val clazzName = "IfThenElse"
-        val expectedCode = "package cobol.test.pckg;public class IfThenElse {public int myVar = 5;public void " +
+        val expectedCode = "package cobol.test.pckg;public class IfThenElse {public short myVar = 5;public void " +
                 "paragraph_MainProgram(){if(myVar<=10){System.out.println(\"Yeah\");} else {System.out" +
                 ".println(\"Elzze\");}return;}}"
         doTranspilationTest(

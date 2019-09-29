@@ -3,7 +3,7 @@
 
  DATA DIVISION.
  WORKING-STORAGE SECTION.
- 01 VeryVariable PIC 9 VALUE 1.
+ 01 VeryVariable PIC 9(5) VALUE 1.
 
  PROCEDURE DIVISION.
  MainProgram.

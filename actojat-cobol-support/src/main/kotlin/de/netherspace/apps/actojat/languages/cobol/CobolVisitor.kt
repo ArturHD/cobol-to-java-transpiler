@@ -18,7 +18,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
 
 
     override fun visit(tree: ParseTree?): JavaLanguageConstruct {
-        super.visit(tree) // TODO: pattern matching instead!
+        super.visit(tree)
         return Program(
                 methods = methods,
                 imports = imports,
@@ -71,14 +71,20 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 ?: throw NullPointerException("Got a null value from the AST")
         // TODO: transform name? (It might not have a valid Java name...)
 
-        val type: PrimitiveType = cobolPicToJavaType(ctx.datatype())
-        val initvalue: String = ctx.datatype().initialvalue().text ?: ""
+        val type = cobolPicToJavaType(ctx.datatype())
+        val vardecl = if (ctx.datatype()?.initialvalue()?.text != null) {
+            VariableDeclaration.DeclarationWithInit(
+                    lhs = LeftHandSide(type, fieldName),
+                    rhs = ctx.datatype().initialvalue().text,
+                    comment = null
+            )
+        } else {
+            VariableDeclaration.DeclarationWithoutInit(
+                    lhs = LeftHandSide(type, fieldName),
+                    comment = null
+            )
+        }
 
-        val vardecl = VariableDeclaration.DeclarationWithInit(
-                lhs = LeftHandSide(Type.BasicType(type), fieldName),
-                rhs = initvalue,
-                comment = null
-        )
         val field = Field(
                 modifier = "public", // TODO: should be an enum!
                 declaration = vardecl,
@@ -92,25 +98,41 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     /**
      * Maps a COBOL ("PIC") type to a proper Java type annotation.
      */
-    private fun cobolPicToJavaType(pic: cobol_grammarParser.DatatypeContext?): PrimitiveType {
-        val size: String = pic?.size()?.text
+    private fun cobolPicToJavaType(pic: cobol_grammarParser.DatatypeContext?): Type {
+        val pictureType = pic?.picturetype()?.text
                 ?: throw NullPointerException("Got a null value from the AST")
 
-        val cobolTypesToJavaMap = mapOf(
-                "1" to PrimitiveType.SHORT,
-                "2" to PrimitiveType.SHORT,
-                "3" to PrimitiveType.SHORT,
-                "4" to PrimitiveType.SHORT,
-                "5" to PrimitiveType.INT,
-                "6" to PrimitiveType.INT,
-                "7" to PrimitiveType.INT,
-                "8" to PrimitiveType.INT,
-                "9" to PrimitiveType.INT,
-                "10" to PrimitiveType.BIGINT
-                // TODO: ...
-        )
-        return cobolTypesToJavaMap[size]
-                ?: throw NoSuchElementException("Couldn't map COBOL type to a Java type!")
+        // the type is given either explicitly (e.g. "PIC 999") or implicitly (e.g. "PIC 9(3)"):
+        val size: Int = if (!(pic.size()?.text).isNullOrEmpty()) {
+            // it was implicitly:
+            val l = pic.size().text.length - 1
+            pic.size().text.substring(1, l).toInt()
+        } else {
+            // ...it was explicitly:
+            pictureType.length
+        }
+        return when (pictureType[0]) {
+            '9' -> Type.BasicType(cobolNumericPicToJavaType(size))
+            // TODO: handle A, N, X, Z, 1, ... as well!
+            'X' -> Type.CustomType("String") // TODO: String should be built-in!
+            else -> throw Exception("Unrecognized COBOL picture type!")
+        }
+    }
+
+    private fun cobolNumericPicToJavaType(size: Int): PrimitiveType {
+        return when (size) {
+            1 -> PrimitiveType.SHORT
+            2 -> PrimitiveType.SHORT
+            3 -> PrimitiveType.SHORT
+            4 -> PrimitiveType.SHORT
+            5 -> PrimitiveType.INT
+            6 -> PrimitiveType.INT
+            7 -> PrimitiveType.INT
+            8 -> PrimitiveType.INT
+            9 -> PrimitiveType.INT
+            10 -> PrimitiveType.BIGINT
+            else -> PrimitiveType.BIGINT // TODO: what is the max for primitive JVM types?
+        }
     }
 
     /**

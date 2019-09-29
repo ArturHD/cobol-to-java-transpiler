@@ -1,10 +1,10 @@
 package my.base.pckg;
 
 public class IfThenElseAndConditions {
-  public int n = 5;
-  public int a = 25;
-  public int b = 15;
-  public int c = 100;
+  public short n = 5;
+  public short a = 25;
+  public short b = 15;
+  public short c = 100;
 
   public void paragraph_MainProgram() {
     if (!(n > 20)) {
