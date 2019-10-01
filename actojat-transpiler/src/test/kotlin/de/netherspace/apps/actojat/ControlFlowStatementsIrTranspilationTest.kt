@@ -114,7 +114,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
                 loopVariable = loopVariable,
                 loopCondition = loopCondition,
                 loopIncrement = loopIncrement,
-                body = arrayOf(printStatement1),
+                body = sequenceOf(printStatement1),
                 comment = null
         )
 
@@ -184,7 +184,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         val whileLoop = WhileLoop(
                 loopCondition = condition,
                 evalConditionAtLoopBottom = false,
-                body = arrayOf(printStatement1),
+                body = sequenceOf(printStatement1),
                 comment = null
         )
 
@@ -254,7 +254,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         val doWhileLoop = WhileLoop(
                 loopCondition = condition,
                 evalConditionAtLoopBottom = true,
-                body = arrayOf(printStatement1),
+                body = sequenceOf(printStatement1),
                 comment = null
         )
 

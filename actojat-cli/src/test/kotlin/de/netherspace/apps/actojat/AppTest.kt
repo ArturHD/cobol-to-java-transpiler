@@ -44,17 +44,16 @@ class AppTest {
         assertThatTranspiledCodeMatches(
                 sourceFilePath = "/cobol-sources/performtimes.cob",
                 expectedSourceFilePath = "/expected-java-sources/PerformTimes.java",
-                clazzname = "PerformTimesTest"
+                clazzname = "PerformTimes"
         )
     }
 
     @Test
-    @Ignore
     fun testTranspilePerformUntil() {
         assertThatTranspiledCodeMatches(
-                sourceFilePath = "/cobol-sources/abc.cob", // TODO: create proper source code...
-                expectedSourceFilePath = "/expected-java-sources/xyz.java", // TODO: create proper source code...
-                clazzname = "PerformUntilTest"
+                sourceFilePath = "/cobol-sources/performuntil.cob",
+                expectedSourceFilePath = "/expected-java-sources/PerformUntil.java",
+                clazzname = "PerformUntil"
         )
     }
 
@@ -82,7 +81,7 @@ class AppTest {
                 basePackage = basePackage,
                 language = language,
                 showGuiTree = false,
-                outputDir = outputDir
+                outputDir = File("/tmp/tigerente333")//outputDir
         )
         assertThat(generatedSourceFiles.isEmpty(), Is(false))
 

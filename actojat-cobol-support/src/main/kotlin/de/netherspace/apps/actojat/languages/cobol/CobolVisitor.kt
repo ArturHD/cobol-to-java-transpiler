@@ -35,8 +35,6 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         val methodName: String = computeMethodName(ctx)
 
         val statements: List<Statement> = sentencesToJavaStatements(ctx.sentence())
-
-        // TODO: COBOL statements have arguments as well (e.g. "PERFORM blockname counter TIMES")!
         val arguments: List<ArgumentDeclaration> = listOf()
 
         val javaMethod = Method(
@@ -271,11 +269,26 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Maps a COBOL "PERFORM ... UNTIL" loop statement to a Java (while-)loop.
      */
     private fun cobolPerformUntilToJavaLoop(performuntil: cobol_grammarParser.PerformuntilContext?): Statement {
-        val functionToCall = cobolBlocknameToFunctionCall(performuntil?.blockname()
-                ?: throw NullPointerException("Got a null value from the AST"))
+        // we at least need a condition:
+        if (performuntil?.condition() == null || performuntil.condition().isEmpty) {
+            throw NullPointerException("A condition is missing!")
+        }
 
-        // TODO: could be an inline block instead!
-        // TODO: could also be multiple (!) blocknames/function calls! (see grammar file...)
+        // blocknames given or an "inline" body?
+        val body: Sequence<Statement> = if (performuntil.statementsorsentences() != null) {
+            statementsOrSentencesToJavaStatements(
+                    performuntil.statementsorsentences()
+            ).asSequence()
+        } else {
+            // is there a "...THRU..." statement in the loop header?
+            if (performuntil.throughblockname() == null || performuntil.throughblockname().isEmpty) {
+                // no, only a single one:
+                val functionToCall = cobolBlocknameToFunctionCall(performuntil.blockname())
+                sequenceOf(functionToCall)
+            } else {
+                cobolThruStatementToJavaFunctionCalls(performuntil.blockname(), performuntil.throughblockname().blockname())
+            }
+        }
 
         // as COBOL continues to loop UNTIL the condition is met and Java loops WHILE the
         // given condition holds, we have to negate the computed condition:
@@ -292,9 +305,29 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         return WhileLoop(
                 loopCondition = condition,
                 evalConditionAtLoopBottom = doWhileLoop,
-                body = arrayOf(functionToCall),
+                body = body,
                 comment = null
         )
+    }
+
+    /**
+     * Computes a list of paragraphs for a "startBlockname THRU endBlockname" statement.
+     */
+    private fun cobolThruStatementToJavaFunctionCalls(startBlockname: cobol_grammarParser.BlocknameContext,
+                                                      endBlockname: cobol_grammarParser.BlocknameContext): Sequence<Statement> {
+        val firstFunctionToCall = cobolBlocknameToFunctionCall(startBlockname)
+        val thruBlocknames = sequenceOf(endBlockname)
+        // TODO: this implementation is not correct!
+        // TODO: the THRU statement should create a LIST of blocknames: it should contain
+        // TODO: (a) all paragraphs inside a given section or
+        // TODO: (b) all paragraphs that are written between the startBlockname and endBlock in the
+        // TODO: original COBOL source file (as strange as this might sound...)
+        // TODO: we therefore have to label all paragraphs with a number and pick all of those, that are
+        // TODO: between i=number(startBlock) and j=number(endBlock), including endBlock
+        val thruFunctionCalls = thruBlocknames
+                .map { cobolBlocknameToFunctionCall(it) }
+                .asSequence()
+        return sequenceOf(firstFunctionToCall) + thruFunctionCalls
     }
 
     /**
@@ -305,15 +338,14 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 ?: throw NullPointerException("Got a null value from the AST")
 
         // "inline" (i.e. with a body) or "outline" (i.e. just a function call) PERFORM...TIMES?
-        val body: Array<Statement> = if (performtimes.statementsorsentences() != null) {
+        val body: Sequence<Statement> = if (performtimes.statementsorsentences() != null) {
             // inline!
             statementsOrSentencesToJavaStatements(
                     performtimes.statementsorsentences())
-                    .toTypedArray()
-
+                    .asSequence()
         } else {
             // outline!
-            arrayOf(cobolBlocknameToFunctionCall(performtimes.blockname()))
+            sequenceOf(cobolBlocknameToFunctionCall(performtimes.blockname()))
         }
 
         // the rule's index and its parent's index are used to create an unique ID:

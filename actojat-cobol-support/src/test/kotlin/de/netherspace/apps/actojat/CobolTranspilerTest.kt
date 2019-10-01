@@ -132,6 +132,46 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles a program containing a PERFORM..UNTIL loop with
+     * multiple block names as part of a THRU statement.
+     */
+    @Test
+    @Ignore // TODO: this test should work as soon as THRU statements are transpiled properly
+    fun testCobolPerformUntilLoopWithThruMultipleBlocknamesTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-prfrmntl-multiblx.cob"
+        val clazzName = "WhileLoopzWMB"
+        val expectedCode = "package cobol.test.pckg;public class WhileLoopzWMB {public int VeryVariable = 1;public " +
+                "void paragraph_MainProgram(){while (!(VeryVariable==12)) { paragraph_DisplayOne();paragraph_DisplayTwo(); }" +
+                "System.out.println(\"Aaaannnd\");while (!(VeryVariable==8)) { paragraph_DisplayOne();paragraph_DisplayTwo();" +
+                "paragraph_DisplayThree(); }System.out.println(\"ImDone!\");return;}public void paragraph_DisplayOne(){" +
+                "System.out.println(\"Rock\");}public void paragraph_DisplayTwo(){System.out.println(\"on!\");}" +
+                "public void paragraph_DisplayThree(){System.out.println(\"Baby!\");}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
+     * Tests, whether the transpiler successfully transpiles a program containing a PERFORM..UNTIL loop with
+     * an inline body / inline statements.
+     */
+    @Test
+    fun testCobolPerformUntilLoopWithInlineBodyTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-prfrmntl-inlnbdy.cob"
+        val clazzName = "PrfrmUntilInlineB"
+        val expectedCode = "package cobol.test.pckg;public class PrfrmUntilInlineB {public int MyVar = 1;public void " +
+                "paragraph_MainProgram(){while (!(MyVar==13)) { System.out.println(\"Inline!\"); }System.out." +
+                "println(\"Done\");return;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles a program containing a simple if-then statement.
      */
     @Test

@@ -1,7 +1,7 @@
 # actojat
 [![Build Status](https://travis-ci.org/patrickp89/actojat.svg?branch=master)](https://travis-ci.org/patrickp89/actojat)
 
-A Cobol to Java transpiler for automated code base transpilation.
+A Cobol to Java transpiler.
 
 ## Motivation
 Companies have large legacy code bases which are hard to migrate manually. The
@@ -28,11 +28,10 @@ COBOL85 language standard are already supported:
 
 | Feature (Keyword)     | Description          | Implemented?    | Sample COBOL code  | Generated Java Code |
 | --------------------- | -------------------- | --------------- | ------------------ | ------------------- |
-| Sections              | Section declarations | yes             | ...                | ...                 |
 | Conditional operators | Greater, lesser, ... | yes             | [conditional.cob](actojat-cli/src/test/resources/cobol-sources/conditional.cob)   | [IfThenElseAndConditions.java](actojat-cli/src/test/resources/expected-java-sources/IfThenElseAndConditions.java)   |
 | IF .. THEN ... ELSE   | Common branching     | yes             | [conditional.cob](actojat-cli/src/test/resources/cobol-sources/conditional.cob)   | [IfThenElseAndConditions.java](actojat-cli/src/test/resources/expected-java-sources/IfThenElseAndConditions.java)   |
-| PERFORM ... TIMES     | For-loops            | yes             | [performtimes.cob](actojat-cli/src/test/resources/cobol-sources/performtimes.cob)   | [PerformTimes.java](actojat-cli/src/test/resources/expected-java-sources/PerformTimes.java)   |
-| PERFORM ... UNTIL     | While-loops          | yes (partially) | ...                | ...                 |
+| PERFORM ... TIMES     | For-loops            | yes             | [performtimes.cob](actojat-cli/src/test/resources/cobol-sources/performtimes.cob)  | [PerformTimes.java](actojat-cli/src/test/resources/expected-java-sources/PerformTimes.java)   |
+| PERFORM ... UNTIL     | While-loops          | yes             | [performuntil.cob](actojat-cli/src/test/resources/cobol-sources/performuntil.cob)  | [PerformUntil.java](actojat-cli/src/test/resources/expected-java-sources/PerformUntil.java)   |
 | PERFORM ... VARYING   | For-loops            | no              | ...                | ...                 |
 
 ...

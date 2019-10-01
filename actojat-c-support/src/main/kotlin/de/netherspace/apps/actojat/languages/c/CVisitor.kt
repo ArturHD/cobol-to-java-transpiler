@@ -217,10 +217,10 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         val loopCondition: String = ctx.condition().text
         val loopIncrement: String = ctx.incrementstatement().text
 
-        val body: Array<Statement> = expressionListToJavaStatements(ctx
+        val body: Sequence<Statement> = expressionListToJavaStatements(ctx
                 .block()
                 .statementlist())
-                .toTypedArray()
+                .asSequence()
 
         return ForLoop(
                 loopVariable = loopVariable,

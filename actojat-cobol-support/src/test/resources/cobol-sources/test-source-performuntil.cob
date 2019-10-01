@@ -7,7 +7,7 @@
 
  PROCEDURE DIVISION.
  MainProgram.
-      PERFORM DisplayHelloWorld WITH TEST BEFORE
+      PERFORM DisplayHelloWorld
         UNTIL VeryVariable = 8
       DISPLAY "ImDone!".
       STOP RUN.
