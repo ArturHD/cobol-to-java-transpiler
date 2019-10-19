@@ -156,7 +156,8 @@ performtimes            : PERFORM counter TIMES statementsorsentences ENDPERFORM
 blockname               : ID
                         ;
 
-counter                 : (NUMBER | ID)
+counter                 : ID
+                        | NUMBER
                         ;
 
 performuntil            : PERFORM blockname throughblockname? WITH TEST BEFORE UNTIL condition
@@ -170,7 +171,16 @@ performuntil            : PERFORM blockname throughblockname? WITH TEST BEFORE U
 throughblockname        : (THRU | THROUGH) blockname
                         ;
 
-performvarying          : PERFORM ID VARYING (NUMBER | ID) FROM
+performvarying          : PERFORM blockname throughblockname? VARYING counter fromx byz UNTIL condition
+                        // TODO: add the other PERFORM_UNTIL combinations as well (see above)!
+                        ;
+
+fromx                   : FROM NUMBER
+                        // TODO: | FROM ID
+                        ;
+
+byz                     : BY NUMBER
+                        // TODO: can the step width be a variable value as well? if so: | BY ID
                         ;
 
 performsinglefunction   : PERFORM ID
@@ -450,6 +460,9 @@ RUN                     : 'RUN'
 
 COPY                    : 'copy ' // TODO: set this (lowercase == uppercase) in the parser implementation itself!
                         | 'COPY '
+                        ;
+
+BY                      : 'BY'
                         ;
 
 IF                      : 'IF'

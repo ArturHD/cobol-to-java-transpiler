@@ -223,22 +223,16 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 )
             }
 
-            CobolStatementType.PERFORMTIMES -> {
-                // "PERFORM ... TIMES":
-                val performtimes = cobolStatement.performtimes()
-                cobolPerformTimesTojavaLoop(performtimes)
-            }
+            // "PERFORM ... TIMES":
+            CobolStatementType.PERFORMTIMES -> cobolPerformTimesToJavaLoop(cobolStatement.performtimes())
 
-            CobolStatementType.PERFORMUNTIL -> {
-                // "PERFORM ... UNTIL":
-                val performuntil = cobolStatement.performuntil()
-                cobolPerformUntilToJavaLoop(performuntil)
-            }
+            // "PERFORM ... UNTIL":
+            CobolStatementType.PERFORMUNTIL -> cobolPerformUntilToJavaLoop(cobolStatement.performuntil())
 
-            CobolStatementType.PERFORMVARYING -> {
-                TODO("not implemented")
-            }
+            // "PERFORM ... VARYING":
+            CobolStatementType.PERFORMVARYING -> cobolPerformVaryingToJavaLoop(cobolStatement.performvarying())
 
+            // "PERFORM ...":
             CobolStatementType.PERFORMFUNCTION -> {
                 val functionName = cobolStatement.text
                 val parameters = listOf<Expression>()
@@ -249,21 +243,18 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 )
             }
 
-            CobolStatementType.STOPOPERATION -> {
-                // "STOP ...":
-                FunctionCall(
-                        name = "STOP",
-                        parameters = listOf(),
-                        comment = null
-                )
-            }
+            // "STOP ...":
+            CobolStatementType.STOPOPERATION -> FunctionCall(
+                    name = "STOP",
+                    parameters = listOf(),
+                    comment = null
+            )
 
-            CobolStatementType.IFTHENELSE -> {
-                // "IF..THEN..ELSE":
-                cobolIfthenelseToJavaConditionalExpr(cobolStatement.ifthenelse())
-            }
+            // "IF..THEN..ELSE":
+            CobolStatementType.IFTHENELSE -> cobolIfthenelseToJavaConditionalExpr(cobolStatement.ifthenelse())
         }
     }
+
 
     /**
      * Maps a COBOL "PERFORM ... UNTIL" loop statement to a Java (while-)loop.
@@ -283,8 +274,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             // is there a "...THRU..." statement in the loop header?
             if (performuntil.throughblockname() == null || performuntil.throughblockname().isEmpty) {
                 // no, only a single one:
-                val functionToCall = cobolBlocknameToFunctionCall(performuntil.blockname())
-                sequenceOf(functionToCall)
+                sequenceOf(cobolBlocknameToFunctionCall(performuntil.blockname()))
             } else {
                 cobolThruStatementToJavaFunctionCalls(performuntil.blockname(), performuntil.throughblockname().blockname())
             }
@@ -305,6 +295,53 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         return WhileLoop(
                 loopCondition = condition,
                 evalConditionAtLoopBottom = doWhileLoop,
+                body = body,
+                comment = null
+        )
+    }
+
+    /**
+     * Maps a "PERFORM ... VARYING" loop to a Java for-loop.
+     */
+    private fun cobolPerformVaryingToJavaLoop(performvarying: cobol_grammarParser.PerformvaryingContext?): Statement {
+        // we at least need a condition:
+        if (performvarying?.condition() == null || performvarying.condition().isEmpty) {
+            throw NullPointerException("A condition is missing!")
+        }
+        // TODO: does "...THRU,,," work with "...VARYING..."?
+
+        // TODO: handle inline blocks, see cobolPerformUntilToJavaLoop() above!
+        val body: Sequence<Statement> = sequenceOf(
+                cobolBlocknameToFunctionCall(performvarying.blockname())
+                // TODO: an "x = x + A" statement for every VARYING var, , where A is the "BY A" value (or 1)
+        )
+
+        val lhs = LeftHandSide(
+                type = null, // the (COBOL) variable was already declared in the data division
+                variableName = performvarying.counter().ID().text
+        )
+        val rhs = Expression.SimpleValue(
+                value = performvarying.fromx().NUMBER().text
+        )
+        val loopVariable = Assignment(
+                lhs = lhs,
+                rhs = rhs,
+                comment = null
+        )
+
+        val condition = computeCondition(performvarying.condition())
+        val loopConditionRhs: String = condition.rhs.toString() // TODO: this should not be toString()!
+        val loopCondition = "${loopVariable.lhs.variableName}<=$loopConditionRhs" // TODO: there should be a type LoopCondition!
+
+        val stepwidth = performvarying.byz().NUMBER().text
+        val loopIncrement = "${loopVariable.lhs.variableName}=${loopVariable.lhs.variableName}+($stepwidth)"
+
+        // TODO: a COBOL PERFORM...VARYING statement could result in multiple nested loops!
+        // TODO: return a sequenceOf(...) ForLoops instead?!
+        return ForLoop(
+                loopVariable = loopVariable,
+                loopCondition = loopCondition,
+                loopIncrement = loopIncrement,
                 body = body,
                 comment = null
         )
@@ -333,8 +370,8 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     /**
      * Maps a COBOL "PERFORM ... TIMES" loop statement to a Java (for-)loop.
      */
-    private fun cobolPerformTimesTojavaLoop(performtimes: cobol_grammarParser.PerformtimesContext?): Statement {
-        val cobolLoopCounter = performtimes?.counter()
+    private fun cobolPerformTimesToJavaLoop(performtimes: cobol_grammarParser.PerformtimesContext?): Statement {
+        val cobolLoopCounterVar = performtimes?.counter()
                 ?: throw NullPointerException("Got a null value from the AST")
 
         // "inline" (i.e. with a body) or "outline" (i.e. just a function call) PERFORM...TIMES?
@@ -366,7 +403,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 comment = null
         )
 
-        val loopCondition: String = computeForLoopCondition(loopVariable, cobolLoopCounter)
+        val loopCondition: String = computeForLoopCondition(loopVariable, cobolLoopCounterVar)
         val loopIncrement = "${loopVariable.lhs.variableName}++"
 
         return ForLoop(

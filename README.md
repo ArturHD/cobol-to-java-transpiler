@@ -32,9 +32,10 @@ COBOL85 language standard are already supported:
 | IF .. THEN ... ELSE   | Common branching     | yes             | [conditional.cob](actojat-cli/src/test/resources/cobol-sources/conditional.cob)   | [IfThenElseAndConditions.java](actojat-cli/src/test/resources/expected-java-sources/IfThenElseAndConditions.java)   |
 | PERFORM ... TIMES     | For-loops            | yes             | [performtimes.cob](actojat-cli/src/test/resources/cobol-sources/performtimes.cob)  | [PerformTimes.java](actojat-cli/src/test/resources/expected-java-sources/PerformTimes.java)   |
 | PERFORM ... UNTIL     | While-loops          | yes             | [performuntil.cob](actojat-cli/src/test/resources/cobol-sources/performuntil.cob)  | [PerformUntil.java](actojat-cli/src/test/resources/expected-java-sources/PerformUntil.java)   |
-| PERFORM ... VARYING   | For-loops            | no              | ...                | ...                 |
-
-...
+| PERFORM ... VARYING   | Multi-var. For-loops | no              | ...                | ...                 |
+| PICTURE               | Variable declaration | yes (partially) | ...                | ...                 |
+| MOVE                  | Assignment           | no              | ...                | ...                 |
+| ...                   | ...                  | no              | ...                | ...                 |
 
 
 ## How does it work?

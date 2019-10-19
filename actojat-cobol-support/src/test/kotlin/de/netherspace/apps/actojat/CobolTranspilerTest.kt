@@ -172,6 +172,24 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles a program containing a PERFORM-VARYING loop.
+     */
+    @Test
+    fun testCobolPerformVaryingLoopTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-performvarying.cob"
+        val clazzName = "SimpleVaryingLoop"
+        val expectedCode = "package cobol.test.pckg;public class SimpleVaryingLoop {public int MyCounter = 1;public " +
+                "void paragraph_MainProgram(){for (MyCounter=10; MyCounter<=20; MyCounter=MyCounter+(2)) { " +
+                "paragraph_DisplaySomething(); }System.out.println(\"ImDone!\");return;}public void " +
+                "paragraph_DisplaySomething(){System.out.println(\"Im\");System.out.println(\"varying\");}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles a program containing a simple if-then statement.
      */
     @Test
