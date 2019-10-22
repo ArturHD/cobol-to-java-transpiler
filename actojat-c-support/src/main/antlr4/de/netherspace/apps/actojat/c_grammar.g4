@@ -45,7 +45,7 @@ statement           : assignment SEMICOLON
                     | forloop
                     ;
 
-expression          : (NUMBER | ID) //TODO: composite expressions, function calls, etc.!
+expression          : (NUMBER | ID) // TODO: composite expressions, function calls, etc.!
                     |
                     ;
 
@@ -71,7 +71,7 @@ forloop             : FOR OPENINGPARENTHESIS assignment SEMICOLON condition SEMI
                     | FOR OPENINGPARENTHESIS rhs SEMICOLON condition SEMICOLON incrementstatement CLOSINGPARENTHESIS block
                     ;
 
-condition           : expression comparisonoperator expression //TODO: multiple/composite and nested expressions!
+condition           : expression comparisonoperator expression
                     ;
 
 incrementstatement  : ID '++'

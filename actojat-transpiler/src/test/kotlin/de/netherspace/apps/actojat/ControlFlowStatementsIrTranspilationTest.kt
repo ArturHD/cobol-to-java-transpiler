@@ -1,6 +1,7 @@
 package de.netherspace.apps.actojat
 
 import de.netherspace.apps.actojat.ir.java.*
+import de.netherspace.apps.actojat.languages.JavaIrUtil
 import org.junit.Test
 
 /**
@@ -95,21 +96,34 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         )
 
         // the actual loop construct:
-        val variableName = "j"
-        val lhs = LeftHandSide(
+        val loopVarName = "j"
+        val loopVarLhs = LeftHandSide(
                 type = Type.BasicType(PrimitiveType.INT),
-                variableName = variableName
+                variableName = loopVarName
         )
-        val rhs = Expression.SimpleValue(
+        val loopVarRhs = Expression.SimpleValue(
                 value = "0"
         )
         val loopVariable = Assignment(
-                lhs = lhs,
-                rhs = rhs,
+                lhs = loopVarLhs,
+                rhs = loopVarRhs,
                 comment = null
         )
-        val loopCondition = "j<10" // TODO: this should not be a simple String but rather a type of its own!
-        val loopIncrement = "j++" // TODO: this should not be a simple String but rather a type of its own!
+        val loopCondition = Expression.Condition(
+                lhs = Expression.SimpleValue("j"),
+                rhs = Expression.SimpleValue("10"), // TODO: there should be a sum type String x Int x ... !
+                conditionalOperator = Expression.Condition.ConditionalOperator.LESSER,
+                negated = false
+        )
+        val loopIncrement = Assignment( // "j++"
+                lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVarLhs),
+                rhs = Expression.ArithmeticExpression(
+                        lhs = loopVarLhs.variableName,
+                        rhs = Expression.SimpleValue("1"),
+                        arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
+                ),
+                comment = null
+        )
         val forLoop1 = ForLoop(
                 loopVariable = loopVariable,
                 loopCondition = loopCondition,
@@ -135,7 +149,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         )
 
         val expectedCode = "package actojat.ir.test.pckg;public class ForLoooop {public void crazyLooping()" +
-                "{for (int j=0; j<10; j++) { System.out.print(\"ImStillLooping\"); }}}"
+                "{for (int j=0; j<10; j=(j+1)) { System.out.print(\"ImStillLooping\"); }}}"
         doTranspilationTest(program, "ForLoooop", expectedCode)
     }
 

@@ -48,7 +48,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-simpleloop.cob"
         val clazzName = "SimpleLoop"
         val expectedCode = "package cobol.test.pckg;public class SimpleLoop {public void paragraph_MainProgram(){" +
-                "for (int _internal67B28F0=1; _internal67B28F0<=15; _internal67B28F0++) { paragraph_DisplayHelloWorld(); }" +
+                "for (int _internal67B28F0=1; _internal67B28F0<=15; _internal67B28F0=(_internal67B28F0+1)) { paragraph_DisplayHelloWorld(); }" +
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
@@ -65,7 +65,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-loopwithid.cob"
         val clazzName = "LoopWithId"
         val expectedCode = "package cobol.test.pckg;public class LoopWithId {public short n = 5;public void paragraph_MainProgram(){" +
-                "for (int _internal67B28F0=1; _internal67B28F0<=n; _internal67B28F0++) { paragraph_DisplayHelloWorld(); }" +
+                "for (int _internal67B28F0=1; _internal67B28F0<=n; _internal67B28F0=(_internal67B28F0+1)) { paragraph_DisplayHelloWorld(); }" +
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}" +
                 "public void paragraph_DoSomethingElse(){System.out.println(\"Something\");System.out.println(\"else!\");}}"
         doTranspilationTest(
@@ -84,7 +84,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val clazzName = "LoopWithInlineBody"
         val expectedCode = "package cobol.test.pckg;public class LoopWithInlineBody {public short MyCounter = 3;" +
                 "public void paragraph_MainProgram(){for (int _internal67B28F0=1; _internal67B28F0<=MyCounter; " +
-                "_internal67B28F0++) { System.out.println(\"Inline!\"); }System.out.println(\"Done!\");return;}}"
+                "_internal67B28F0=(_internal67B28F0+1)) { System.out.println(\"Inline!\"); }System.out.println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
@@ -179,7 +179,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-performvarying.cob"
         val clazzName = "SimpleVaryingLoop"
         val expectedCode = "package cobol.test.pckg;public class SimpleVaryingLoop {public int MyCounter = 1;public " +
-                "void paragraph_MainProgram(){for (MyCounter=10; MyCounter<=20; MyCounter=MyCounter+(2)) { " +
+                "void paragraph_MainProgram(){for (MyCounter=10; MyCounter<=20; MyCounter=(MyCounter+2)) { " +
                 "paragraph_DisplaySomething(); }System.out.println(\"ImDone!\");return;}public void " +
                 "paragraph_DisplaySomething(){System.out.println(\"Im\");System.out.println(\"varying\");}}"
         doTranspilationTest(

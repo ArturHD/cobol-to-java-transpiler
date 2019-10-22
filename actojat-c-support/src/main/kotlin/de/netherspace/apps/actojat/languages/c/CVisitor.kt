@@ -4,6 +4,7 @@ import de.netherspace.apps.actojat.c_grammarBaseVisitor
 import de.netherspace.apps.actojat.c_grammarParser
 import de.netherspace.apps.actojat.ir.java.*
 import de.netherspace.apps.actojat.languages.BaseVisitor
+import de.netherspace.apps.actojat.languages.JavaIrUtil
 import org.antlr.v4.runtime.tree.ParseTree
 import org.slf4j.LoggerFactory
 
@@ -214,8 +215,23 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                 ctx?.assignment() ?: throw NullPointerException("Got a null value from the AST")
         )
 
-        val loopCondition: String = ctx.condition().text
-        val loopIncrement: String = ctx.incrementstatement().text
+        val loopIncrement = Assignment(
+                lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVariable.lhs),
+                rhs = Expression.ArithmeticExpression(
+                        lhs = ctx.incrementstatement().ID().text,
+                        rhs = Expression.SimpleValue("1"),
+                        arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
+                ),
+                comment = null
+        )
+
+        val loopConditionRv = computeExpr(ctx.condition().expression(1))
+        val loopCondition = Expression.Condition(
+                lhs = Expression.SimpleValue(loopVariable.lhs.variableName),
+                rhs = loopConditionRv,
+                conditionalOperator = Expression.Condition.ConditionalOperator.LESSEROREQUALS, // TODO: get the real one from ctx!
+                negated = false
+        )
 
         val body: Sequence<Statement> = expressionListToJavaStatements(ctx
                 .block()
@@ -276,7 +292,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
     }
 
     private fun computeExpr(expression: c_grammarParser.ExpressionContext): Expression {
-        return when {
+        return when { // TODO: there should be a sum type String x Int x ... that is used in the SimpleValue constructor!
             expression.ID() != null -> Expression.SimpleValue(
                     value = expression.ID().text
             )

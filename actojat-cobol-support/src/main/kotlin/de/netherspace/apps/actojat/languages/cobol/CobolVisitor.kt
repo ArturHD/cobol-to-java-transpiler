@@ -4,6 +4,7 @@ import de.netherspace.apps.actojat.cobol_grammarBaseVisitor
 import de.netherspace.apps.actojat.cobol_grammarParser
 import de.netherspace.apps.actojat.ir.java.*
 import de.netherspace.apps.actojat.languages.BaseVisitor
+import de.netherspace.apps.actojat.languages.JavaIrUtil
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.util.concurrent.atomic.AtomicInteger
@@ -316,25 +317,36 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 // TODO: an "x = x + A" statement for every VARYING var, , where A is the "BY A" value (or 1)
         )
 
-        val lhs = LeftHandSide(
+        val loopVarLhs = LeftHandSide(
                 type = null, // the (COBOL) variable was already declared in the data division
                 variableName = performvarying.counter().ID().text
         )
-        val rhs = Expression.SimpleValue(
-                value = performvarying.fromx().NUMBER().text
-        )
+        val loopVarRhs = Expression.SimpleValue(performvarying.fromx().NUMBER().text)
         val loopVariable = Assignment(
-                lhs = lhs,
-                rhs = rhs,
+                lhs = loopVarLhs,
+                rhs = loopVarRhs,
                 comment = null
         )
 
-        val condition = computeCondition(performvarying.condition())
-        val loopConditionRhs: String = condition.rhs.toString() // TODO: this should not be toString()!
-        val loopCondition = "${loopVariable.lhs.variableName}<=$loopConditionRhs" // TODO: there should be a type LoopCondition!
+        val loopConditionRv: String = performvarying.condition().relationcondition().compval(1).text // TODO: use computeCondition(performvarying.condition()) ?
+        val loopCondition = Expression.Condition( // TODO: use computeForLoopCondition(loopVariable, cobolLoopCounterVar) instead!
+                lhs = Expression.SimpleValue(loopVariable.lhs.variableName),
+                rhs = Expression.SimpleValue(loopConditionRv), // TODO: use computeExpr ?? // TODO: there should be a sum type String x Int x ... !
+                conditionalOperator = Expression.Condition.ConditionalOperator.LESSEROREQUALS,
+                negated = false
+        )
 
+        // TODO: is "BY z" optional? stepwidth=1 might be the default....
         val stepwidth = performvarying.byz().NUMBER().text
-        val loopIncrement = "${loopVariable.lhs.variableName}=${loopVariable.lhs.variableName}+($stepwidth)"
+        val loopIncrement = Assignment(
+                lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVarLhs),
+                rhs = Expression.ArithmeticExpression(
+                        lhs = loopVarLhs.variableName,
+                        rhs = Expression.SimpleValue(stepwidth),
+                        arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
+                ),
+                comment = null
+        )
 
         // TODO: a COBOL PERFORM...VARYING statement could result in multiple nested loops!
         // TODO: return a sequenceOf(...) ForLoops instead?!
@@ -386,7 +398,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         }
 
         // the rule's index and its parent's index are used to create an unique ID:
-        val leftHandSide = generateNewInternalIntegerVariable(
+        val loopVarLhs = generateNewInternalIntegerVariable(
                 parentRuleIndex = performtimes.parent.ruleIndex,
                 ruleIndex = performtimes.ruleIndex,
                 idCounter = internalIdCounter,
@@ -394,17 +406,25 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         )
 
         // the loop variable will always start at one for PERFORM..TIMES loops:
-        val rightHandSide = Expression.SimpleValue(
+        val loopVarRhs = Expression.SimpleValue(
                 value = "1" // e.g. "for(int i=1; ...) {...}
         )
         val loopVariable = Assignment(
-                lhs = leftHandSide,
-                rhs = rightHandSide,
+                lhs = loopVarLhs,
+                rhs = loopVarRhs,
                 comment = null
         )
 
-        val loopCondition: String = computeForLoopCondition(loopVariable, cobolLoopCounterVar)
-        val loopIncrement = "${loopVariable.lhs.variableName}++"
+        val loopCondition = computeForLoopCondition(loopVariable, cobolLoopCounterVar)
+        val loopIncrement = Assignment(
+                lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVarLhs),
+                rhs = Expression.ArithmeticExpression(
+                        lhs = loopVarLhs.variableName,
+                        rhs = Expression.SimpleValue("1"),
+                        arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
+                ),
+                comment = null
+        )
 
         return ForLoop(
                 loopVariable = loopVariable,
@@ -419,11 +439,10 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Creates a Java function call IR for a given COBOL blockname context.
      */
     private fun cobolBlocknameToFunctionCall(blockname: cobol_grammarParser.BlocknameContext): Statement {
-        val functionName = blockname.text
-        val parameters = listOf<Expression>()
+        val functionName = blockname.text // TODO: shouldn't this be transformed/checked first?
         return FunctionCall(
                 name = functionName,
-                parameters = parameters,
+                parameters = listOf<Expression>(),
                 comment = null
         )
     }
@@ -442,13 +461,14 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Computes a Java for-loop condition.
      */
     private fun computeForLoopCondition(loopVariable: Assignment,
-                                        cobolLoopCounter: cobol_grammarParser.CounterContext): String {
-        val variableName = loopVariable.lhs.variableName
-
-        val counter = cobolLoopCounter.text
-        // TODO: ^ this should rather be the transformed variable name!
-
-        return "$variableName<=$counter"
+                                        cobolLoopCounter: cobol_grammarParser.CounterContext): Expression.Condition {
+        val counter = cobolLoopCounter.text // TODO: this should rather be the transformed variable name!
+        return Expression.Condition(
+                lhs = Expression.SimpleValue(loopVariable.lhs.variableName),
+                rhs = Expression.SimpleValue(counter), // TODO: there should be a sum type String x Int x ... !
+                conditionalOperator = Expression.Condition.ConditionalOperator.LESSEROREQUALS,
+                negated = false
+        )
     }
 
     /**
@@ -505,7 +525,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     private fun computeExpr(compval: cobol_grammarParser.CompvalContext): Expression {
-        return when {
+        return when { // TODO: there should be a sum type String x Int x ... that is used in the SimpleValue constructor!
             compval.ID() != null -> Expression.SimpleValue(
                     value = compval.ID().text // TODO: IDs should not simply be copied 1:1!
             )

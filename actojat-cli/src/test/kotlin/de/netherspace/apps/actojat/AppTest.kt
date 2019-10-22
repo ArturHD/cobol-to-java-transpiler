@@ -81,7 +81,7 @@ class AppTest {
                 basePackage = basePackage,
                 language = language,
                 showGuiTree = false,
-                outputDir = File("/tmp/tigerente333")//outputDir
+                outputDir = outputDir
         )
         assertThat(generatedSourceFiles.isEmpty(), Is(false))
 

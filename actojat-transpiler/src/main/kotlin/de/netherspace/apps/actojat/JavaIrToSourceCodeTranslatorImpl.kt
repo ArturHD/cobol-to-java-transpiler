@@ -143,8 +143,17 @@ class JavaIrToSourceCodeTranslatorImpl(
      * Generates the Java code for a For-Loop.
      */
     private fun forLoopToCode(forLoop: ForLoop): String {
+        val conditionCodeLines = exprToCode(forLoop.loopCondition)
+        val conditionCode: String = if (conditionCodeLines.size > 1) {
+            throw IllegalArgumentException("Malformed condition (${forLoop.loopCondition}): resulted in too many lines of code!")
+        } else {
+            conditionCodeLines.first()
+        }
+
         val loopVariable = assignmentToCode(forLoop.loopVariable)
-        val loopHeader = "for ($loopVariable; ${forLoop.loopCondition}; ${forLoop.loopIncrement})"
+        val loopIncrement = assignmentToCode(forLoop.loopIncrement)
+        val loopHeader = "for ($loopVariable; $conditionCode; $loopIncrement)"
+
         val loopBody = forLoop
                 .body
                 .map { statement -> statementToCode(statement) }
