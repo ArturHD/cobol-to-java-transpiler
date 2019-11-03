@@ -265,7 +265,7 @@ class JavaIrToSourceCodeTranslatorImpl(
             }
 
             is Expression.ArithmeticExpression -> {
-                val lhs = expr.lhs
+                val lhs = expressionsToCode(listOf(expr.lhs))
                 val rhs = expressionsToCode(listOf(expr.rhs))
                 val op = expr.arithmeticOperator.literal
                 listOf("($lhs$op$rhs)")

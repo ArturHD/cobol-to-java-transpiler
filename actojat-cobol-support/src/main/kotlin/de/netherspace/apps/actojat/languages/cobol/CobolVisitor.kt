@@ -341,7 +341,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         val loopIncrement = Assignment(
                 lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVarLhs),
                 rhs = Expression.ArithmeticExpression(
-                        lhs = loopVarLhs.variableName,
+                        lhs = Expression.SimpleValue(loopVarLhs.variableName), // TODO: should not be a String but a proper type!
                         rhs = Expression.SimpleValue(stepwidth),
                         arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
                 ),
@@ -419,7 +419,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         val loopIncrement = Assignment(
                 lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVarLhs),
                 rhs = Expression.ArithmeticExpression(
-                        lhs = loopVarLhs.variableName,
+                        lhs = Expression.SimpleValue(loopVarLhs.variableName), // TODO: should not be a String but a proper type!
                         rhs = Expression.SimpleValue("1"),
                         arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
                 ),
@@ -566,12 +566,8 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Computes a Java expression from a Cobol arithmetic expr. (e.g. "(c / 2)").
      */
     private fun computeArithmeticExpr(expr: cobol_grammarParser.ArithmeticexpressionContext): Expression.ArithmeticExpression {
-        val lhs: String = when {
-            expr.ID() != null -> expr.ID().text // TODO: IDs should not simply be copied 1:1!
-            expr.NUMBER() != null -> expr.NUMBER().text
-            else -> throw Exception("Unrecognized value type!")
-        }
-        val rhs = computeExpr(expr.compval())
+        val lhs = computeExpr(expr.compval(0))
+        val rhs = computeExpr(expr.compval(1))
         val op: Expression.ArithmeticExpression.ArithmeticOperator = computeArithmeticOperator(expr.arithmeticoperator())
 
         return Expression.ArithmeticExpression(

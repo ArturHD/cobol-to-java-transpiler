@@ -45,10 +45,6 @@ statement           : assignment SEMICOLON
                     | forloop
                     ;
 
-expression          : (NUMBER | ID) // TODO: composite expressions, function calls, etc.!
-                    |
-                    ;
-
 assignment          : lhs ASSIGNMENTOP rhs
                     ;
 
@@ -90,8 +86,13 @@ lhs                 : variabledecl
                     | ID
                     ;
 
-rhs                 : expression operand expression //TODO: multiple/composite and nested expressions!
-                    | expression
+//TODO: multiple/composite and nested expressions:
+rhs                 : expression
+                    ;
+
+expression          : OPENINGPARENTHESIS expression operand expression CLOSINGPARENTHESIS
+                    | expression operand expression
+                    | (NUMBER | ID) // TODO: composite expressions, function calls, etc.!
                     ;
 
 variabledecl        : primitivetype ID // TODO: allow all possible types...

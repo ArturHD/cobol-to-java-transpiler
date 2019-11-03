@@ -218,8 +218,9 @@ compval                 : arithmeticexpression
                         | ID
                         ;
 
-arithmeticexpression    : OPENINGPARENTHESIS (NUMBER | ID) arithmeticoperator compval CLOSINGPARENTHESIS
-                        | (NUMBER | ID) arithmeticoperator compval
+arithmeticexpression    : OPENINGPARENTHESIS compval arithmeticoperator compval CLOSINGPARENTHESIS
+                        // TODO:| compval arithmeticoperator compval
+                        // README:
                         // TODO: this rules is not corecct:
                         // TODO: a) right now, no expressions (apart from mere numbers and IDs) are allowed
                         // TODO:    on the left hand side. This is due to a left-recursion problem and will

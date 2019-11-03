@@ -218,7 +218,7 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
         val loopIncrement = Assignment(
                 lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVariable.lhs),
                 rhs = Expression.ArithmeticExpression(
-                        lhs = ctx.incrementstatement().ID().text,
+                        lhs = Expression.SimpleValue(ctx.incrementstatement().ID().text), // TODO: should not be a String but a proper type!
                         rhs = Expression.SimpleValue("1"),
                         arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
                 ),

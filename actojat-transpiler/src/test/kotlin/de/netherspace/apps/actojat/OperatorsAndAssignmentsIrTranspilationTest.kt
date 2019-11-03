@@ -67,7 +67,7 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
                 value = "2"
         )
         val arithmExpr = Expression.ArithmeticExpression(
-                lhs = "1", // TODO: should not be a String but a proper type!
+                lhs = Expression.SimpleValue("1"), // TODO: this is wrong! "l" is NOT a VALUE! add a variant "identifier" to Expression!
                 rhs = rhs1,
                 arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
         )
@@ -106,12 +106,9 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
     @Test
     fun testNestedArithmeticExpressionTranspilation() {
         // the inner expression:
-        val rhs1 = Expression.SimpleValue(
-                value = "5"
-        )
         val arithmExpr2 = Expression.ArithmeticExpression(
-                lhs = "100", // TODO: should not be a String but a proper type!
-                rhs = rhs1,
+                lhs = Expression.SimpleValue("100"),
+                rhs = Expression.SimpleValue("5"),
                 arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.DIVISION
         )
 
@@ -123,7 +120,7 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
 
         // the outer expression:
         val arithmExpr = Expression.ArithmeticExpression(
-                lhs = "77",
+                lhs = Expression.SimpleValue("77"),
                 rhs = arithmExpr2,
                 arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
         )

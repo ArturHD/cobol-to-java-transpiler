@@ -110,15 +110,15 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
                 comment = null
         )
         val loopCondition = Expression.Condition(
-                lhs = Expression.SimpleValue("j"),
-                rhs = Expression.SimpleValue("10"), // TODO: there should be a sum type String x Int x ... !
+                lhs = Expression.SimpleValue("j"), // TODO: this is wrong! "j" is NOT a VALUE! add a variant "identifier" to Expression!
+                rhs = Expression.SimpleValue("10"),
                 conditionalOperator = Expression.Condition.ConditionalOperator.LESSER,
                 negated = false
         )
         val loopIncrement = Assignment( // "j++"
                 lhs = JavaIrUtil.lhsWithoutTypeAnnotation(loopVarLhs),
                 rhs = Expression.ArithmeticExpression(
-                        lhs = loopVarLhs.variableName,
+                        lhs = Expression.SimpleValue(loopVarLhs.variableName), // TODO: this is wrong! "j" is NOT a VALUE! add a variant "identifier"!
                         rhs = Expression.SimpleValue("1"),
                         arithmeticOperator = Expression.ArithmeticExpression.ArithmeticOperator.ADDITION
                 ),

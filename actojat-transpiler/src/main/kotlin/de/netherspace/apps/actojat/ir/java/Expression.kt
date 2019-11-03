@@ -16,7 +16,7 @@ sealed class Expression {
      * An arithmetic expression (e.g. "4 * 55").
      */
     class ArithmeticExpression( // TODO: rename the fields "lhs" and "rhs" to "ls" and "rs" respectively -> "right HAND side" should be reserved for assignments only!
-            val lhs: String, // TODO: this could be a nested expression!
+            val lhs: Expression, // TODO: this shouldn't be an arbitrary expression - but ACTOJAT does not enforce a type system right now...
             val rhs: Expression, // TODO: this shouldn't be an arbitrary expression - but ACTOJAT does not enforce a type system right now...
             val arithmeticOperator: ArithmeticOperator
     ) : Expression() {

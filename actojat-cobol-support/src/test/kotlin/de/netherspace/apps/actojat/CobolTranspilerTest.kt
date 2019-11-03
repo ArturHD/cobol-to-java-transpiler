@@ -281,6 +281,23 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles left-recursive conditions
+     * (i.e. "IF (c / 33) < a THEN..." and the like).
+     */
+    @Test
+    @Ignore
+    fun testLrCobolConditionsTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-lrexpressions.cob"
+        val clazzName = "LrExpressions"
+        val expectedCode = "packrn;}}" // TODO: add the real code...
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles an (empty) Cobol section.
      */
     @Test
