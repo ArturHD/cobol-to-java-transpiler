@@ -49,7 +49,6 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     override fun visitProceduredivision(ctx: cobol_grammarParser.ProceduredivisionContext?): JavaLanguageConstruct {
-        // TODO: pattern matching!
         return super.visitChildren(ctx)
     }
 
@@ -197,6 +196,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
             cobolStatement.performuntil() != null -> CobolStatementType.PERFORMUNTIL
             cobolStatement.performvarying() != null -> CobolStatementType.PERFORMVARYING
             cobolStatement.performsinglefunction() != null -> CobolStatementType.PERFORMFUNCTION
+            cobolStatement.assignment() != null -> CobolStatementType.ASSIGNMENT
             cobolStatement.stopoperation() != null -> CobolStatementType.STOPOPERATION
             cobolStatement.ifthenelse() != null -> CobolStatementType.IFTHENELSE
             else -> throw Exception("Unrecognized COBOL statement type!")
@@ -243,6 +243,9 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                         comment = null
                 )
             }
+
+            // "MOVE ... TO ...":
+            CobolStatementType.ASSIGNMENT -> cobolAssignmentToJavaAssignment(cobolStatement.assignment())
 
             // "STOP ...":
             CobolStatementType.STOPOPERATION -> FunctionCall(
@@ -472,6 +475,29 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     }
 
     /**
+     * Maps a COBOL MOVE-TO statement to a Java assignment.
+     */
+    private fun cobolAssignmentToJavaAssignment(assignment: cobol_grammarParser.AssignmentContext): Statement {
+        val sourceItem = assignment.sourceItem() // TODO: this should be an expr! then: use computeExpr()!
+        val rhs: Expression.SimpleValue = when {
+            sourceItem.ID() != null -> Expression.SimpleValue(sourceItem.ID().text)
+            sourceItem.NUMBER() != null -> Expression.SimpleValue(sourceItem.NUMBER().text)
+            else -> throw Exception("Unrecognized COBOL statement type!")
+        }
+
+        val lhs = LeftHandSide(
+                type = null,
+                variableName = assignment.destItem().ID().text
+        )
+
+        return Assignment(
+                lhs = lhs,
+                rhs = rhs,
+                comment = null
+        )
+    }
+
+    /**
      * Maps a COBOL if-then-else statement to a Java conditional expression.
      */
     private fun cobolIfthenelseToJavaConditionalExpr(ifthenelse: cobol_grammarParser.IfthenelseContext?): Statement {
@@ -616,6 +642,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         PERFORMUNTIL,
         PERFORMVARYING,
         PERFORMFUNCTION,
+        ASSIGNMENT,
         STOPOPERATION,
         IFTHENELSE
     }

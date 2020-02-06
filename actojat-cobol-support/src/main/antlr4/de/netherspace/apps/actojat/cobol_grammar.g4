@@ -144,6 +144,7 @@ statement               : performtimes
                         | performvarying
                         | performsinglefunction
                         | displayvalue
+                        | assignment
                         | stopoperation
                         | ifthenelse
                         //: operation operand+ // TODO: erase? not needed?
@@ -190,6 +191,16 @@ stopoperation           : STOP RUN
                         ;
 
 displayvalue            : DISPLAY STRINGVALUE+
+                        ;
+
+assignment              : MOVE sourceItem TO destItem
+                        // TODO: move to multiple variables
+                        ;
+
+sourceItem              : (ID | NUMBER)
+                        ;
+
+destItem                : ID
                         ;
 
 ifthenelse              : IF condition thenblock elseblock ENDIF
@@ -450,6 +461,13 @@ THEN                    : 'THEN'
 FROM                    : 'FROM'
                         ;
 
+COPY                    : 'copy ' // TODO: set this (lowercase == uppercase) in the parser implementation itself!
+                        | 'COPY '
+                        ;
+
+MOVE                    : 'MOVE'
+                        ;
+
 PIC                     : 'PIC'
                         ;
 
@@ -459,10 +477,6 @@ NOT                     : 'NOT'
 RUN                     : 'RUN'
                         ;
 
-COPY                    : 'copy ' // TODO: set this (lowercase == uppercase) in the parser implementation itself!
-                        | 'COPY '
-                        ;
-
 BY                      : 'BY'
                         ;
 
@@ -470,9 +484,6 @@ IF                      : 'IF'
                         ;
 
 IS                      : 'IS'
-                        ;
-
-MOVE                    : 'MV'
                         ;
 
 OR                      : 'OR'

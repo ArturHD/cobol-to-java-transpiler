@@ -6,14 +6,11 @@ class JavaIrUtil {
 
     companion object {
         /**
-         * Strips the type annotation of a given LHS.
+         * Strips the type annotation off of a given LHS.
          */
         @JvmStatic
-        public fun lhsWithoutTypeAnnotation(lhs: LeftHandSide): LeftHandSide {
-            return LeftHandSide(
-                    type = null,
-                    variableName = lhs.variableName
-            )
+        fun lhsWithoutTypeAnnotation(lhs: LeftHandSide): LeftHandSide {
+            return lhs.copy(type = null)
         }
     }
 }

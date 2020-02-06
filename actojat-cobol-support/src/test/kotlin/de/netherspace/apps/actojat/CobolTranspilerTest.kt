@@ -222,6 +222,22 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     }
 
     /**
+     * Tests, whether the transpiler successfully transpiles a sinmple MOVE...TO.
+     */
+    @Test
+    fun testCobolSimpleMoveAssignmentTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-simplemove.cob"
+        val clazzName = "SimpleMoooove"
+        val expectedCode = "package cobol.test.pckg;public class SimpleMoooove {public short n = 5;public " +
+                "short m = 1234;public void paragraph_MainProgram(){m=44;return;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = clazzName,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
      * Tests, whether the transpiler successfully transpiles a program containing an if-then-else statement.
      */
     @Test
