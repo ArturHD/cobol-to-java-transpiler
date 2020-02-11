@@ -37,7 +37,6 @@ interface BaseVisitor {
     /**
      * Generates a unique identifier.
      */
-    @Synchronized
     private fun generateInternalId(parentRuleIndex: Int,
                                    ruleIndex: Int,
                                    idCounter: AtomicInteger,

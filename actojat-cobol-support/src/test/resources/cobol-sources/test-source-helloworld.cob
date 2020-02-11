@@ -2,4 +2,4 @@
  PROGRAM-ID. HelloWorld.
  PROCEDURE DIVISION.
  DisplayHelloWorld.
-      DISPLAY "HelloWorld!".
+      DISPLAY "Hello World!".

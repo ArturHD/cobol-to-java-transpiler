@@ -10,7 +10,7 @@
       PERFORM DisplaySomething
         VARYING MyCounter FROM 10 BY 2
         UNTIL MyCounter = 20
-      DISPLAY "ImDone!".
+      DISPLAY "Im done!".
       STOP RUN.
 
  DisplaySomething.

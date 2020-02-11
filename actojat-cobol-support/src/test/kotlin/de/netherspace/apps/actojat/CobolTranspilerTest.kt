@@ -32,7 +32,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-helloworld.cob"
         val clazzName = "HelloCobol"
         val expectedCode = "package cobol.test.pckg;public class HelloCobol {public" +
-                " void paragraph_DisplayHelloWorld(){System.out.println(\"HelloWorld!\");}}"
+                " void paragraph_DisplayHelloWorld(){System.out.println(\"Hello World!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,
@@ -98,10 +98,10 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolPerformUntilLoopTranspilation() {
         val sourceFile = "/cobol-sources/test-source-performuntil.cob"
-        val clazzName = "PerformUntilOne"
-        val expectedCode = "package cobol.test.pckg;public class PerformUntilOne {public int VeryVariable = 1;" +
+        val clazzName = "SimpleWhileLoop"
+        val expectedCode = "package cobol.test.pckg;public class SimpleWhileLoop {public int VeryVariable = 1;" +
                 "public void paragraph_MainProgram(){while (!(VeryVariable==8)) { paragraph_DisplayHelloWorld(); }" +
-                "System.out.println(\"ImDone!\");return;}public void paragraph_DisplayHelloWorld(){System.out." +
+                "System.out.println(\"Im done!\");return;}public void paragraph_DisplayHelloWorld(){System.out." +
                 "println(\"Rock\");System.out.println(\"on!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
@@ -180,7 +180,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val clazzName = "SimpleVaryingLoop"
         val expectedCode = "package cobol.test.pckg;public class SimpleVaryingLoop {public int MyCounter = 1;public " +
                 "void paragraph_MainProgram(){for (MyCounter=10; MyCounter<=20; MyCounter=(MyCounter+2)) { " +
-                "paragraph_DisplaySomething(); }System.out.println(\"ImDone!\");return;}public void " +
+                "paragraph_DisplaySomething(); }System.out.println(\"Im done!\");return;}public void " +
                 "paragraph_DisplaySomething(){System.out.println(\"Im\");System.out.println(\"varying\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
@@ -306,43 +306,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-lrexpressions.cob"
         val clazzName = "LrExpressions"
         val expectedCode = "packrn;}}" // TODO: add the real code...
-        doTranspilationTest(
-                source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
-        )
-    }
-
-    /**
-     * Tests, whether the transpiler successfully transpiles an (empty) Cobol section.
-     */
-    @Test
-    @Ignore
-    fun testEmptyCobolSectionTranspilation() {
-        val sourceFile = "/cobol-sources/test-source-2.cob"
-        val clazzName = "CobolTest1"
-        val expectedCode = "package cobol.test.pckg;public class CobolTest1 {public void" +
-                " section_0000_MAIN(){}public void section_0040_DB_CONN(){}public" +
-                " void section_0100_INIT(){}}"
-        doTranspilationTest(
-                source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
-        )
-    }
-
-    /**
-     * Tests, whether the transpiler successfully transpiles a Cobol import section.
-     */
-    @Test
-    @Ignore
-    fun testCobolImportTranspilation() {
-        val sourceFile = "/cobol-sources/test-source-08.cob" //"cobol-sources/test-source-4.cob"
-        val clazzName = "CobolTest2"
-        val expectedCode = "package cobol.test.pckg;import cobol.test.pckg" +
-                ".cobol_TEST_IMPORT_cpy;import cobol.test.pckg.cobol_bla_bli_blubb_cpy;import" +
-                " cobol.test.pckg.cobol_log_12340_sql_error_cpy;import cobol.test.pckg" +
-                ".cobol_SMURF_SECTIONS_cpy;public class CobolTest2 {public void section_0000_MAIN(){}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = clazzName,

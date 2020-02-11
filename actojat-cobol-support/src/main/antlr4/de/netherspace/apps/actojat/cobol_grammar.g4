@@ -492,7 +492,7 @@ OR                      : 'OR'
 TO                      : 'TO'
                         ;
 
-STRINGVALUE             : QUOTATIONMARK (ALLCHARS | DIGIT)+ QUOTATIONMARK
+STRINGVALUE             : QUOTATIONMARK (ALLCHARS | DIGIT | [ \t])+ QUOTATIONMARK
                         ;
 
 LESSEROREQUALSIGN       : '<='

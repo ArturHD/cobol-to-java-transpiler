@@ -9,7 +9,7 @@
  MainProgram.
       PERFORM DisplayHelloWorld
         UNTIL VeryVariable = 8
-      DISPLAY "ImDone!".
+      DISPLAY "Im done!".
       STOP RUN.
 
  DisplayHelloWorld.
