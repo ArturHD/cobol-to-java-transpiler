@@ -179,6 +179,8 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
      * Computes a list of Java statements for a given list of COBOL StatementsContexts.
      */
     private fun cobolStatementsToJavaStatements(statements: cobol_grammarParser.StatementsContext): List<Statement> {
+        // TODO: handle (comment, statement) pairs!
+        // TODO: what about multi-line comments?
         return statements
                 .statement()
                 .map { Pair(it, computeStatementType(it)) }
@@ -482,6 +484,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         val rhs: Expression.SimpleValue = when {
             sourceItem.ID() != null -> Expression.SimpleValue(sourceItem.ID().text)
             sourceItem.NUMBER() != null -> Expression.SimpleValue(sourceItem.NUMBER().text)
+            sourceItem.STRINGVALUE() != null -> computeCobolStringValueMovement(sourceItem, sourceItem.STRINGVALUE())
             else -> throw Exception("Unrecognized COBOL statement type!")
         }
 
@@ -495,6 +498,21 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 rhs = rhs,
                 comment = null
         )
+    }
+
+    private fun computeCobolStringValueMovement(
+            sourceItem: cobol_grammarParser.SourceItemContext,
+            destItem: TerminalNode): Expression.SimpleValue {
+        // TODO: this is not sufficient:
+        return Expression.SimpleValue(destItem.text);
+
+        // TODO: COBOL strings must be truncated or filled up with whitespaces according
+        // TODO: to the length of the source and destination!
+        // TODO: We can implement this move semantic in two different ways:
+        // TODO: a) we add a generic TruncateOrFillUp(src, dest) Java method to
+        // TODO: all generated COBOL code bases that does the magic _at runtime_, or
+        // TODO: b) add meta-information of the COBOL variable size to our AST nodes
+        // TODO: and add proper .substr() calls in the very assignment that we generate
     }
 
     /**

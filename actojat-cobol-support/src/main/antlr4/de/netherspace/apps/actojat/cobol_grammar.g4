@@ -12,7 +12,6 @@ program                 : identificationdivision environmentdivision? datadivisi
 
 // "IDENTIFICATION DIVISION."
 identificationdivision  : IDENTIFICATION DIVISION DOT identstatements*
-                        | IDENTIFICATION DIVISION DOT
                         ;
 
 identstatements         : programidstatement
@@ -23,7 +22,7 @@ identstatements         : programidstatement
 programidstatement      : PROGRAMID DOT ID DOT
                         ;
 
-authorstatement         : AUTHOR DOT ID DOT
+authorstatement         : AUTHOR DOT ID DOT // TODO: "ID" should rather be (word COMMA*)+ or something similar!
                         ;
 
 datewrittenstatement    : DATEWRITTEN DOT ID DOT
@@ -38,14 +37,16 @@ environmentdivision     : ENVIRONMENT DIVISION DOT configurationsection inputout
                         | ENVIRONMENT DIVISION DOT
                         ;
 
-configurationsection    : SPECIALNAMES specialnamesparagraph
+configurationsection    : CONFIGURATION SECTION DOT specialnamesparagraph
+                        | CONFIGURATION SECTION DOT
                         ;
 
 inputoutputsection      : FILECONTROL filecontrolparagraph
                         ;
 
-specialnamesparagraph   : decimalpointspec
-                        | symboliccharsspec
+specialnamesparagraph   : SPECIALNAMES decimalpointspec
+                        | SPECIALNAMES symboliccharsspec
+                        | SPECIALNAMES DOT
                         ;
 
 decimalpointspec        : DECIMALPOINT IS ID DOT
@@ -54,8 +55,8 @@ decimalpointspec        : DECIMALPOINT IS ID DOT
 symboliccharsspec       : SYMBOLIC CHARACTERS ID* DOT
                         ;
 
-filecontrolparagraph    : 'SELECT ... TO'
-                        ; // TODO: fix this rule!
+filecontrolparagraph    : 'SELECT' PLACEHOLDER
+                        ; // TODO: fix this rule! Should be: SELECT (ID ASSIGN TO ID)+ or something similar!
 
 
 // "DATA DIVISION."
@@ -113,6 +114,7 @@ size                    : OPENINGPARENTHESIS NUMBER CLOSINGPARENTHESIS
                         ;
 
 initialvalue            : NUMBER
+                        | STRINGVALUE
                         ;
 
 // "PROCEDURE DIVISION."
@@ -126,10 +128,23 @@ section                 : sectiondecl paragraph+
 paragraph               : ID DOT sentence+  // TODO: can both statements and sentences appear in one block?
                         ;
 
-statements              : statement+
+sentence                : statements DOT
                         ;
 
-sentence                : statements DOT
+// TODO: This is the only rule where comment(s) are made explicit. Adding a 'comment*' symbol might not
+// TODO: be very vital! See the blabla down below (where the terminal symbol is defined)!
+statements              : (comment* statement)+
+                        ;
+
+comment                 : inlineComment
+                        // TODO: These comments can only occur at the very beginning of a line:
+                        // TODO: '*' .*
+                        // TODO: '/' .*
+                        // TODO: ...and they can only be used with the "fixed" format!
+                        | COMMENT // TODO: ensure that it starts at the beginning of a line??
+                        ;
+
+inlineComment           : INLINECOMMENT
                         ;
 
 sectionend              : SECTIONNAME DOT EXIT PROGRAM DOT
@@ -197,7 +212,9 @@ assignment              : MOVE sourceItem TO destItem
                         // TODO: move to multiple variables
                         ;
 
-sourceItem              : (ID | NUMBER)
+sourceItem              : STRINGVALUE
+                        | NUMBER
+                        | ID
                         ;
 
 destItem                : ID
@@ -324,6 +341,9 @@ WORKINGSTORAGE          : 'WORKING-STORAGE'
                         ;
 
 IDENTIFICATION          : 'IDENTIFICATION'
+                        ;
+
+CONFIGURATION           : 'CONFIGURATION'
                         ;
 
 STARTSECT               : 'START-SECTION'
@@ -504,6 +524,24 @@ GREATEROREQUALSIGN      : '>='
 POWERSYMBOL             : '**'
                         ;
 
+// TODO: Throwing all comments away is a suitable approach for a compiler that
+// TODO: generates byte code only. In our case, the transpiler should rather _keep_
+// TODO: comments, as they are valuable pieces of information for any code base!
+// TODO: We could add a  "commment*" or "comment?" symbol to all rules and attach the
+// TODO: comments to our IR objects. But:
+// TODO: a) this is super tedious and significantly increaes the size of our grammar, and
+// TODO: b) would not work if someone placed a comment between keywords
+// TODO: (e.g. 'ENVIRONMENT\n* blabla\n DIVISION.')
+// TODO: Is there a smart way??
+SLASHCOMMENT            : '/*' (~[\r\n])* -> channel(HIDDEN)
+                        ; // a comment can NOT span more than a single line!
+
+INLINECOMMENT           : '*>' (~[\r\n])* -> channel(HIDDEN)
+                        ; // a comment can NOT span more than a single line!
+
+COMMENT                 : '*' (~[\r\n])* -> channel(HIDDEN)
+                        ; // a comment can NOT span more than a single line!
+
 OPENINGPARENTHESIS      : '('
                         ;
 
@@ -558,7 +596,6 @@ WHITESPACE              : [ \t]+ -> channel(HIDDEN)
 
 LINEBREAK               : [\r\n]+ -> skip
                         ;
-
 
 
 // fragments, which are part of the grammar but NOT actual terminals:

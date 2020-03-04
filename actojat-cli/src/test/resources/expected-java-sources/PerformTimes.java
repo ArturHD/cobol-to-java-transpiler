@@ -4,14 +4,14 @@ public class PerformTimes {
   public short n = 3;
 
   public void paragraph_MainProgram() {
-    for (int _internal67B28F0 = 1;
-        _internal67B28F0 <= n;
-        _internal67B28F0 = (_internal67B28F0 + 1)) {
+    for (int _internalA2BE66F = 1;
+        _internalA2BE66F <= n;
+        _internalA2BE66F = (_internalA2BE66F + 1)) {
       System.out.println("Inline!");
     }
-    for (int _internal3434149 = 1;
-        _internal3434149 <= 15;
-        _internal3434149 = (_internal3434149 + 1)) {
+    for (int _internal509EB55 = 1;
+        _internal509EB55 <= 15;
+        _internal509EB55 = (_internal509EB55 + 1)) {
       paragraph_DisplayHelloWorld();
     }
     return;
