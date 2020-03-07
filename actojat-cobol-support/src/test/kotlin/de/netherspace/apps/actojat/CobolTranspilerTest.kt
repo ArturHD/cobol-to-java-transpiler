@@ -32,12 +32,11 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolHelloWorldTranspilation() {
         val sourceFile = "/cobol-sources/test-source-helloworld.cob"
-        val clazzName = "HelloCobol"
-        val expectedCode = "package cobol.test.pckg;public class HelloCobol {public" +
+        val expectedCode = "package cobol.test.pckg;public class HelloWorld {public" +
                 " void paragraph_DisplayHelloWorld(){System.out.println(\"Hello World!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -48,14 +47,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolSimpleLoopTranspilation() {
         val sourceFile = "/cobol-sources/test-source-simpleloop.cob"
-        val clazzName = "SimpleLoop"
         val expectedCode = "package cobol.test.pckg;public class SimpleLoop {public void paragraph_MainProgram(){" +
                 "for (int $internalVariableName01=1; $internalVariableName01<=15; $internalVariableName01=($internalVariableName01+1))" +
                 " { paragraph_DisplayHelloWorld(); }" +
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -67,7 +65,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     fun testCobolLoopWithIdTranspilation() {
 
         val sourceFile = "/cobol-sources/test-source-loopwithid.cob"
-        val clazzName = "LoopWithId"
         val expectedCode = "package cobol.test.pckg;public class LoopWithId {public short n = 5;public void paragraph_MainProgram(){" +
                 "for (int $internalVariableName01=1; $internalVariableName01<=n; $internalVariableName01=($internalVariableName01+1)) " +
                 "{ paragraph_DisplayHelloWorld(); }" +
@@ -75,7 +72,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "public void paragraph_DoSomethingElse(){System.out.println(\"Something\");System.out.println(\"else!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -86,14 +83,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolLoopWithInlineBodyTranspilation() {
         val sourceFile = "/cobol-sources/test-source-loopwithinlinebody.cob"
-        val clazzName = "LoopWithInlineBody"
         val expectedCode = "package cobol.test.pckg;public class LoopWithInlineBody {public short MyCounter = 3;" +
                 "public void paragraph_MainProgram(){for (int $internalVariableName01=1; $internalVariableName01<=MyCounter; " +
                 "$internalVariableName01=($internalVariableName01+1)) { System.out.println(\"Inline!\"); }System.out." +
                 "println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -104,14 +100,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolPerformUntilLoopTranspilation() {
         val sourceFile = "/cobol-sources/test-source-performuntil.cob"
-        val clazzName = "SimpleWhileLoop"
         val expectedCode = "package cobol.test.pckg;public class SimpleWhileLoop {public int VeryVariable = 1;" +
                 "public void paragraph_MainProgram(){while (!(VeryVariable==8)) { paragraph_DisplayHelloWorld(); }" +
                 "System.out.println(\"Im done!\");return;}public void paragraph_DisplayHelloWorld(){System.out." +
                 "println(\"Rock\");System.out.println(\"on!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -123,8 +118,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolPerformUntilLoopWithExplicitBeforeAfterTranspilation() {
         val sourceFile = "/cobol-sources/test-source-prfrmntl-testx.cob"
-        val clazzName = "PerformUntilWithTestBeforeAfter"
-        val expectedCode = "package cobol.test.pckg;public class PerformUntilWithTestBeforeAfter {public short " +
+        val expectedCode = "package cobol.test.pckg;public class WhileLoopWithTest {public short " +
                 "VeryVeryVariable = 1;public void paragraph_MainProgram(){while (!(VeryVeryVariable==2)) { " +
                 "paragraph_DisplayImAWhileLoop(); }do { paragraph_DisplayImADoWhileLoop(); } while " +
                 "(!(VeryVeryVariable==2));System.out.println(\"Done!\");return;}public void paragraph_DisplayImAWhileLoop(){" +
@@ -132,7 +126,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"doWhileLoop\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -145,7 +139,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Ignore // TODO: this test should work as soon as THRU statements are transpiled properly
     fun testCobolPerformUntilLoopWithThruMultipleBlocknamesTranspilation() {
         val sourceFile = "/cobol-sources/test-source-prfrmntl-multiblx.cob"
-        val clazzName = "WhileLoopzWMB"
         val expectedCode = "package cobol.test.pckg;public class WhileLoopzWMB {public int VeryVariable = 1;public " +
                 "void paragraph_MainProgram(){while (!(VeryVariable==12)) { paragraph_DisplayOne();paragraph_DisplayTwo(); }" +
                 "System.out.println(\"Aaaannnd\");while (!(VeryVariable==8)) { paragraph_DisplayOne();paragraph_DisplayTwo();" +
@@ -154,7 +147,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "public void paragraph_DisplayThree(){System.out.println(\"Baby!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -166,13 +159,12 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolPerformUntilLoopWithInlineBodyTranspilation() {
         val sourceFile = "/cobol-sources/test-source-prfrmntl-inlnbdy.cob"
-        val clazzName = "PrfrmUntilInlineB"
         val expectedCode = "package cobol.test.pckg;public class PrfrmUntilInlineB {public int MyVar = 1;public void " +
                 "paragraph_MainProgram(){while (!(MyVar==13)) { System.out.println(\"Inline!\"); }System.out." +
                 "println(\"Done\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -183,14 +175,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolPerformVaryingLoopTranspilation() {
         val sourceFile = "/cobol-sources/test-source-performvarying.cob"
-        val clazzName = "SimpleVaryingLoop"
         val expectedCode = "package cobol.test.pckg;public class SimpleVaryingLoop {public int MyCounter = 1;public " +
                 "void paragraph_MainProgram(){for (MyCounter=10; MyCounter<=20; MyCounter=(MyCounter+2)) { " +
                 "paragraph_DisplaySomething(); }System.out.println(\"Im done!\");return;}public void " +
                 "paragraph_DisplaySomething(){System.out.println(\"Im\");System.out.println(\"varying\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -201,12 +192,11 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolSimpleIfThenTranspilation() {
         val sourceFile = "/cobol-sources/test-source-ifthen.cob"
-        val clazzName = "SimpleIfThen"
         val expectedCode = "package cobol.test.pckg;public class SimpleIfThen {public int n = 5;public void " +
                 "paragraph_MainProgram(){if(n<10){System.out.println(\"Yeah\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -217,12 +207,11 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolDataDeclarationTranspilation() {
         val sourceFile = "/cobol-sources/test-source-datadecl.cob"
-        val clazzName = "DataDeclarationz"
         val expectedCode = "package cobol.test.pckg;public class DataDeclarationz {public short n = 5;public short m =" +
                 " 1234;public void paragraph_MainProgram(){if((n+m)<10){System.out.println(\"Yeah\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -233,12 +222,11 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolSimpleMoveAssignmentTranspilation() {
         val sourceFile = "/cobol-sources/test-source-simplemove.cob"
-        val clazzName = "SimpleMoooove"
-        val expectedCode = "package cobol.test.pckg;public class SimpleMoooove {public short n = 5;public " +
+        val expectedCode = "package cobol.test.pckg;public class SimpleMove {public short n = 5;public " +
                 "short m = 1234;public void paragraph_MainProgram(){m=44;return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -249,7 +237,6 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolAlphanumMoveAssignmentTranspilation() {
         val sourceFile = "/cobol-sources/test-source-alphanummv.cob"
-        val clazzName = "AlphaNumMv"
         val expectedCode = "package cobol.test.pckg;public class AlphaNumMv {public String Surname = \"Chuck \";public " +
                 "String TruncateName = \"ab\";public String FillName = \"123456789012\";public void paragraph_" +
                 "MainProgram(){Surname=\"Arnold\";TruncateName=\"Brnold\";FillName=\"Crnold\";return;}}"
@@ -257,7 +244,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         // TODO: alphanumeric values! See the CobolVisitor class for details!
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -268,14 +255,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolCommentsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-commentz.cob"
-        val clazzName = "Commentz"
         val expectedCode = "package cobol.test.pckg;public class Commentz {public short MyCounter = 3;" +
                 "public void paragraph_MainProgram(){for (int $internalVariableName01=1; $internalVariableName01<=MyCounter; " +
                 "$internalVariableName01=($internalVariableName01+1)) { System.out.println(\"Inline!\"); }System.out." +
                 "println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -286,14 +272,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolMultiLineCommentsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-multilcommntz.cob"
-        val clazzName = "Multilcommntz"
         val expectedCode = "package cobol.test.pckg;public class Multilcommntz {public short MyCounter = 3;" +
                 "public void paragraph_MainProgram(){for (int $internalVariableName01=1; $internalVariableName01<=MyCounter; " +
                 "$internalVariableName01=($internalVariableName01+1)) { System.out.println(\"Inline!\"); }System.out." +
                 "println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -304,13 +289,12 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolIfThenElseTranspilation() {
         val sourceFile = "/cobol-sources/test-source-ifthenelse.cob"
-        val clazzName = "IfThenElse"
         val expectedCode = "package cobol.test.pckg;public class IfThenElse {public short myVar = 5;public void " +
                 "paragraph_MainProgram(){if(myVar<=10){System.out.println(\"Yeah\");} else {System.out" +
                 ".println(\"Elzze\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -321,8 +305,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testCobolConditionsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-conditions.cob"
-        val clazzName = "VariousConditions"
-        val expectedCode = "package cobol.test.pckg;public class VariousConditions {public int n = 5;public void " +
+        val expectedCode = "package cobol.test.pckg;public class Conditions {public int n = 5;public void " +
                 "paragraph_MainProgram(){if(n>10){System.out.println(\"oops\");}if(!(n>20)){System.out." +
                 "println(\"correct\");}if(n<10){System.out.println(\"yeah\");}if(!(n<10)){System.out." +
                 "println(\"damn\");}if(n>100){System.out.println(\"oops2\");}if(!(n>200)){System.out." +
@@ -334,7 +317,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"ltort774444444\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -345,14 +328,13 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testComplexCobolConditionsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-complex-conditions.cob"
-        val clazzName = "ComplexConditions"
         val expectedCode = "package cobol.test.pckg;public class ComplexConditions {public int a = 25;public int " +
                 "b = 15;public int c = 100;public void paragraph_MainProgram(){if(a>b){System.out." +
                 "println(\"great0r\");}if(a<(c/33)){System.out.println(\"oneAE\");}if(a<(b+(c/2))){System.out." +
                 "println(\"correct\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -365,11 +347,10 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Ignore
     fun testLrCobolConditionsTranspilation() {
         val sourceFile = "/cobol-sources/test-source-lrexpressions.cob"
-        val clazzName = "LrExpressions"
         val expectedCode = "packrn;}}" // TODO: add the real code...
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
+                clazzName = null,
                 expectedCode = expectedCode
         )
     }
@@ -384,5 +365,4 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val inputStream: InputStream? = CobolTranspilerTest::class.java.getResourceAsStream(sourceFile)
         return inputStream ?: throw IllegalArgumentException("Source file not found!")
     }
-
 }

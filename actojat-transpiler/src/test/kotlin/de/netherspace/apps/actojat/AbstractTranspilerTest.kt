@@ -1,6 +1,6 @@
 package de.netherspace.apps.actojat
 
-import de.netherspace.apps.actojat.ir.java.Program
+import de.netherspace.apps.actojat.ir.java.Clazz
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.nullValue
@@ -22,10 +22,9 @@ abstract class AbstractTranspilerTest<T>(
      * Performs an actual transpilation test.
      *
      * @param source       The source which will be transpiled
-     * @param clazzName    The desired class name
      * @param expectedCode The expected source code after transpilation
      */
-    fun doTranspilationTest(source: InputStream, clazzName: String, expectedCode: String) {
+    fun doTranspilationTest(source: InputStream, clazzName: String?, expectedCode: String) {
         val transpiler = constructorExpr.get()
         val parseTreeResult = transpiler.parseInputStream(source)
         parseTreeResult.fold({ parseTree ->
@@ -36,23 +35,31 @@ abstract class AbstractTranspilerTest<T>(
         assertThat(parseTreeResult.isSuccess, Is(true))
 
         val irResult = transpiler.generateIntermediateJavaRepresentation(parseTreeResult.getOrThrow())
-        irResult.fold({ iR ->
-            println(" The IR is: $iR")
+        assertThat(irResult.isSuccess, Is(true))
+        irResult.fold({ irs ->
+            {
+                println(" The IR's are:")
+                irs.forEach { println(it) }
+            }
         }, { e ->
             println("Exception was: $e")
         })
-        assertThat(irResult.isSuccess, Is(true))
 
-        val codeResult = transpiler.generateSourceCode(program = irResult.getOrThrow() as Program,
-                name = clazzName,
-                basePackage = testBasePackage)
-        assertThat(codeResult.isSuccess, Is(true))
-        val code = codeResult.getOrThrow()
-        log.debug(code)
-        assertThat(code, Is(expectedCode))
+        irResult.getOrThrow()
+                .forEach {
+                    val codeResult = transpiler.generateSourceCode(
+                            clazz = it as Clazz,
+                            name = it.className ?: clazzName!!,
+                            basePackage = testBasePackage
+                    )
+                    assertThat(codeResult.isSuccess, Is(true))
+                    val code = codeResult.getOrThrow()
+                    log.debug(code)
+                    assertThat(code, Is(expectedCode))
 
-        val enrichedCode = transpiler.enrichSourceCode(code)
-        assertThat(enrichedCode, Is(not(nullValue())))
+                    val enrichedCode = transpiler.enrichSourceCode(code)
+                    assertThat(enrichedCode, Is(not(nullValue())))
+                }
     }
 
     /**

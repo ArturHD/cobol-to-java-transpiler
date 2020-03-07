@@ -14,7 +14,7 @@ class JavaIrToSourceCodeTranslatorImpl(
     private val builder: StringBuilder = StringBuilder()
     private lateinit var sourceMethodNamesToJavaMethods: Map<String, Method>
 
-    override fun generateCodeFromIr(program: Program, className: String, basePackage: String): Result<String> {
+    override fun generateCodeFromIr(clazz: Clazz, className: String, basePackage: String): Result<String> {
         if (className.isEmpty() || basePackage.isEmpty()) {
             val m = "Class name or base package is missing!"
             log.error(m)
@@ -26,19 +26,19 @@ class JavaIrToSourceCodeTranslatorImpl(
         // TODO: the IR should rather be organized as a _proper_ tree!
         // TODO: => walk this tree with pattern matching!
 
-        program.imports
+        clazz.imports
                 .map { import -> irImportToCode(import, basePackage) }
                 .forEach { ic -> append(ic) }
 
         append("public class $className {")
 
-        program.fields
+        clazz.fields
                 .map { field -> irFieldToCode(field) }
                 .forEach { ic -> append(ic) }
 
-        sourceMethodNamesToJavaMethods = program.methods // TODO: this looks strange! => refactor?!
+        sourceMethodNamesToJavaMethods = clazz.methods // TODO: this looks strange! => refactor?!
 
-        program.methods
+        clazz.methods
                 .values
                 .map { method -> irMethodToCode(method) }
                 .forEach { mc -> append(mc) }

@@ -44,7 +44,7 @@ class AppTest {
         assertThatTranspiledCodeMatches(
                 sourceFilePath = "/cobol-sources/performtimes.cob",
                 expectedSourceFilePath = "/expected-java-sources/PerformTimes.java",
-                clazzname = "PerformTimes"
+                clazzname = "PerformTimesTest"
         )
     }
 
@@ -53,7 +53,7 @@ class AppTest {
         assertThatTranspiledCodeMatches(
                 sourceFilePath = "/cobol-sources/performuntil.cob",
                 expectedSourceFilePath = "/expected-java-sources/PerformUntil.java",
-                clazzname = "PerformUntil"
+                clazzname = "PerformUntilTest"
         )
     }
 

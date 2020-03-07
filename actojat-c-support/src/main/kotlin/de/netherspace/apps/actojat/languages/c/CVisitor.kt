@@ -8,24 +8,26 @@ import de.netherspace.apps.actojat.languages.JavaIrUtil
 import org.antlr.v4.runtime.tree.ParseTree
 import org.slf4j.LoggerFactory
 
-class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
+class CVisitor : c_grammarBaseVisitor<List<JavaLanguageConstruct>>(), BaseVisitor {
 
     private val log = LoggerFactory.getLogger(CVisitor::class.java)
 
+    private var className: String? = null
     private val methods = mutableMapOf<String, Method>()
     private val imports = mutableListOf<Import>()
 
-    override fun visit(tree: ParseTree?): JavaLanguageConstruct {
-        super.visit(tree) // TODO: pattern matching instead!
-        return Program(
+    override fun visit(tree: ParseTree?): List<JavaLanguageConstruct> {
+        super.visit(tree)
+        return listOf(Clazz(
+                className = className,
                 methods = methods,
                 imports = imports,
                 fields = mapOf(),
                 comment = null
-        )
+        ))
     }
 
-    override fun visitFunctiondeclr(ctx: c_grammarParser.FunctiondeclrContext?): JavaLanguageConstruct {
+    override fun visitFunctiondeclr(ctx: c_grammarParser.FunctiondeclrContext?): List<JavaLanguageConstruct> {
         val methodName: String = computeMethodName(
                 ctx ?: throw NullPointerException("Got a null value from the AST")
         )
@@ -48,10 +50,10 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                 comment = null
         )
         methods[sourceName] = javaMethod
-        return javaMethod // TODO: return a Pair<SourceName, JavaMethod> instead and collect them in a Stream!
+        return listOf(javaMethod)
     }
 
-    override fun visitImportheader(ctx: c_grammarParser.ImportheaderContext?): JavaLanguageConstruct? {
+    override fun visitImportheader(ctx: c_grammarParser.ImportheaderContext?): List<JavaLanguageConstruct>? {
         // blacklist standard libs (e.g. "<stdio.h>"):
         val importBlacklist = listOf("stdio.h")
         val rawImportName: String = ctx?.FILEID()?.text
@@ -62,10 +64,10 @@ class CVisitor : c_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
                     name = importName,
                     comment = null
             )
-            imports.add(jimport) // TODO: the AST parent node should collect all imports from this function!
-            return jimport
+            imports.add(jimport)
+            return listOf(jimport)
         } else {
-            null
+            listOf()
         }
     }
 

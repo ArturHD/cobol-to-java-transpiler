@@ -68,8 +68,9 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
                 comment = null
         )
 
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "SimpleIfThen",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -78,7 +79,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
 
         val expectedCode = "package actojat.ir.test.pckg;public class SimpleIfThen {public void aTestMethod(){" +
                 "int a=1;if(!(a<6)){System.out.print(\"The condition was true!\");}}}"
-        doTranspilationTest(program, "SimpleIfThen", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
 
     /**
@@ -140,8 +141,9 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
                 arguments = listOf(),
                 comment = null
         )
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "ForLoooop",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -150,7 +152,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
 
         val expectedCode = "package actojat.ir.test.pckg;public class ForLoooop {public void crazyLooping()" +
                 "{for (int j=0; j<10; j=(j+1)) { System.out.print(\"ImStillLooping\"); }}}"
-        doTranspilationTest(program, "ForLoooop", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
 
     /**
@@ -210,8 +212,9 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
                 arguments = listOf(),
                 comment = null
         )
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "AmazingWhileLoop",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -220,7 +223,7 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
 
         val expectedCode = "package actojat.ir.test.pckg;public class AmazingWhileLoop {public void " +
                 "testWhileLoop(){int varrr=2;while (!(varrr<6)) { System.out.print(\"Whiiiiiile\"); }}}"
-        doTranspilationTest(program, "AmazingWhileLoop", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
 
     /**
@@ -280,8 +283,9 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
                 arguments = listOf(),
                 comment = null
         )
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "DoWhileLoooop",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -291,7 +295,6 @@ class ControlFlowStatementsIrTranspilationTest : AbstractIrTranspilationTest() {
         val expectedCode = "package actojat.ir.test.pckg;public class DoWhileLoooop {public void " +
                 "testDoWhileLoop(){int var2=34;do { System.out.print(\"My condition is evaluated " +
                 "at the bottom!\"); } while (var2>=0);}}"
-        doTranspilationTest(program, "DoWhileLoooop", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
-
 }

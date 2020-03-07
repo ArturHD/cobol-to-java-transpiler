@@ -1,6 +1,6 @@
 package my.base.pckg;
 
-public class PerformUntil {
+public class PerformUntilTest {
   public int MyVar = 1;
   public int VeryVariable = 1;
 

@@ -7,7 +7,7 @@ import org.junit.Test
  * This test class contains all IR tests regarding the transpilation
  * of variable declarations.
  */
-class VariablesIrTranspilationTest: AbstractIrTranspilationTest() {
+class VariablesIrTranspilationTest : AbstractIrTranspilationTest() {
 
     /**
      * Tests the transpilation of global variable declarations.
@@ -41,7 +41,8 @@ class VariablesIrTranspilationTest: AbstractIrTranspilationTest() {
                 field1Name1 to field1,
                 field1Name2 to field2
         )
-        val program = Program(
+        val clazz = Clazz(
+                className = "MemberDecl",
                 methods = mapOf(),
                 imports = listOf(),
                 fields = members,
@@ -50,7 +51,6 @@ class VariablesIrTranspilationTest: AbstractIrTranspilationTest() {
 
         val expectedCode = "package actojat.ir.test.pckg;public class MemberDecl {" +
                 "public int myFirstField;private long mySecondField = 99;}"
-        doTranspilationTest(program, "MemberDecl", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
-
 }

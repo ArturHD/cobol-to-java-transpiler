@@ -9,8 +9,9 @@ import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.util.concurrent.atomic.AtomicInteger
 
-class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisitor {
+class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), BaseVisitor {
 
+    private var className: String? = null
     private val methods = mutableMapOf<String, Method>()
     private val imports = mutableListOf<Import>()
     private val fields = mutableMapOf<String, Field>()
@@ -18,17 +19,23 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
     private val internalIdCounter = AtomicInteger(0)
 
 
-    override fun visit(tree: ParseTree?): JavaLanguageConstruct {
+    override fun visit(tree: ParseTree?): List<JavaLanguageConstruct> {
         super.visit(tree)
-        return Program(
+        return listOf(Clazz(
+                className = className,
                 methods = methods,
                 imports = imports,
                 fields = fields,
                 comment = null
-        )
+        ))
     }
 
-    override fun visitParagraph(ctx: cobol_grammarParser.ParagraphContext?): JavaLanguageConstruct {
+    override fun visitProgramidstatement(ctx: cobol_grammarParser.ProgramidstatementContext?): List<JavaLanguageConstruct> {
+        className = ctx?.ID()?.text
+        return listOf()
+    }
+
+    override fun visitParagraph(ctx: cobol_grammarParser.ParagraphContext?): List<JavaLanguageConstruct> {
         val sourceName: String = ctx
                 ?.ID()
                 ?.text
@@ -45,14 +52,14 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 comment = null
         )
         methods[sourceName] = javaMethod
-        return javaMethod // TODO: return a Pair<SourceName, JavaMethod> instead and collect them in a Stream!
+        return listOf(javaMethod)
     }
 
-    override fun visitProceduredivision(ctx: cobol_grammarParser.ProceduredivisionContext?): JavaLanguageConstruct {
+    override fun visitProceduredivision(ctx: cobol_grammarParser.ProceduredivisionContext?): List<JavaLanguageConstruct> {
         return super.visitChildren(ctx)
     }
 
-    override fun visitImportcopyfile(ctx: cobol_grammarParser.ImportcopyfileContext?): JavaLanguageConstruct {
+    override fun visitImportcopyfile(ctx: cobol_grammarParser.ImportcopyfileContext?): List<JavaLanguageConstruct> {
         val importName = computeImportName(
                 ctx ?: throw NullPointerException("Got a null value from the AST")
         )
@@ -60,11 +67,11 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
                 name = importName,
                 comment = null
         )
-        imports.add(jimport) // TODO: the AST parent node should collect all imports from this function!
-        return jimport
+        imports.add(jimport)
+        return listOf(jimport)
     }
 
-    override fun visitDatadeclaration(ctx: cobol_grammarParser.DatadeclarationContext?): JavaLanguageConstruct {
+    override fun visitDatadeclaration(ctx: cobol_grammarParser.DatadeclarationContext?): List<JavaLanguageConstruct> {
         val fieldName: String = ctx?.ID()?.text
                 ?: throw NullPointerException("Got a null value from the AST")
         // TODO: transform name? (It might not have a valid Java name...)
@@ -90,7 +97,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<JavaLanguageConstruct>(), BaseVisi
         )
 
         fields[fieldName] = field
-        return field
+        return listOf(field)
     }
 
     /**

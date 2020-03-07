@@ -3,7 +3,7 @@ package de.netherspace.apps.actojat
 import de.netherspace.apps.actojat.ir.java.BasicConstruct
 import de.netherspace.apps.actojat.ir.java.JavaConstructType
 import de.netherspace.apps.actojat.ir.java.JavaLanguageConstruct
-import de.netherspace.apps.actojat.ir.java.Program
+import de.netherspace.apps.actojat.ir.java.Clazz
 import de.netherspace.apps.actojat.util.*
 import org.antlr.v4.runtime.*
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor
@@ -28,7 +28,7 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         private val visitorFactoryExpr: () -> V,
         private val systemFunctionsSupplier: () -> Map<String, Pair<BasicConstruct, JavaConstructType>>,
         private val log: Logger
-) : SourceTranspiler where L : Lexer, P : Parser, C : ParserRuleContext, V : AbstractParseTreeVisitor<JavaLanguageConstruct> {
+) : SourceTranspiler where L : Lexer, P : Parser, C : ParserRuleContext, V : AbstractParseTreeVisitor<List<JavaLanguageConstruct>> {
 
     private lateinit var ruleNames: List<String>
 
@@ -71,22 +71,22 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         return Result.success(parseTree)
     }
 
-    override fun generateIntermediateJavaRepresentation(parseTree: ParseTree): Result<JavaLanguageConstruct> {
+    override fun generateIntermediateJavaRepresentation(parseTree: ParseTree): Result<List<JavaLanguageConstruct>> {
         //walk the tree via the provided visitor implementation:
         val visitor: V = visitorFactoryExpr()
-        val program = visitor.visit(parseTree)
-        return if (program == null) {
+        val clazzes = visitor.visit(parseTree)
+        return if (clazzes == null) {
             val m = "I couldn't walk the whole parse tree!"
             log.error(m)
             Result.failure(IntermediateRepresentationException(m))
         } else {
-            Result.success(program)
+            Result.success(clazzes)
         }
     }
 
-    override fun generateSourceCode(program: JavaLanguageConstruct, name: String, basePackage: String): Result<String> {
-        if (program !is Program) {
-            val m = "The given JavaLanguageConstruct is not of type Program!"
+    override fun generateSourceCode(clazz: JavaLanguageConstruct, name: String, basePackage: String): Result<String> {
+        if (clazz !is Clazz) {
+            val m = "The given JavaLanguageConstruct is not of type Clazz!"
             log.error(m)
             return Result.failure(SourceGenerationException(m))
         }
@@ -94,7 +94,7 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
         val irTranslator: JavaIrToSourceCodeTranslator = JavaIrToSourceCodeTranslatorImpl(systemFunctionsSupplier())
 
         return irTranslator.generateCodeFromIr(
-                program = program,
+                clazz = clazz,
                 basePackage = basePackage,
                 className = name
         )

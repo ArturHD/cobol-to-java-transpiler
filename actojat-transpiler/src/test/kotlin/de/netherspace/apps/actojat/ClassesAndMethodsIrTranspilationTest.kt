@@ -1,9 +1,9 @@
 package de.netherspace.apps.actojat
 
+import de.netherspace.apps.actojat.ir.java.Clazz
 import de.netherspace.apps.actojat.ir.java.Expression
 import de.netherspace.apps.actojat.ir.java.FunctionCall
 import de.netherspace.apps.actojat.ir.java.Method
-import de.netherspace.apps.actojat.ir.java.Program
 import org.junit.Test
 
 /**
@@ -45,7 +45,8 @@ class ClassesAndMethodsIrTranspilationTest : AbstractIrTranspilationTest() {
                 methodName to method,
                 methodName2 to method2
         )
-        val program = Program(
+        val clazz = Clazz(
+                className = "TestProgram1",
                 methods = methods,
                 imports = listOf(),
                 fields = mapOf(),
@@ -54,7 +55,7 @@ class ClassesAndMethodsIrTranspilationTest : AbstractIrTranspilationTest() {
 
         val expectedCode: String = "package actojat.ir.test.pckg;public class TestProgram1 {" +
                 "public void myMethod(){doSomethingElse();}public void doSomethingElse(){}}"
-        doTranspilationTest(program, "TestProgram1", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
 
     /**
@@ -81,8 +82,9 @@ class ClassesAndMethodsIrTranspilationTest : AbstractIrTranspilationTest() {
                 comment = null
         )
 
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "HelloWorld",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -91,7 +93,6 @@ class ClassesAndMethodsIrTranspilationTest : AbstractIrTranspilationTest() {
 
         val expectedCode = "package actojat.ir.test.pckg;public class HelloWorld {" +
                 "public void helloWorld(){System.out.print(\"HelloWorld\");}}"
-        doTranspilationTest(program, "HelloWorld", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
-
 }

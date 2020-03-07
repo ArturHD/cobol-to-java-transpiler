@@ -22,11 +22,11 @@ class CliRunnerImpl : CliRunner {
     override fun run(sourceFile: File, clazzName: String, basePackage: String,
                      language: App.Language, showGuiTree: Boolean, outputDir: File): List<File> {
         log.debug("The source file is: ${sourceFile.absolutePath}")
-        val sourceFilesToClassNames = mapOf(
-                sourceFile to clazzName
+        val sourceFiles = listOf(
+                sourceFile
         )
         return transpileFilesAndShowParseTree(
-                sourceFilesToClassNames = sourceFilesToClassNames,
+                sourceFiles = sourceFiles,
                 basePackage = basePackage,
                 language = language,
                 showGuiTree = showGuiTree,
@@ -46,7 +46,7 @@ class CliRunnerImpl : CliRunner {
         return emptyList() // TODO: transpileFilesAndShowParseTree(...)
     }
 
-    private fun transpileFilesAndShowParseTree(sourceFilesToClassNames: Map<File, String>,
+    private fun transpileFilesAndShowParseTree(sourceFiles: List<File>,
                                                basePackage: String, language: App.Language,
                                                showGuiTree: Boolean, outputDir: File): List<File> {
         val transpiler: SourceTranspiler = when (language) {
@@ -55,7 +55,7 @@ class CliRunnerImpl : CliRunner {
         }
 
         val result = TranspilerFacade().transpileFiles(
-                sourceFilesToClassNames = sourceFilesToClassNames,
+                sourceFiles = sourceFiles,
                 basePackage = basePackage,
                 transpiler = transpiler,
                 outputDir = outputDir

@@ -15,34 +15,31 @@ interface SourceTranspiler {
      *
      * @param inputStream The input stream
      * @return The parse tree
-     * @throws IOException     If an IO exception occurs
-     * @throws ParserException If a parser exception occurs
      */
     fun parseInputStream(inputStream: InputStream): Result<ParseTree>
 
 
     /**
      * Walks a given parse tree and from this creates an intermediate representation
-     * of the target Java source.
+     * of the target Java source(s). The source may define more structures that
+     * correspond to Java Classes. The resulting list contains all of them.
      *
      * @param parseTree The parse tree
-     * @return The IR as a root level construct (usually a 'program')
-     * @throws IntermediateRepresentationException If an IR generation exception occurs
+     * @return The IR as a root level construct (usually a 'program') and 0 ore more additional classes
      */
-    fun generateIntermediateJavaRepresentation(parseTree: ParseTree): Result<JavaLanguageConstruct>
+    fun generateIntermediateJavaRepresentation(parseTree: ParseTree): Result<List<JavaLanguageConstruct>>
 
 
     /**
      * Creates actual source code from an intermediate representation (and adds a package
      * declaration and outer class).
      *
-     * @param program     The intermediate representation
+     * @param clazz     The intermediate representation
      * @param name        The original filename or program's name, will be used as Java class name
      * @param basePackage The desired Java base package
      * @return A single piece of source code
-     * @throws SourceGenerationException If a source code generation exception occurs
      */
-    fun generateSourceCode(program: JavaLanguageConstruct, name: String, basePackage: String): Result<String>
+    fun generateSourceCode(clazz: JavaLanguageConstruct, name: String, basePackage: String): Result<String>
 
 
     /**
@@ -59,7 +56,7 @@ interface SourceTranspiler {
      *
      * @param code The code to write
      * @param dir The output folder
-     * @param The new file's filename
+     * @param filename The new file's filename
      */
     fun writeSingleSourceToFile(code: String, dir: String, filename: String): File
 

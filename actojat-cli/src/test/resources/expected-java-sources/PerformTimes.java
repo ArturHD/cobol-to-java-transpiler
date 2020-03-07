@@ -1,6 +1,6 @@
 package my.base.pckg;
 
-public class PerformTimes {
+public class PerformTimesTest {
   public short n = 3;
 
   public void paragraph_MainProgram() {

@@ -23,7 +23,7 @@ class SourceErrorListener : BaseErrorListener(), ANTLRErrorListener {
 
     override fun reportAmbiguity(recognizer: Parser?, dfa: DFA?, startIndex: Int, stopIndex: Int, exact: Boolean, ambigAlts: BitSet?, configs: ATNConfigSet?) {
         errorFlag = true
-        log.error("Ambiguity found!")
+        log.error("Ambiguity found! startIndex = $startIndex, stopIndex = $stopIndex")
         super.reportAmbiguity(recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs)
     }
 

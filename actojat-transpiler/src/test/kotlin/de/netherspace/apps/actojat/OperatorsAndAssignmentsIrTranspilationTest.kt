@@ -38,8 +38,9 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
                 comment = null
         )
 
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "SimpleAssignment1",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -48,7 +49,7 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
 
         val expectedCode = "package actojat.ir.test.pckg;" +
                 "public class SimpleAssignment1 {public void myTestMethod(){int j=0;}}"
-        doTranspilationTest(program, "SimpleAssignment1", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
 
     /**
@@ -87,8 +88,9 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
                 comment = null
         )
 
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "Arithmetic3xpression",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -97,7 +99,7 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
 
         val expectedCode = "package actojat.ir.test.pckg;public class Arithmetic3xpression {" +
                 "public void m4th(){int x=(1+2);}}"
-        doTranspilationTest(program, "Arithmetic3xpression", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
 
     /**
@@ -140,8 +142,9 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
                 comment = null
         )
 
-        // the program that glues everything together:
-        val program = Program(
+        // the clazz that glues everything together:
+        val clazz = Clazz(
+                className = "NestedArithmetic3xpression",
                 methods = mapOf(methodName to testMethod),
                 imports = listOf(),
                 fields = mapOf(),
@@ -150,7 +153,7 @@ class OperatorsAndAssignmentsIrTranspilationTest : AbstractIrTranspilationTest()
 
         val expectedCode = "package actojat.ir.test.pckg;public class NestedArithmetic3xpression {" +
                 "public void m4th2(){int x=(77+(100/5));}}"
-        doTranspilationTest(program, "NestedArithmetic3xpression", expectedCode)
+        doTranspilationTest(clazz, expectedCode)
     }
 
     // TODO: test nested conditional expressions!
