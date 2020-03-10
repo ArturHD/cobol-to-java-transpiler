@@ -7,22 +7,26 @@ import de.netherspace.apps.actojat.languages.BaseVisitor
 import de.netherspace.apps.actojat.languages.JavaIrUtil
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
+import org.slf4j.LoggerFactory
 import java.util.concurrent.atomic.AtomicInteger
 
 class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), BaseVisitor {
 
-    private var className: String? = null
+    private val log = LoggerFactory.getLogger(CobolVisitor::class.java)
+
+    private var clazzName: String? = null
     private val methods = mutableMapOf<String, Method>()
     private val imports = mutableListOf<Import>()
     private val fields = mutableMapOf<String, Field>()
     private val knownIDs = mutableListOf<String>()
     private val internalIdCounter = AtomicInteger(0)
+    private val declaredClazzes = mutableListOf<Clazz>()
 
 
     override fun visit(tree: ParseTree?): List<JavaLanguageConstruct> {
         super.visit(tree)
         return listOf(Clazz(
-                className = className,
+                className = clazzName,
                 methods = methods,
                 imports = imports,
                 fields = fields,
@@ -31,7 +35,7 @@ class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), Ba
     }
 
     override fun visitProgramidstatement(ctx: cobol_grammarParser.ProgramidstatementContext?): List<JavaLanguageConstruct> {
-        className = ctx?.ID()?.text
+        clazzName = ctx?.ID()?.text
         return listOf()
     }
 
@@ -71,16 +75,117 @@ class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), Ba
         return listOf(jimport)
     }
 
-    override fun visitDatadeclaration(ctx: cobol_grammarParser.DatadeclarationContext?): List<JavaLanguageConstruct> {
-        val fieldName: String = ctx?.ID()?.text
-                ?: throw NullPointerException("Got a null value from the AST")
-        // TODO: transform name? (It might not have a valid Java name...)
+    override fun visitWorkingStorageSection(ctx: cobol_grammarParser.WorkingStorageSectionContext?): List<JavaLanguageConstruct> {
+        // compute all fields:
+        val computeFields: Map<String, Field> = computeDataDeclarations(ctx?.datadeclaration()!!, 1)
+        // TODO: Do the level _always_ start at 1 and increase by 1?
+        // TODO: Better find the smallest number larger than 0 and start from there!
+        // TODO: ...and do the very same for each recursive decent inside of computeDataDeclarations()!
+        fields += computeFields
 
-        val type = cobolPicToJavaType(ctx.datatype())
-        val vardecl = if (ctx.datatype()?.initialvalue()?.text != null) {
+        // the top level (i.e. "01") fields are:
+        log.debug("Computed '01'-fields are:")
+        computeFields
+                .keys
+                .asSequence()
+                .forEach { log.debug(" -> $it") }
+
+        // return the IRs only:
+        return computeFields
+                .values
+                .toList()
+    }
+
+    /**
+     * Computes a map of fields for a COBOL DatadeclarationContext and a list of new classes. The fields are
+     * the "top level" fields (i.e. the "01" fields if this function is called from the WorkingStorageSection
+     * visitor function; the "02" fields at the first recursive decent; and so on). The new classes it generates
+     * on the fly (one for each "group data item") are persisted globally.
+     */
+    private fun computeDataDeclarations(dataDeclarations: List<cobol_grammarParser.DatadeclarationContext>,
+                                        rootHierarchyLevel: Int): Map<String, Field> {
+        // The data declaration can be hierarchical and is not necessarily flat!
+        // Those hierarchical/complex data structures can have an arbitrary depth!
+        // For each hierarchical structure, we'll create a new Java class.
+
+        // TODO: convert this into an immutable lists:
+        val topLevelFields = mutableMapOf<String, Field>()
+
+        // TODO: ...and this forEach loop into a proper FP-style function chain:
+        dataDeclarations
+                .filter { computeDataItemLevel(it) == rootHierarchyLevel }
+                .forEach {
+
+            // We can (must!) identify the _end_ of a nested data type by looking a the data hierarchy
+            // level of each new data item! If it is smaller than the current one, the current group data
+            // item has ended. So first, compute the hierarchy level of the current item:
+            val dataItemLevel = computeDataItemLevel(it) // TODO: map the whole sequence tp a Pair<Level, Item>!
+
+            // if the level of the current item is < then the "root" one, return:
+            if (dataItemLevel < rootHierarchyLevel) {
+                return topLevelFields
+            }
+
+            // We can identify the _beginning_ of a new (nested) "group data item" by the data item rule
+            // from our grammar (i.e. groupDataItem | atomicDataItem). If the current loop
+            // value is a groupDataItem (i.e. a group data item "header"), than we've encountered
+            // a new nested data type. Otherwise, we've encountered a mere "atomic" data item.
+            when {
+                // is it a group data "header"?
+                it.groupDataItem() != null -> {
+                    // yes, then we compute its name for the new class:
+                    val className = computeJavaClassName(it.groupDataItem().ID().text!!)
+
+                    // recursive decent:
+                    val computedFields = computeDataDeclarations(
+                            listOf(it),
+                            rootHierarchyLevel + 1
+                    )
+
+                    // create a new class:
+                    val clazz = Clazz(
+                            className = className,
+                            methods = mapOf(),
+                            imports = listOf(),
+                            fields = computedFields,
+                            comment = null
+                    )
+                    declaredClazzes += clazz
+                    val (fieldName, field) = generateNullFieldForNewClass(clazz)
+                    topLevelFields[fieldName] = field
+                }
+
+                // for all "atomic" items, we simply transform them to Java IR objects:
+                it.atomicDataItem() != null -> {
+                    // ...but only if it is on the same hierarchy level:
+                    val (fieldName, field) = computeAtomicDataItem(it.atomicDataItem())
+                    topLevelFields[fieldName] = field as Field
+                }
+
+                // This should never happen! The input might be malformed:
+                else -> throw Exception("Unrecognized COBOL data declaration type!")
+            }
+        }
+
+        return topLevelFields
+    }
+
+    private fun computeDataItemLevel(dataItem: cobol_grammarParser.DatadeclarationContext): Int {
+        return when {
+            dataItem.groupDataItem() != null -> dataItem.groupDataItem().datahierarchylevel().NUMBER().text!!.toInt()
+            dataItem.atomicDataItem() != null -> dataItem.atomicDataItem().datahierarchylevel().NUMBER().text!!.toInt()
+            else -> throw Exception("Unrecognized COBOL data declaration type!")
+        }
+    }
+
+    private fun computeAtomicDataItem(atomicDataItem: cobol_grammarParser.AtomicDataItemContext): Pair<String, JavaLanguageConstruct> {
+        val fieldName: String = atomicDataItem.ID()?.text!! // TODO: transform name? (It might not have a valid Java name...)
+        val type = cobolPicToJavaType(atomicDataItem.datatype())
+
+        val vardecl = if (atomicDataItem.datatype()?.initialvalue()?.text != null) {
             VariableDeclaration.DeclarationWithInit(
                     lhs = LeftHandSide(type, fieldName),
-                    rhs = ctx.datatype().initialvalue().text,
+                    rhs = atomicDataItem.datatype().initialvalue().text,
                     comment = null
             )
         } else {
@@ -96,8 +201,41 @@ class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), Ba
                 comment = null
         )
 
-        fields[fieldName] = field
-        return listOf(field)
+        return Pair(fieldName, field)
+    }
+
+    private fun generateNullFieldForNewClass(clazz: Clazz): Pair<String, Field> {
+        val fieldName = variableNameForClassName(clazz.className!!)
+        val type = Type.CustomType(clazz.className!!)
+
+        val vardecl = VariableDeclaration.DeclarationWithoutInit(
+                lhs = LeftHandSide(type, fieldName),
+                comment = null
+        )
+
+        val field = Field(
+                modifier = "public", // TODO: should be an enum!
+                declaration = vardecl,
+                comment = null
+        )
+        return Pair(fieldName, field)
+    }
+
+    /**
+     * Computes a proper Java class name for a given COBOL data
+     * item identifier.
+     */
+    private fun computeJavaClassName(cobolName: String): String {
+        // TODO: Is there a generic way to compute proper Java Names?
+        // TODO: See: computeImportName() below, too!
+        return cobolName
+                .replace("-", "")
+    }
+
+    private fun variableNameForClassName(className: String): String {
+        val cn = computeJavaClassName(className)
+        val lcc = cn.first().toLowerCase()
+        return lcc + cn.drop(1)
     }
 
     /**

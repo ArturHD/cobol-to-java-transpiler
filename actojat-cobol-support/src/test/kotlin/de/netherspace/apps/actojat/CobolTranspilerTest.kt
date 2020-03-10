@@ -15,7 +15,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         private const val cobolBasePackage = "cobol.test.pckg"
     }
 
-    private val internalVariableName01 = "_internalA2BE66F"
+    private val internalVariableName01 = "_internal3DD742D"
 
     /**
      * Tests, whether the transpiler gracefully aborts when a source file is not found.
@@ -209,6 +209,22 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val sourceFile = "/cobol-sources/test-source-datadecl.cob"
         val expectedCode = "package cobol.test.pckg;public class DataDeclarationz {public short n = 5;public short m =" +
                 " 1234;public void paragraph_MainProgram(){if((n+m)<10){System.out.println(\"Yeah\");}return;}}"
+        doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                clazzName = null,
+                expectedCode = expectedCode
+        )
+    }
+
+    /**
+     * Tests, whether the transpiler successfully transpiles hierarchical data declarations.
+     */
+    @Test
+    fun testHierarchicalDataDeclarationTranspilation() {
+        val sourceFile = "/cobol-sources/test-source-hierarchdata.cob"
+        val expectedCode = "package cobol.test.pckg;public class HierarchData {public short n = 5;public Complexx " +
+                "complexx;public SomewhatComplex somewhatComplex;public Xelpmoc xelpmoc;public short m = 1234;" +
+                "public void paragraph_MainProgram(){if((n+m)<10){System.out.println(\"Yeah\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
                 clazzName = null,

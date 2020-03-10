@@ -41,7 +41,8 @@ configurationsection    : CONFIGURATION SECTION DOT specialnamesparagraph
                         | CONFIGURATION SECTION DOT
                         ;
 
-inputoutputsection      : FILECONTROL filecontrolparagraph
+inputoutputsection      : INPUTOUTPUT SECTION DOT filecontrolparagraph
+                        | INPUTOUTPUT SECTION DOT
                         ;
 
 specialnamesparagraph   : SPECIALNAMES decimalpointspec
@@ -55,21 +56,45 @@ decimalpointspec        : DECIMALPOINT IS ID DOT
 symboliccharsspec       : SYMBOLIC CHARACTERS ID* DOT
                         ;
 
-filecontrolparagraph    : 'SELECT' PLACEHOLDER
-                        ; // TODO: fix this rule! Should be: SELECT (ID ASSIGN TO ID)+ or something similar!
+filecontrolparagraph    : FILECONTROL DOT selectClause+
+                        | FILECONTROL DOT // TODO: are empty FILE-CONTROL paragraphs allowed?
+                        ;
 
+selectClause            : SELECT ID ASSIGN TO fileName fileOption* DOT
+                        ;
+
+fileName                : STRINGVALUE
+                        | ID
+                        ;
+
+fileOption              : fileOptionName IS fileOptionValue
+                        ;
+
+fileOptionName          : ORGANIZATION
+                        | ACCESS MODE
+                        | FILE STATUS
+                        ;
+
+fileOptionValue         : SEQUENTIAL
+                        | ID
+                        ;
 
 // "DATA DIVISION."
-datadivision            : DATA DIVISION DOT (filesection | workingstoragesection | linkagesection | reportsection)+
+datadivision            : DATA DIVISION DOT (filesection | workingStorageSection | linkagesection | reportsection)+
                         | DATA DIVISION DOT
-                        ; // TODO: the above rule is not the right one!
+                        ; // TODO: There should not be n filesections or n linkagesections etc. but
+                          // TODO: writing out n! permutations of sections is a mess as well...
 
-filesection             : FILE SECTION DOT
+filesection             : FILE SECTION DOT recordDescription+
+                        | FILE SECTION DOT // TODO: are empty FILE sections allowed?
                         // TODO: "FD ..."
                         // TODO: "COPY ..."
                         ;
 
-workingstoragesection   //: WORKINGSTORAGE SECTION DOT (datadecl | importcopyfile)+
+recordDescription       : FD ID DOT datadeclaration
+                        ;
+
+workingStorageSection   //: WORKINGSTORAGE SECTION DOT (datadecl | importcopyfile)+
                         : WORKINGSTORAGE SECTION DOT (importcopyfile)+
                         | WORKINGSTORAGE SECTION DOT (datadeclaration)+ // TODO: data decl. AND imports possible!
                         | WORKINGSTORAGE SECTION DOT
@@ -90,7 +115,19 @@ importcopyfile          : COPY QUOTATIONMARK FILEID QUOTATIONMARK DOT
 tailingimports          : importcopyfile+
                         ;
 
-datadeclaration         : datahierarchylevel ID datatype
+// Nested group data items won't be recognized by the lexer! The hierarchy "levels"
+// are only evaluated in the visitor implementation. Therefore, we simply identify
+// a group data "header" (and NOT the n atomic items after it).
+// Any atomic items that do beloog to the same group item, but occur after a nested
+// group data item must be identified in the visitor as well!
+datadeclaration         : groupDataItem
+                        | atomicDataItem
+                        ;
+
+groupDataItem           : datahierarchylevel ID DOT
+                        ;
+
+atomicDataItem          : datahierarchylevel ID datatype
                         ;
 
 datahierarchylevel      : NUMBER
@@ -336,7 +373,6 @@ operand                 : TIMES
 
 
 // ################ The set of terminals ################
-
 WORKINGSTORAGE          : 'WORKING-STORAGE'
                         ;
 
@@ -355,6 +391,12 @@ DECIMALPOINT            : 'DECIMAL-POINT'
 SPECIALNAMES            : 'SPECIAL-NAMES'
                         ;
 
+ORGANIZATION            : 'ORGANIZATION'
+                        ;
+
+INPUTOUTPUT             : 'INPUT-OUTPUT'
+                        ;
+
 FILECONTROL             : 'FILE-CONTROL'
                         ;
 
@@ -371,6 +413,9 @@ PROGRAMID               : 'PROGRAM-ID'
                         ;
 
 CHARACTERS              : 'CHARACTERS'
+                        ;
+
+SEQUENTIAL              : 'SEQUENTIAL'
                         ;
 
 PROCEDURE               : 'PROCEDURE'
@@ -415,16 +460,28 @@ PICTURE                 : 'PICTURE'
 THROUGH                 : 'THROUGH'
                         ;
 
+STATUS                  :  'STATUS'
+                        ;
+
 ENDIF                   : 'END-IF'
                         ;
 
 AUTHOR                  : 'AUTHOR'
                         ;
 
+SELECT                  : 'SELECT'
+                        ;
+
+ACCESS                  : 'ACCESS'
+                        ;
+
 BEFORE                  : 'BEFORE'
                         ;
 
 REPORT                  : 'REPORT'
+                        ;
+
+ASSIGN                  : 'ASSIGN'
                         ;
 
 USING                   : 'USING'
@@ -434,6 +491,7 @@ UNTIL                   : 'UNTIL'
                         ;
 
 VALUE                   : 'VALUE'
+                        | 'value'
                         ;
 
 TIMES                   : 'TIMES'
@@ -443,6 +501,9 @@ AFTER                   : 'AFTER'
                         ;
 
 EQUAL                   : 'EQUAL'
+                        ;
+
+MODE                    : 'MODE'
                         ;
 
 LESS                    : 'LESS'
@@ -509,11 +570,14 @@ IS                      : 'IS'
 OR                      : 'OR'
                         ;
 
+FD                      : 'FD'
+                        ;
+
 TO                      : 'TO'
                         ;
 
-STRINGVALUE             : QUOTATIONMARK (ALLCHARS | DIGIT | [ \t])+ QUOTATIONMARK
-                        ;
+STRINGVALUE             : '"' (~["])+ '"'
+                        ; // TODO: allow to escape quotation marks!
 
 LESSEROREQUALSIGN       : '<='
                         ;
