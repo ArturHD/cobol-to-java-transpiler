@@ -25,13 +25,15 @@ class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), Ba
 
     override fun visit(tree: ParseTree?): List<JavaLanguageConstruct> {
         super.visit(tree)
-        return listOf(Clazz(
+        val allClasses = mutableListOf(Clazz(
                 className = clazzName,
                 methods = methods,
                 imports = imports,
                 fields = fields,
                 comment = null
         ))
+        allClasses += declaredClazzes
+        return allClasses.toList()
     }
 
     override fun visitProgramidstatement(ctx: cobol_grammarParser.ProgramidstatementContext?): List<JavaLanguageConstruct> {
@@ -84,11 +86,11 @@ class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), Ba
         fields += computeFields
 
         // the top level (i.e. "01") fields are:
-        log.debug("Computed '01'-fields are:")
+        log.trace("Computed '01'-fields are:")
         computeFields
                 .keys
                 .asSequence()
-                .forEach { log.debug(" -> $it") }
+                .forEach { log.trace(" -> $it") }
 
         // return the IRs only:
         return computeFields
@@ -108,62 +110,58 @@ class CobolVisitor : cobol_grammarBaseVisitor<List<JavaLanguageConstruct>>(), Ba
         // Those hierarchical/complex data structures can have an arbitrary depth!
         // For each hierarchical structure, we'll create a new Java class.
 
-        // TODO: convert this into an immutable lists:
         val topLevelFields = mutableMapOf<String, Field>()
-
-        // TODO: ...and this forEach loop into a proper FP-style function chain:
-        dataDeclarations
-                .filter { computeDataItemLevel(it) == rootHierarchyLevel }
-                .forEach {
-
+        for ((index, dataDeclaration) in dataDeclarations.withIndex()) {
             // We can (must!) identify the _end_ of a nested data type by looking a the data hierarchy
             // level of each new data item! If it is smaller than the current one, the current group data
             // item has ended. So first, compute the hierarchy level of the current item:
-            val dataItemLevel = computeDataItemLevel(it) // TODO: map the whole sequence tp a Pair<Level, Item>!
+            val dataItemLevel = computeDataItemLevel(dataDeclaration)
 
             // if the level of the current item is < then the "root" one, return:
             if (dataItemLevel < rootHierarchyLevel) {
                 return topLevelFields
             }
 
-            // We can identify the _beginning_ of a new (nested) "group data item" by the data item rule
-            // from our grammar (i.e. groupDataItem | atomicDataItem). If the current loop
-            // value is a groupDataItem (i.e. a group data item "header"), than we've encountered
-            // a new nested data type. Otherwise, we've encountered a mere "atomic" data item.
-            when {
-                // is it a group data "header"?
-                it.groupDataItem() != null -> {
-                    // yes, then we compute its name for the new class:
-                    val className = computeJavaClassName(it.groupDataItem().ID().text!!)
+            if (dataItemLevel == rootHierarchyLevel) {
+                // We can identify the _beginning_ of a new (nested) "group data item" by the data item rule
+                // from our grammar (i.e. groupDataItem | atomicDataItem). If the current loop
+                // value is a groupDataItem (i.e. a group data item "header"), than we've encountered
+                // a new nested data type. Otherwise, we've encountered a mere "atomic" data item.
+                when {
+                    // Is this data declaration a group data "header"?
+                    dataDeclaration.groupDataItem() != null -> {
+                        // yes, then we compute its name for the new class:
+                        val className = computeJavaClassName(dataDeclaration.groupDataItem().ID().text!!)
 
-                    // recursive decent:
-                    val computedFields = computeDataDeclarations(
-                            listOf(it),
-                            rootHierarchyLevel + 1
-                    )
+                        // ...and decent recursively:
+                        val computedFields = computeDataDeclarations(
+                                dataDeclarations.drop(index + 1),
+                                rootHierarchyLevel + 1
+                        )
 
-                    // create a new class:
-                    val clazz = Clazz(
-                            className = className,
-                            methods = mapOf(),
-                            imports = listOf(),
-                            fields = computedFields,
-                            comment = null
-                    )
-                    declaredClazzes += clazz
-                    val (fieldName, field) = generateNullFieldForNewClass(clazz)
-                    topLevelFields[fieldName] = field
+                        // create a new class:
+                        val clazz = Clazz(
+                                className = className,
+                                methods = mapOf(),
+                                imports = listOf(),
+                                fields = computedFields,
+                                comment = null
+                        )
+                        declaredClazzes += clazz
+                        val (fieldName, field) = generateNullFieldForNewClass(clazz)
+                        topLevelFields[fieldName] = field
+                    }
+
+                    // for all "atomic" items, we simply transform them to Java IR objects:
+                    dataDeclaration.atomicDataItem() != null -> {
+                        // ...but only if it is on the same hierarchy level:
+                        val (fieldName, field) = computeAtomicDataItem(dataDeclaration.atomicDataItem())
+                        topLevelFields[fieldName] = field as Field
+                    }
+
+                    // This should never happen! The input might be malformed:
+                    else -> throw Exception("Unrecognized COBOL data declaration type!")
                 }
-
-                // for all "atomic" items, we simply transform them to Java IR objects:
-                it.atomicDataItem() != null -> {
-                    // ...but only if it is on the same hierarchy level:
-                    val (fieldName, field) = computeAtomicDataItem(it.atomicDataItem())
-                    topLevelFields[fieldName] = field as Field
-                }
-
-                // This should never happen! The input might be malformed:
-                else -> throw Exception("Unrecognized COBOL data declaration type!")
             }
         }
 

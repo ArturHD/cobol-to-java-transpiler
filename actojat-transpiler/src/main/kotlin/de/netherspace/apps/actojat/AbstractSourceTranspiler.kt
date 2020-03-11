@@ -74,7 +74,7 @@ abstract class AbstractSourceTranspiler<L, P, C, V>(
     override fun generateIntermediateJavaRepresentation(parseTree: ParseTree): Result<List<JavaLanguageConstruct>> {
         //walk the tree via the provided visitor implementation:
         val visitor: V = visitorFactoryExpr()
-        val clazzes = visitor.visit(parseTree)
+        val clazzes: List<JavaLanguageConstruct>? = visitor.visit(parseTree)
         return if (clazzes == null) {
             val m = "I couldn't walk the whole parse tree!"
             log.error(m)

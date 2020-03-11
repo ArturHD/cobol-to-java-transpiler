@@ -47,8 +47,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
                 "System.out.print(\"Hello\");System.out.print(\"World\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
+                mainClazzName = clazzName,
+                expectations = mapOf("HelloC" to expectedCode)
         )
     }
 
@@ -69,8 +69,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
                 "int i=0, i<5, i++) { System.out.print(\"Uh\");System.out.print(\"yeah\"); };return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
+                mainClazzName = clazzName,
+                expectations = mapOf("ForLoop" to expectedCode)
         )
     }
 
@@ -90,8 +90,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
                 "public void main(){int x=0;x=5;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
+                mainClazzName = clazzName,
+                expectations = mapOf("SimpleAssignment" to expectedCode)
         )
     }
 
@@ -111,8 +111,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
                 "int x=0;if(x<199){System.out.print(\"Oohhra\");}}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
+                mainClazzName = clazzName,
+                expectations = mapOf("SimpleIfThen" to expectedCode)
         )
     }
 
@@ -132,8 +132,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
         val expectedCode = "package c.test.pckg;public class CTest1 {public void main(){}public void bla(){}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
+                mainClazzName = clazzName,
+                expectations = mapOf("CTest1" to expectedCode)
         )
     }
 
@@ -155,8 +155,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
                 " c.test.pckg.test_import_with_slash_h;public class CTest2 {public void main(){}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
+                mainClazzName = clazzName,
+                expectations = mapOf("CTest2" to expectedCode)
         )
     }
 
@@ -178,8 +178,8 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
                 "public void bla(){a=b+c;System.out.println(\"Hello World\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = clazzName,
-                expectedCode = expectedCode
+                mainClazzName = clazzName,
+                expectations = mapOf("CTest3" to expectedCode)
         )
     }
 
@@ -193,5 +193,4 @@ class CTranspilerTest : AbstractTranspilerTest<CSourceTranspilerImpl>(
         val inputStream: InputStream? = CTranspilerTest::class.java.getResourceAsStream(sourceFile)
         return inputStream ?: throw IllegalArgumentException("Source file not found!")
     }
-
 }

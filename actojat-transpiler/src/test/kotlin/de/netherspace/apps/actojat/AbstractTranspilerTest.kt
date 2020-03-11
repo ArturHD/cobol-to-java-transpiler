@@ -22,9 +22,11 @@ abstract class AbstractTranspilerTest<T>(
      * Performs an actual transpilation test.
      *
      * @param source       The source which will be transpiled
-     * @param expectedCode The expected source code after transpilation
+     * @param mainClazzName An optional class name
+     * @param expectations The expected piece(s) of source code after transpilation
+     * @return all generated classes as ordinary strings
      */
-    fun doTranspilationTest(source: InputStream, clazzName: String?, expectedCode: String) {
+    fun doTranspilationTest(source: InputStream, mainClazzName: String?, expectations: Map<String, String>): List<String> {
         val transpiler = constructorExpr.get()
         val parseTreeResult = transpiler.parseInputStream(source)
         parseTreeResult.fold({ parseTree ->
@@ -45,21 +47,40 @@ abstract class AbstractTranspilerTest<T>(
             println("Exception was: $e")
         })
 
-        irResult.getOrThrow()
-                .forEach {
+        val generatedClasses = irResult
+                .getOrThrow()
+                .asSequence()
+                .map {
                     val codeResult = transpiler.generateSourceCode(
                             clazz = it as Clazz,
-                            name = it.className ?: clazzName!!,
+                            name = it.className ?: mainClazzName!!,
                             basePackage = testBasePackage
                     )
                     assertThat(codeResult.isSuccess, Is(true))
                     val code = codeResult.getOrThrow()
                     log.debug(code)
-                    assertThat(code, Is(expectedCode))
-
-                    val enrichedCode = transpiler.enrichSourceCode(code)
-                    assertThat(enrichedCode, Is(not(nullValue())))
+                    code
                 }
+                .toList()
+
+        log.debug("Checking generated piece(s) of code against expectations...")
+        expectations
+                .map { (className, expectedCode) ->
+                    val code: String = generatedClasses.first { c -> c.contains("class $className") }
+                    assertThat(code, Is(expectedCode))
+                    className
+                }
+                .toList()
+                .forEach { log.debug("Class '$it' matches the expectation :)") }
+
+        // test code formatting etc.:
+        generatedClasses
+                .asSequence()
+                .map { transpiler.enrichSourceCode(it) }
+                .forEach { assertThat(it, Is(not(nullValue()))) }
+
+        // return the "raw" class strings:
+        return generatedClasses
     }
 
     /**

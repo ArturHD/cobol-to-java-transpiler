@@ -1,10 +1,13 @@
 package de.netherspace.apps.actojat
 
 import de.netherspace.apps.actojat.languages.cobol.CobolSourceTranspilerImpl
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Ignore
 import org.junit.Test
+import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.util.function.Supplier
+import org.hamcrest.Matchers.`is` as Is
 
 class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         Supplier { CobolSourceTranspilerImpl() },
@@ -12,6 +15,7 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
 ) {
 
     companion object {
+        private val log = LoggerFactory.getLogger(CobolTranspilerTest::class.java)
         private const val cobolBasePackage = "cobol.test.pckg"
     }
 
@@ -36,8 +40,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 " void paragraph_DisplayHelloWorld(){System.out.println(\"Hello World!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("HelloWorld" to expectedCode)
         )
     }
 
@@ -53,8 +57,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "return;}public void paragraph_DisplayHelloWorld(){System.out.println(\"Hello\");System.out.println(\"World!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("SimpleLoop" to expectedCode)
         )
     }
 
@@ -72,8 +76,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "public void paragraph_DoSomethingElse(){System.out.println(\"Something\");System.out.println(\"else!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("LoopWithId" to expectedCode)
         )
     }
 
@@ -89,8 +93,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("LoopWithInlineBody" to expectedCode)
         )
     }
 
@@ -106,8 +110,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"Rock\");System.out.println(\"on!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("SimpleWhileLoop" to expectedCode)
         )
     }
 
@@ -126,8 +130,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"doWhileLoop\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("WhileLoopWithTest" to expectedCode)
         )
     }
 
@@ -147,8 +151,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "public void paragraph_DisplayThree(){System.out.println(\"Baby!\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("WhileLoopzWMB" to expectedCode)
         )
     }
 
@@ -164,8 +168,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"Done\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("PrfrmUntilInlineB" to expectedCode)
         )
     }
 
@@ -181,8 +185,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "paragraph_DisplaySomething(){System.out.println(\"Im\");System.out.println(\"varying\");}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("SimpleVaryingLoop" to expectedCode)
         )
     }
 
@@ -196,8 +200,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "paragraph_MainProgram(){if(n<10){System.out.println(\"Yeah\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("SimpleIfThen" to expectedCode)
         )
     }
 
@@ -211,8 +215,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 " 1234;public void paragraph_MainProgram(){if((n+m)<10){System.out.println(\"Yeah\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("DataDeclarationz" to expectedCode)
         )
     }
 
@@ -222,14 +226,43 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
     @Test
     fun testHierarchicalDataDeclarationTranspilation() {
         val sourceFile = "/cobol-sources/test-source-hierarchdata.cob"
-        val expectedCode = "package cobol.test.pckg;public class HierarchData {public short n = 5;public Complexx " +
+
+        // expected code for class "HierarchData":
+        val hierarchData = "package cobol.test.pckg;public class HierarchData {public short n = 5;public Complexx " +
                 "complexx;public SomewhatComplex somewhatComplex;public Xelpmoc xelpmoc;public short m = 1234;" +
                 "public void paragraph_MainProgram(){if((n+m)<10){System.out.println(\"Yeah\");}return;}}"
-        doTranspilationTest(
-                source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+
+        // expected code for class "FILENUM":
+        val filenum = "package cobol.test.pckg;public class FILENUM {public String ggggg;public String hhhhh;}"
+
+        // expected code for class "SomewhatComplex":
+        val somewhatComplex = "package cobol.test.pckg;public class SomewhatComplex {public String kkkkk = \"xy\";public String lllll;}"
+
+        // expected code for class "MoreComplexx":
+        val moreComplexx = "package cobol.test.pckg;public class MoreComplexx {public String ddddd;public " +
+                "String eeeee;public String fffff;public FILENUM fILENUM;public int iiiii;public int jjjjj;}"
+
+        // expected code for class "Xelpmoc":
+        val xelpmoc = "package cobol.test.pckg;public class Xelpmoc {public String mmmmm;public String nnnnn;}"
+
+        // expected code for class "Complexx":
+        val complexx = "package cobol.test.pckg;public class Complexx {public String aaaaa;public String bbbbb;" +
+                "public String ccccc;public MoreComplexx moreComplexx;}"
+
+        val expectations = mapOf(
+                "HierarchData" to hierarchData,
+                "FILENUM" to filenum,
+                "SomewhatComplex" to somewhatComplex,
+                "MoreComplexx" to moreComplexx,
+                "Xelpmoc" to xelpmoc,
+                "Complexx" to complexx
         )
+        val generatedClazzes = doTranspilationTest(
+                source = loadSourceFile(sourceFile),
+                mainClazzName = null,
+                expectations = expectations
+        )
+        assertThat(generatedClazzes.size, Is(6))
     }
 
     /**
@@ -242,8 +275,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "short m = 1234;public void paragraph_MainProgram(){m=44;return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("SimpleMove" to expectedCode)
         )
     }
 
@@ -260,8 +293,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         // TODO: alphanumeric values! See the CobolVisitor class for details!
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("AlphaNumMv" to expectedCode)
         )
     }
 
@@ -277,8 +310,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("Commentz" to expectedCode)
         )
     }
 
@@ -294,8 +327,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"Done!\");return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("Multilcommntz" to expectedCode)
         )
     }
 
@@ -310,8 +343,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 ".println(\"Elzze\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("IfThenElse" to expectedCode)
         )
     }
 
@@ -333,8 +366,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"ltort774444444\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("Conditions" to expectedCode)
         )
     }
 
@@ -350,8 +383,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
                 "println(\"correct\");}return;}}"
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("ComplexConditions" to expectedCode)
         )
     }
 
@@ -366,8 +399,8 @@ class CobolTranspilerTest : AbstractTranspilerTest<CobolSourceTranspilerImpl>(
         val expectedCode = "packrn;}}" // TODO: add the real code...
         doTranspilationTest(
                 source = loadSourceFile(sourceFile),
-                clazzName = null,
-                expectedCode = expectedCode
+                mainClazzName = null,
+                expectations = mapOf("LrConditions" to expectedCode)
         )
     }
 
